@@ -10,7 +10,7 @@
       --panel:#0c0f16; --panel-br:#273143; --line:#2c3954;
       --chip-bg:#121829; --chip-br:#2c3a55; --chip-ink:#e6f0ff;
       --btn:#1e60ff; --btn-ink:#fff; --danger:#ef4444;
-      --uiScale:.85;        /* ~15% më i vogël gjithë UI */
+      --uiScale:.85;                 /* ~15% më i vogël gjithë UI */
       --h:56px; --rad:14px;
 
       /* Rreshta kompakt (~80% më të vegjël) */
@@ -47,7 +47,6 @@
       grid-template-columns: 1fr 58px; /* m²(+cam) | qty */
       gap:4px; align-items:center; margin-top:2px;
     }
-    .piece-id{display:none}
     .mwrap{display:flex;align-items:center;gap:4px}
     .piece-row .input{
       min-height: calc(var(--h-row) - 4px);
@@ -78,7 +77,6 @@
     body{padding-bottom:140px}
     .footer{position:fixed;left:0;right:0;bottom:0;z-index:10;background:rgba(5,7,12,.97);border-top:1px solid var(--panel-br);backdrop-filter:blur(6px)}
     .footwrap{max-width:980px;margin:0 auto;padding:12px 16px;display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center}
-
     a.btn{text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
   </style>
 </head>
@@ -195,72 +193,35 @@
   <!-- Supabase SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 
-  <!-- PHOTO LAYER: Supabase ose IndexedDB fallback -->
+  <!-- KONFIG SUPABASE (TË TUAT) -->
   <script>
-  /* Konfiguro Supabase (ZËVENDËSO KËTO DY VIJA me të tuat) */
-  const CFG = {
-    supabase: {
-      url: "https://YOUR-PROJECT.supabase.co",   // <-- VENDOS URL-n TËNDE
-      anonKey: "YOUR_SUPABASE_ANON_KEY",         // <-- VENDOS ANON KEY
-      bucket: "tepiha-photos"
-    }
-  };
+    const CFG = {
+      supabase: {
+        url: "https://vnidjrxidvusulinozbn.supabase.co",
+        anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZuaWRqcnhpZHZ1c3VsaW5vemJuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc1MTk0NjAsImV4cCI6MjA3MzA5NTQ2MH0.hzGSFKU3sKuUKBUBsTE0rKIerj2uhG9pGS8_K9N7tpA",
+        bucket: "tepiha-photos"
+      }
+    };
   </script>
 
+  <!-- FOTO: Supabase (me fallback lokal IndexedDB) -->
   <script>
-  /* ====== FOTO: Supabase (nëse ka) ose IndexedDB (fallback i sigurt) ====== */
   (function(){
-    const DB_NAME = 'tepiha_photos_v1';
-    const STORE   = 'photos';
-    let _db;
-    function openDB(){
-      return new Promise((res, rej)=>{
-        if (_db) return res(_db);
-        const req = indexedDB.open(DB_NAME, 1);
-        req.onupgradeneeded = e => e.target.result.createObjectStore(STORE);
-        req.onsuccess = e => { _db = e.target.result; res(_db); };
-        req.onerror = e => rej(e.target.error || new Error('DB error'));
-      });
-    }
-    async function idbPut(key, blob){
-      const db = await openDB();
-      return new Promise((res, rej)=>{
-        const tx = db.transaction(STORE, 'readwrite');
-        tx.objectStore(STORE).put(blob, key);
-        tx.oncomplete = ()=>res(true);
-        tx.onerror = e=>rej(e.target.error);
-      });
-    }
-    async function idbGet(key){
-      const db = await openDB();
-      return new Promise((res, rej)=>{
-        const tx = db.transaction(STORE, 'readonly');
-        const req = tx.objectStore(STORE).get(key);
-        req.onsuccess = ()=>res(req.result || null);
-        req.onerror = e=>rej(e.target.error);
-      });
-    }
+    const DB_NAME='tepiha_photos_v1', STORE='photos'; let _db;
+    function openDB(){return new Promise((res,rej)=>{ if(_db)return res(_db); const r=indexedDB.open(DB_NAME,1); r.onupgradeneeded=e=>e.target.result.createObjectStore(STORE); r.onsuccess=e=>{_db=e.target.result;res(_db)}; r.onerror=e=>rej(e.target.error) }) }
+    async function idbPut(key, blob){ const db=await openDB(); return new Promise((res,rej)=>{const tx=db.transaction(STORE,'readwrite'); tx.objectStore(STORE).put(blob,key); tx.oncomplete=()=>res(true); tx.onerror=e=>rej(e.target.error)}) }
+    async function idbGet(key){ const db=await openDB(); return new Promise((res,rej)=>{const tx=db.transaction(STORE,'readonly'); const rq=tx.objectStore(STORE).get(key); rq.onsuccess=()=>res(rq.result||null); rq.onerror=e=>rej(e.target.error)}) }
 
-    function fileToJpegBlob(file, maxW=1280, quality=0.65){
-      return new Promise((resolve, reject)=>{
-        const img = new Image();
-        const fr = new FileReader();
-        fr.onload = ()=>{ img.src = fr.result; };
-        fr.onerror = reject;
-        img.onload = ()=>{
-          const scale = Math.min(1, maxW / img.width);
-          const canvas = document.createElement('canvas');
-          canvas.width  = Math.round(img.width  * scale);
-          canvas.height = Math.round(img.height * scale);
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-          canvas.toBlob(b=>{
-            if(!b) return reject(new Error('toBlob failed'));
-            resolve(b);
-          }, 'image/jpeg', quality);
-        };
-        img.onerror = reject;
-        fr.readAsDataURL(file);
+    function fileToJpegBlob(file,maxW=1280,quality=.65){
+      return new Promise((resolve,reject)=>{
+        const img=new Image(), fr=new FileReader();
+        fr.onload=()=>{img.src=fr.result}; fr.onerror=reject;
+        img.onload=()=>{
+          const scale=Math.min(1,maxW/img.width), c=document.createElement('canvas');
+          c.width=Math.round(img.width*scale); c.height=Math.round(img.height*scale);
+          c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+          c.toBlob(b=> b?resolve(b):reject(new Error('toBlob failed')), 'image/jpeg', quality);
+        }; img.onerror=reject; fr.readAsDataURL(file);
       });
     }
 
@@ -268,48 +229,43 @@
       ? supabase.createClient(CFG.supabase.url, CFG.supabase.anonKey)
       : null;
 
-    async function savePhoto(key, file){
-      if (sb){
-        const path = `${(window.OID||'ord')}/${key}_${Date.now()}.jpg`;
-        const { error } = await sb.storage.from(CFG.supabase.bucket)
-          .upload(path, file, { upsert:false, contentType: file.type || 'image/jpeg' });
-        if (error) throw error;
-        const { data } = sb.storage.from(CFG.supabase.bucket).getPublicUrl(path);
-        localStorage.setItem(key+'_url', data.publicUrl);
-        return data.publicUrl;
+    async function savePhoto(key,file){
+      try{
+        if(sb){
+          const path=`${(window.OID||'ord')}/${key}_${Date.now()}.jpg`;
+          const {error}=await sb.storage.from(CFG.supabase.bucket).upload(path, file, {upsert:false,contentType:file.type||'image/jpeg'});
+          if(error) throw error;
+          const {data}=sb.storage.from(CFG.supabase.bucket).getPublicUrl(path);
+          localStorage.setItem(key+'_url', data.publicUrl);
+          return data.publicUrl;
+        }else{
+          const blob=await fileToJpegBlob(file,1280,.65);
+          await idbPut(key, blob);
+          const url=URL.createObjectURL(blob);
+          sessionStorage.setItem(key+'_objurl', url);
+          return url;
+        }
+      }catch(err){
+        alert('Foto s’u ruajt: '+(err?.message||err));
+        throw err;
       }
-      const blob = await fileToJpegBlob(file, 1280, 0.65);
-      await idbPut(key, blob);
-      const url = URL.createObjectURL(blob);
-      sessionStorage.setItem(key+'_objurl', url);
-      return url;
     }
-
     async function getPhotoUrl(key){
-      const direct = localStorage.getItem(key+'_url');
-      if (direct) return direct;
-      const fast = sessionStorage.getItem(key+'_objurl');
-      if (fast) return fast;
-      const blob = await idbGet(key);
-      if (!blob) return null;
-      const url = URL.createObjectURL(blob);
-      sessionStorage.setItem(key+'_objurl', url);
-      return url;
+      const direct=localStorage.getItem(key+'_url'); if(direct) return direct;
+      const fast=sessionStorage.getItem(key+'_objurl'); if(fast) return fast;
+      const blob=await idbGet(key); if(!blob) return null;
+      const url=URL.createObjectURL(blob); sessionStorage.setItem(key+'_objurl', url); return url;
     }
-
     function preview(url){
-      const ov=document.createElement('div');
-      ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:99999';
+      const ov=document.createElement('div'); ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:99999';
       const im=document.createElement('img'); im.src=url; im.style.cssText='max-width:96%;max-height:92%;border-radius:10px';
-      ov.appendChild(im); ov.addEventListener('click',()=>ov.remove());
-      document.body.appendChild(ov);
+      ov.appendChild(im); ov.addEventListener('click',()=>ov.remove()); document.body.appendChild(ov);
     }
-
-    window._photoAPI = { savePhoto, getPhotoUrl, preview };
+    window._photoAPI={savePhoto,getPhotoUrl,preview};
   })();
   </script>
 
-  <!-- APP LOGIC -->
+  <!-- LOGJIKA E FAQES -->
   <script>
   (function(){
     const q=(s,b)=> (b||document).querySelector(s);
@@ -318,12 +274,12 @@
 
     /* Order + Kodi X# */
     const hid=q('#orderId'); if(!hid.value) hid.value='ord_'+Date.now();
-    window.OID = hid.value;               // përdoret nga photos
+    window.OID=hid.value;
     const metaKey='order_meta_'+OID;
     function nextCode(){ let n=parseInt(localStorage.getItem('client_code_counter')||'0',10)||0; n+=1; localStorage.setItem('client_code_counter', String(n)); return 'X'+n; }
     const meta = (()=>{ try{return JSON.parse(localStorage.getItem(metaKey)||'{}')}catch(e){return{}} })();
     if(!meta.code){ meta.code=nextCode(); localStorage.setItem(metaKey, JSON.stringify(meta)); }
-    (q('#ticketCode')||{}).textContent = 'KODI: '+meta.code;
+    (q('#ticketCode')||{}).textContent='KODI: '+meta.code;
 
     /* Chips -> add row */
     (function(){
@@ -355,7 +311,7 @@
 
       const pKey=`photo_${section}_${OID}_`+Date.now().toString(36);
       row.setAttribute('data-photo-key', pKey);
-      (async ()=>{ const prev=await window._photoAPI.getPhotoUrl(pKey); if(prev){ thumb.src=prev; thumb.style.display='inline-block'; cam.style.display='none'; } })();
+      (async()=>{ const prev=await window._photoAPI.getPhotoUrl(pKey); if(prev){ thumb.src=prev; thumb.style.display='inline-block'; cam.style.display='none'; }})();
 
       file.addEventListener('change', async (ev)=>{
         const f=ev.target.files && ev.target.files[0]; if(!f) return;
