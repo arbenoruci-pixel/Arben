@@ -2,20 +2,13 @@
 <html lang="sq">
 <head>
   <meta charset="utf-8" />
-  <!-- 30% smaller safely (no transform) -->
   <meta name="viewport" content="width=device-width, initial-scale=0.7, maximum-scale=0.7, user-scalable=no" />
   <title>PRANIMI</title>
   <style>
-    :root{
-      /* same neon look */
-      --bg:#05060d; --fg:#eaf0ff; --muted:#9fb0d9;
-      --panel: rgba(10,12,25,.62); --panel-border: rgba(120,150,255,.18);
-      --glass: rgba(18,22,46,.55); --line: rgba(120,150,255,.20);
-      --btn: rgba(24,34,78,.92); --btn-br: rgba(124,168,255,.45);
-    }
+    :root{ --bg:#05060d; --fg:#eaf0ff; --muted:#9fb0d9; --panel: rgba(10,12,25,.62); --panel-border: rgba(120,150,255,.18); --glass: rgba(18,22,46,.55); --line: rgba(120,150,255,.20); --btn: rgba(24,34,78,.92); --btn-br: rgba(124,168,255,.45) }
     *{box-sizing:border-box}
     html,body{margin:0;background:radial-gradient(1000px 560px at 10% -10%, rgba(124,59,255,.22), transparent 60%), radial-gradient(900px 520px at 98% -15%, rgba(59,232,255,.18), transparent 60%), var(--bg); color:var(--fg); font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial}
-    .wrap{ max-width: 960px; margin: 0 auto; padding: 0 16px 120px; }
+    .wrap{ max-width: 960px; margin: 0 auto; padding: 0 16px 120px }
     h1{ font-size: clamp(28px, 4vw, 42px); margin: 22px 18px 14px; letter-spacing:.03em; display:flex; align-items:center; gap:12px }
     .badge{ display:inline-flex; gap:10px; align-items:center; background: linear-gradient(90deg, rgba(124,59,255,.28), rgba(59,232,255,.28)); border:1px solid var(--panel-border); border-radius:999px; padding:8px 14px; font-weight:800; letter-spacing:.08em; font-size:12px }
     .card{ background: linear-gradient(180deg, rgba(10,12,25,.62), rgba(6,9,20,.72)); border:1px solid var(--panel-border); border-radius:18px; padding:16px; margin:16px 0; backdrop-filter: blur(8px) }
@@ -35,10 +28,10 @@
     .tot{ display:flex; justify-content:space-between; align-items:center; background: rgba(18,22,46,.55); border:1px solid var(--panel-border); border-radius:12px; padding:10px 12px; margin-top:10px }
     .pill{ background: rgba(18,22,46,.55); border:1px solid var(--panel-border); border-radius:12px; padding:10px 12px }
     /* Footer fixed, but safe for taps */
-    body{ padding-bottom: 110px; }
-    .footer{ position: fixed; min-height: 72px; left:0; right:0; bottom:0; z-index: 10; backdrop-filter: blur(6px); background: linear-gradient(180deg, rgba(6,8,18,.1), rgba(6,8,18,.65)); padding-top: 6px; pointer-events: none; }
+    body{ padding-bottom: 110px }
+    .footer{ position: fixed; min-height: 72px; left:0; right:0; bottom:0; z-index: 10; backdrop-filter: blur(6px); background: linear-gradient(180deg, rgba(6,8,18,.1), rgba(6,8,18,.65)); padding-top: 6px; pointer-events: none }
     .footwrap{ max-width: 960px; margin: 0 auto; padding: 0 16px; display:grid; grid-template-columns:1fr auto auto; gap:10px; align-items:center }
-    .footwrap .btn, .footwrap .pill{ pointer-events: auto; }
+    .footwrap .btn, .footwrap .pill{ pointer-events: auto }
     /* payments colors */
     b#euroTotal{ color:#9fd3ff } b#borxhi{ color:#ff8aa0 } b#kthimi{ color:#8dffa2 }
     #paidChips .btn{ height:36px; padding:0 10px; font-weight:800 }
@@ -135,7 +128,7 @@
     </div>
   </div>
 
-  <!-- Minimal, safe scripts: no global click capture, no preventDefault -->
+  <!-- Minimal page logic (no global blockers) -->
   <script>
     (function(){
       function q(s,b){ return (b||document).querySelector(s); }
@@ -145,7 +138,7 @@
       function listFor(section){ return q('#list-'+section); }
 
       window.addRow = function(section, value){
-        const list = listFor(section);
+        const list = listFor(section); if(!list) return;
         const row = document.createElement('div'); row.className = 'piece-row';
         const id = document.createElement('div'); id.className = 'piece-id';
         const idx = qq('.piece-row', list).length + 1; id.textContent = '#' + String(idx).padStart(2,'0');
@@ -155,13 +148,13 @@
         inp.addEventListener('input', computeTotals); qty.addEventListener('input', computeTotals);
         row.appendChild(id); row.appendChild(inp); row.appendChild(qty); list.appendChild(row);
         computeTotals();
-      }
+      };
 
       window.removeRow = function(section){
         const list = listFor(section);
         const rows = qq('.piece-row', list);
         if(rows.length){ rows[rows.length-1].remove(); computeTotals(); }
-      }
+      };
 
       function sectionTotal(section){
         const list = listFor(section);
@@ -176,9 +169,9 @@
       }
 
       function computeStairs(){
-        const qty = parseFloat(q('#stairsQty').value||'0')||0;
-        const per = parseFloat(q('#stairsPer').value||'0.3')||0;
-        const m2 = round2(qty * per); q('#stairsM2').textContent = m2.toFixed(2) + ' m²';
+        const qty = parseFloat(q('#stairsQty')?.value||'0')||0;
+        const per = parseFloat(q('#stairsPer')?.value||'0.3')||0;
+        const m2 = round2(qty * per); const out=q('#stairsM2'); if(out) out.textContent = m2.toFixed(2) + ' m²';
         return m2;
       }
 
@@ -187,38 +180,39 @@
         const tS = sectionTotal('staza');
         const tStairs = computeStairs();
         const totalM2 = round2(tT + tS + tStairs);
-        q('#m2Total').textContent = totalM2.toFixed(2);
-        q('#m2TotalFooter').textContent = totalM2.toFixed(2);
-        const rate = parseFloat(q('#rate').value||'0')||0;
+        const m2El=q('#m2Total'); if(m2El) m2El.textContent = totalM2.toFixed(2);
+        const m2F=q('#m2TotalFooter'); if(m2F) m2F.textContent = totalM2.toFixed(2);
+        const rate = parseFloat(q('#rate')?.value||'0')||0;
         const euro = round2(totalM2 * rate);
-        q('#euroTotal').textContent = euro.toFixed(2);
+        const eurEl=q('#euroTotal'); if(eurEl) eurEl.textContent = euro.toFixed(2);
 
-        const paidUp = q('#paidUpfront').checked;
-        const paidVal = paidUp ? (parseFloat(q('#clientPaid').value||'0')||0) : 0;
-        q('#clientPaid').disabled = !paidUp;
-        if(!paidUp) q('#clientPaid').value = '';
+        const paidUp = q('#paidUpfront')?.checked;
+        const paidIn = q('#clientPaid');
+        if(paidIn) paidIn.disabled = !paidUp;
+        if(!paidUp && paidIn) paidIn.value = '';
+        const paidVal = paidUp ? (parseFloat(paidIn?.value||'0')||0) : 0;
         const debt = Math.max(0, round2(euro - paidVal));
-        q('#debt').value = debt.toFixed(2);
-      }
+        const debtEl=q('#debt'); if(debtEl) debtEl.value = debt.toFixed(2);
+      };
 
-      // Wire inputs
+      // Wire inputs/chips
       ['#stairsQty','#stairsPer','#rate','#paidUpfront','#clientPaid'].forEach(sel=>{
         const el = q(sel); if(!el) return;
         el.addEventListener(sel==='#paidUpfront' ? 'change' : 'input', computeTotals);
       });
-      // Chips
-      function wireChips(containerId, section){
-        qq('#'+containerId+' .chip').forEach(btn=>{
+      function wireChips(id, section){
+        qq('#'+id+' .chip').forEach(btn=>{
           btn.addEventListener('click', ()=>{
-            const txt=(btn.textContent||'').trim(); const num=parseFloat(txt.replace(/[^\d\.]/g,'')); 
+            const txt=(btn.textContent||'').trim();
+            const num=parseFloat(txt.replace(/[^\d\.]/g,'')); 
             if(!isNaN(num)) addRow(section, num); else addRow(section, null);
           });
         });
       }
       wireChips('chips-tepiha','tepiha'); wireChips('chips-staza','staza');
 
-      // Draft save (localStorage) and continue
-      const LIST_KEY = 'order_list_v1'; const KEY = id => `order_${id}`;
+      // Draft save
+      const LIST_KEY='order_list_v1'; const KEY=id=>`order_${id}`;
       function getId(){ const hid=q('#orderId'); if(hid.value) return hid.value; const id='ord_'+Date.now(); hid.value=id; return id; }
       function readRows(listId){
         const list=q('#list-'+listId); if(!list) return [];
@@ -228,13 +222,13 @@
         }));
       }
       function totals(){
-        const m2=parseFloat(q('#m2Total').textContent||'0')||0;
-        const rate=parseFloat(q('#rate').value||'0')||0;
-        const euro=Math.round(m2*rate*100)/100;
-        const paidUp=q('#paidUpfront').checked;
-        const paid=paidUp?(parseFloat(q('#clientPaid').value||'0')||0):0;
-        const debt=Math.max(0, euro-paid);
-        const change=Math.max(0, paid-euro);
+        const m2=parseFloat(q('#m2Total')?.textContent||'0')||0;
+        const rate=parseFloat(q('#rate')?.value||'0')||0;
+        const euro=round2(m2*rate);
+        const paidUp=q('#paidUpfront')?.checked;
+        const paid=paidUp?(parseFloat(q('#clientPaid')?.value||'0')||0):0;
+        const debt=Math.max(0, round2(euro-paid));
+        const change=Math.max(0, round2(paid-euro));
         return {m2, rate, euro, paidUp, paid, debt, change};
       }
       function saveIndexEntry(id, name, phone){
@@ -264,10 +258,9 @@
         }catch(e){ alert('S’u ruajt dot drafti (localStorage i plotë?)'); return false; }
       }
       const btnSave=q('#btnSaveDraft'); if(btnSave){ btnSave.addEventListener('click', (e)=>{ e.preventDefault(); saveDraft(); }); }
-      // NOTE: Continue is a normal <a href="../pastrimi/">; no JS needed.
+
       computeTotals();
     })();
   </script>
-  <script src="../assets/restore_min.js"></script>
 </body>
 </html>
