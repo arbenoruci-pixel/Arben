@@ -10,10 +10,8 @@
       --panel:#0c0f16; --panel-br:#273143; --line:#2c3954;
       --chip-bg:#121829; --chip-br:#2c3a55; --chip-ink:#e6f0ff;
       --btn:#1e60ff; --btn-ink:#fff; --danger:#ef4444;
-      --uiScale:.85;                 /* ~15% më i vogël gjithë UI */
+      --uiScale:.85;
       --h:56px; --rad:14px;
-
-      /* Rreshta kompakt (~shumë të ngushtë) */
       --rowScale:.22;
       --h-row:  calc(var(--h) * var(--rowScale));
       --rad-row:calc(var(--rad) * var(--rowScale));
@@ -34,52 +32,26 @@
     @media (max-width:720px){.row{grid-template-columns:1fr}}
     .input{width:100%;min-height:56px;background:#070a12;border:2px solid var(--line);border-radius:14px;padding:14px 16px;font-size:1.25rem;font-weight:1000;color:var(--ink);outline:none}
     .input:focus{border-color:#6aa1ff;box-shadow:0 0 0 3px rgba(30,96,255,.25)}
-
     .chips{display:flex;flex-wrap:wrap;gap:12px;padding:6px 0}
     .chip{border:2px solid var(--chip-br);background:var(--chip-bg);color:var(--chip-ink);border-radius:999px;padding:10px 16px;min-height:56px;font-weight:1000;font-size:var(--fs-chip)}
     .chip:active,.chip:hover{background:#18223a}
-
     .list{display:flex;flex-direction:column;gap:4px;margin-top:4px}
-
-    /* ---- R R E S H T A T (kompakte) ---- */
-    .piece-row{
-      display:grid;
-      grid-template-columns: 1fr 58px; /* m²(+cam+thumb) | qty */
-      gap:4px; align-items:center; margin-top:2px;
-    }
+    .piece-row{display:grid;grid-template-columns: 1fr 58px;gap:4px;align-items:center;margin-top:2px}
     .mwrap{display:flex;align-items:center;gap:4px}
-    .piece-row .input{
-      min-height: calc(var(--h-row) - 4px);
-      border-radius: calc(var(--rad-row) - 2px);
-      font-size: var(--fs-row);
-      line-height:1.1; padding:6px 8px; border-width:1px;
-    }
+    .piece-row .input{min-height: calc(var(--h-row) - 4px);border-radius: calc(var(--rad-row) - 2px);font-size: var(--fs-row);line-height:1.1;padding:6px 8px;border-width:1px}
     .piece-row .piece-input{ font-size: var(--fs-m2); font-weight:900; }
-    .cam-btn{
-      display:inline-flex;align-items:center;justify-content:center;
-      width:var(--h-row);height:var(--h-row);min-width:var(--h-row);
-      border:1px solid #2b3956;border-radius:calc(var(--rad-row) - 2px);
-      background:#0a1220;color:#e6f0ff;font-size:14px;cursor:pointer;padding:0;
-    }
-    .thumb{
-      width:var(--h-row);height:var(--h-row);border-radius:calc(var(--rad-row) - 2px);
-      object-fit:cover;border:1px solid #2b3956;display:none;cursor:pointer
-    }
-
+    .cam-btn{display:inline-flex;align-items:center;justify-content:center;width:var(--h-row);height:var(--h-row);min-width:var(--h-row);border:1px solid #2b3956;border-radius:calc(var(--rad-row) - 2px);background:#0a1220;color:#e6f0ff;font-size:14px;cursor:pointer;padding:0}
+    .thumb{width:var(--h-row);height:var(--h-row);border-radius:calc(var(--rad-row) - 2px);object-fit:cover;border:1px solid #2b3956;display:none;cursor:pointer}
     .btnbar{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
     .btn{border:0;border-radius:14px;padding:14px 18px;min-height:56px;font-weight:1000;font-size:1.1rem;cursor:pointer;background:var(--btn);color:var(--btn-ink)}
     .btn.red{background:var(--danger)}
     .btn.ghost{background:#0c1220;color:#e6f0ff;border:2px solid #2b3956}
-
     .tot,.pill{display:flex;justify-content:space-between;align-items:center;background:#0b111d;border:1px solid var(--panel-br);border-radius:12px;padding:10px 12px;font-size:1.1rem;font-weight:1000}
     .tot{margin-top:8px}
-
     body{padding-bottom:140px}
     .footer{position:fixed;left:0;right:0;bottom:0;z-index:10;background:rgba(5,7,12,.97);border-top:1px solid var(--panel-br);backdrop-filter:blur(6px)}
-    .footwrap{max-width:980px;margin:0 auto;padding:12px 16px;display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center}
+    .footwrap{max-width:980px;margin:0 auto;padding:12px 16px;display:grid;grid-template-columns:1fr auto auto auto;gap:12px;align-items:center}
     a.btn{text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
-
-    /* layout për emrin + foto klientit */
     .client-name-row{display:flex;align-items:center;gap:10px}
     #clientThumb{width:44px;height:44px;border-radius:10px;object-fit:cover;border:2px solid #2b3956;display:none;cursor:pointer}
     .client-cam{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:10px;border:2px solid #2b3956;background:#0a1220;color:#e6f0ff;cursor:pointer}
@@ -192,6 +164,7 @@
     <div class="footer">
       <div class="footwrap">
         <div class="pill"><b>Totali:</b> <span id="m2TotalFooter">0.00</span> m²</div>
+        <a class="btn ghost" id="btnHome" href="../">🏠 KTHEU NË FILLIM</a>
         <button class="btn ghost" id="btnSaveDraft">💾 RUAJ DRAFT</button>
         <a class="btn" id="btnContinue" href="../pastrimi/">▶ VAZHDO</a>
       </div>
@@ -208,7 +181,9 @@
         url: "https://vnidjrxidvusulinozbn.supabase.co",
         anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZuaWRqcnhpZHZ1c3VsaW5vemJuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc1MTk0NjAsImV4cCI6MjA3MzA5NTQ2MH0.hzGSFKU3sKuUKBUBsTE0rKIerj2uhG9pGS8_K9N7tpA",
         bucket: "tepiha-photos"
-      }
+      },
+      // Nese s’do sinkronizim online te porosive si JSON, vendose false:
+      syncOrders: true
     };
     window.sb = (typeof supabase!=='undefined' && CFG.supabase.url && CFG.supabase.anonKey)
       ? supabase.createClient(CFG.supabase.url, CFG.supabase.anonKey)
@@ -281,7 +256,7 @@
     const qq=(s,b)=> Array.from((b||document).querySelectorAll(s));
     const r2=x=> Math.round((x+Number.EPSILON)*100)/100;
 
-    /* Order + Kodi X# (gjenerohet një herë kur hapet PRANIMI) */
+    /* Order + Kodi X# */
     const hid=q('#orderId'); if(!hid.value) hid.value='ord_'+Date.now();
     window.OID=hid.value;
     const metaKey='order_meta_'+OID;
@@ -404,7 +379,7 @@
       });}
     })();
 
-    /* Ruaj draft */
+    /* Ruajtja e draftit (lokale) */
     const LIST_KEY='order_list_v1'; const KEY=id=>'order_'+id;
     function readRows(listId){
       const list=q('#list-'+listId); if(!list) return [];
@@ -423,27 +398,57 @@
       const debt=Math.max(0, r2(euro-paid)), change=Math.max(0, r2(paid-euro));
       return {m2, rate, euro, paidUp:up, paid, debt, change};
     }
+    function baseData(status='pranim'){
+      const meta = (()=>{ try{return JSON.parse(localStorage.getItem('order_meta_'+OID)||'{}')}catch(e){return{}} })();
+      return {
+        id:OID, ts:Date.now(), status,
+        client:{ name:(q('#name')?q('#name').value.trim():''), phone:(q('#phonePrefix')?q('#phonePrefix').value:'')+(q('#phone')?q('#phone').value.trim():''), code: meta.code||'', photoKey:'photo_client_'+OID },
+        tepiha: readRows('tepiha'),
+        staza:  readRows('staza'),
+        shkallore:{ qty: parseFloat((q('#stairsQty')&&q('#stairsQty').value)||'0')||0, per: parseFloat((q('#stairsPer')&&q('#stairsPer').value)||'0.3')||0, photoKey:'photo_shkallore_'+OID },
+        pay: totalsObj()
+      };
+    }
     function saveIndexEntry(){
       let idx=[]; try{ idx=JSON.parse(localStorage.getItem(LIST_KEY)||'[]'); }catch(e){ idx=[]; }
       const entry={ id:OID, name:(q('#name')?q('#name').value.trim():''), phone:(q('#phonePrefix')?q('#phonePrefix').value:'')+(q('#phone')?q('#phone').value.trim():'') };
       const i=idx.findIndex(x=>x.id===entry.id); if(i>=0) idx[i]=entry; else idx.unshift(entry);
       localStorage.setItem(LIST_KEY, JSON.stringify(idx.slice(0,200)));
     }
-    function saveDraft(){
-      const meta = (()=>{ try{return JSON.parse(localStorage.getItem('order_meta_'+OID)||'{}')}catch(e){return{}} })();
-      const data={
-        id:OID, ts:Date.now(),
-        client:{ name:(q('#name')?q('#name').value.trim():''), phone:(q('#phonePrefix')?q('#phonePrefix').value:'')+(q('#phone')?q('#phone').value.trim():''), code: meta.code||'', photoKey:'photo_client_'+OID },
-        tepiha: readRows('tepiha'),
-        staza:  readRows('staza'),
-        shkallore:{ qty: parseFloat((q('#stairsQty')&&q('#stairsQty').value)||'0')||0, per: parseFloat((q('#stairsPer')&&q('#stairsPer').value)||'0.3')||0, photoKey:'photo_shkallore_'+OID },
-        pay: totalsObj(),
-        status:'pranim'
-      };
-      try{ localStorage.setItem(KEY(OID), JSON.stringify(data)); saveIndexEntry(); return true; }
-      catch(e){ alert('S’u ruajt drafti (storage i plotë?)'); return false; }
+    function saveDraftLocal(status='pranim'){
+      const data=baseData(status);
+      try{ localStorage.setItem(KEY(OID), JSON.stringify(data)); saveIndexEntry(); return data; }
+      catch(e){ alert('S’u ruajt drafti (storage i plotë?)'); return null; }
     }
-    const btnSave=q('#btnSaveDraft'); if(btnSave) btnSave.addEventListener('click', e=>{ e.preventDefault(); saveDraft(); });
+
+    /* Sinkronizim ONLINE: ruaj JSON te Supabase Storage: orders/<OID>.json */
+    async function saveDraftOnline(data){
+      try{
+        if(!CFG.syncOrders || !window.sb) return true;
+        const path = `orders/${data.id}.json`;
+        const blob = new Blob([JSON.stringify(data)], {type: 'application/json'});
+        // upsert duke fshirë ekzistuesin nese ka
+        // supabase storage s’ka upsert direkte; provojmë upload me upsert:true në SDK v2
+        const { error } = sb.storage.from(CFG.supabase.bucket)
+          .upload(path, blob, { upsert:true, contentType:'application/json' });
+        if(error) throw error;
+        return true;
+      }catch(err){
+        console.warn('Online sync failed:', err?.message||err);
+        return false;
+      }
+    }
+
+    async function saveDraft(status='pranim'){
+      const data = saveDraftLocal(status);
+      if(!data) return false;
+      await saveDraftOnline(data);
+      return true;
+    }
+
+    const btnSave=q('#btnSaveDraft'); if(btnSave) btnSave.addEventListener('click', async e=>{
+      e.preventDefault(); const ok = await saveDraft('pranim'); if(ok){ /* mund të shtojmë një mini-toast */ }
+    });
 
     /* DËRGO MESAZH */
     (function(){
@@ -489,6 +494,22 @@
       btn.addEventListener('click', ()=> openSheet(buildMessage()));
       btn.__wired = true;
     })();
+
+    /* Auto-save kur del nga faqja (mos humb draftin) */
+    window.addEventListener('beforeunload', ()=>{ try{ saveDraftLocal('pranim'); }catch{} });
+
+    /* Kur klikon VAZHDO: ruaj & kalo në PASTRIMI me status 'pastrim' */
+    const goBtn = q('#btnContinue');
+    if(goBtn && !goBtn.__wired){
+      goBtn.addEventListener('click', async (e)=>{
+        e.preventDefault();
+        const ok = await saveDraft('pastrim');
+        // edhe një sinkronizim final online:
+        if(ok) await saveDraftOnline(baseData('pastrim'));
+        location.href = goBtn.getAttribute('href') || '../pastrimi/';
+      });
+      goBtn.__wired = true;
+    }
 
     computeTotals();
   })();
