@@ -1,106 +1,226 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="sq">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>PASTRIMI</title>
-  <style>
-    :root{
-      --bg:#000; --ink:#fff; --muted:#b9c4da;
-      --panel:#0c0f16; --panel-br:#273143; --line:#2c3954;
-      --btn:#1e60ff; --btn-ink:#fff; --danger:#ef4444;
-      --green:#19a25f; --red:#ef4444;
-    }
-    *{box-sizing:border-box}
-    html,body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;font-size:15px}
-    .wrap{max-width:960px;margin:0 auto;padding:16px}
-    h1{font-size:clamp(28px,5vw,42px);margin:16px 0;font-weight:1000;letter-spacing:.01em;display:flex;align-items:center;justify-content:space-between}
-    .badge{background:linear-gradient(180deg,#1aa5d8,#146b95);padding:6px 12px;border-radius:999px;font-weight:1000;font-size:.9rem}
-    .panel{background:var(--panel);border:1px solid var(--panel-br);border-radius:14px;padding:12px;margin-top:12px}
-    .head{display:grid;grid-template-columns:70px 1fr 60px 70px 160px;gap:6px;font-weight:1000;font-size:13px;color:var(--muted);padding:6px 8px}
-    .row{display:grid;grid-template-columns:70px 1fr 60px 70px 160px;gap:6px;align-items:center;padding:8px;border-bottom:1px solid #12233a;font-size:14px}
-    .actions{display:flex;gap:6px;flex-wrap:wrap}
-    .btn{border:0;border-radius:10px;padding:8px 12px;font-weight:700;cursor:pointer;font-size:13px;color:#fff;text-decoration:none;text-align:center}
-    .btn.green{background:var(--green)}
-    .btn.red{background:var(--red)}
-    .footer{position:fixed;left:0;right:0;bottom:0;background:#0c0f16;border-top:1px solid var(--panel-br);padding:12px;display:flex;justify-content:space-between;gap:10px}
-    .footer .btn{flex:1}
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PASTRIMI • Lista</title>
+<style>
+:root{
+  --bg:#0b1220; --bg2:#0a111c; --panel:#0f1a2a; --line:#1f2e46;
+  --ink:#eaf1ff; --muted:#9fb4d6;
+  --blue1:#1aa5d8; --blue2:#146b95;
+  --green:#19a25f; --red:#ef4444;
+}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(180deg,var(--bg2),var(--bg));color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;letter-spacing:.2px}
+a{color:inherit;text-decoration:none}
+.app{max-width:980px;margin:0 auto;padding:14px}
+
+/* header */
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.brand{display:flex;align-items:center;gap:10px}
+.logo{width:40px;height:40px;border-radius:10px;background:linear-gradient(180deg,#254369,#15263c);border:1px solid #203651;display:flex;align-items:center;justify-content:center}
+h1{margin:0;font-size:18px;letter-spacing:.6px}
+.badge{background:linear-gradient(180deg,var(--blue1),var(--blue2));border:1px solid #1f6f97;color:#eaffff;padding:6px 10px;border-radius:999px;font-weight:1000}
+
+/* list */
+.panel{background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid var(--line);border-radius:14px;padding:10px}
+.head{display:grid;grid-template-columns:70px 1fr 60px 70px 160px;gap:6px;font-weight:1000;font-size:13px;color:var(--muted);padding:6px 8px}
+.row{display:grid;grid-template-columns:70px 1fr 60px 70px 160px;gap:6px;align-items:center;padding:8px;border-bottom:1px solid #12233a;font-size:14px}
+.actions{display:flex;gap:6px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:8px 12px;border-radius:10px;border:1px solid transparent;font-weight:800;cursor:pointer;font-size:13px;color:#fff;text-decoration:none;text-align:center}
+.btn.msg{background:linear-gradient(180deg,var(--blue1),var(--blue2));border-color:#2aa7d8}
+.btn.done{background:var(--green);border-color:#157c46}
+
+/* footer */
+.footer{position:fixed;left:0;right:0;bottom:0;background:rgba(10,17,28,.96);border-top:1px solid var(--line);backdrop-filter:blur(6px);z-index:10}
+.footwrap{max-width:980px;margin:0 auto;padding:12px 14px;display:flex;gap:10px;justify-content:space-between;align-items:center}
+a.navbtn,button.navbtn{display:inline-flex;align-items:center;justify-content:center;padding:12px 14px;border-radius:12px;border:1px solid #2aa7d8;background:linear-gradient(180deg,var(--blue1),var(--blue2));font-weight:1000;color:#fff;cursor:pointer}
+
+/* bottom sheet */
+.sheet-ov{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:flex-end;justify-content:center;z-index:9999}
+.sheet{width:100%;max-width:720px;background:#0c0f16;border:1px solid #273143;border-radius:14px 14px 0 0;padding:12px}
+.sheet h3{margin:6px 6px 10px;font-size:16px;letter-spacing:.4px}
+.sheet .opt{display:block;width:100%;text-align:center;text-decoration:none;margin:8px 0;padding:14px;border-radius:12px;font-weight:1000;color:#fff}
+.opt.viber{background:linear-gradient(180deg,#7e57c2,#5e3aa6);border:1px solid #5e3aa6}
+.opt.wa{background:linear-gradient(180deg,#25d366,#128c7e);border:1px solid #128c7e}
+.opt.sms{background:linear-gradient(180deg,#c78a2a,#8a5f19);border:1px solid #8a5f19}
+.opt.copy{background:#0e1730;border:1px solid #2b3956;color:#e6f0ff}
+.opt.cancel{background:#0c1220;border:1px solid #2b3956;color:#e6f0ff}
+.helper{white-space:pre-wrap;color:#9fb4d6;font-size:12px;margin:8px 6px 0}
+</style>
 </head>
 <body>
-  <div class="wrap">
-    <h1>
-      PASTRIMI
-      <span class="badge" id="activeCount">0 aktive</span>
-    </h1>
-    <div class="panel">
-      <div class="head">
-        <div>X NR</div><div>EMRI</div><div>COPË</div><div>M²</div><div>VEPRIME</div>
-      </div>
-      <div id="list"></div>
+<div class="app">
+  <div class="header">
+    <div class="brand">
+      <div class="logo">🧼</div>
+      <div><h1>PASTRIMI</h1><div class="muted">Lista e punëve</div></div>
     </div>
+    <div class="badge" id="countBadge">0 aktive</div>
   </div>
 
-  <div class="footer">
-    <a href="../" class="btn">🏠 KTHEU NË FILLIM</a>
-    <button onclick="location.reload()" class="btn">🔄 RIFRESKO</button>
+  <div class="panel">
+    <div class="head">
+      <div>X nr</div><div>Emri</div><div>Copë</div><div>m²</div><div>Veprime</div>
+    </div>
+    <div id="list">—</div>
   </div>
+</div>
 
-  <script>
-  (function(){
-    const listEl=document.getElementById('list');
-    const dataKey='order_list_v1';
-    const getIndex=()=>{try{return JSON.parse(localStorage.getItem(dataKey)||'[]')}catch{return[]}};
-    const getOrder=id=>{try{return JSON.parse(localStorage.getItem('order_'+id)||'null')}catch{return null}};
+<!-- footer nav -->
+<div class="footer">
+  <div class="footwrap">
+    <a class="navbtn" href="../">🏠 KTHEU NË FILLIM</a>
+    <button class="navbtn" onclick="location.reload()">🔄 Rifresko</button>
+  </div>
+</div>
 
-    function render(){
-      const idx=getIndex(); let active=0;
-      listEl.innerHTML='';
-      idx.forEach(r=>{
-        const o=getOrder(r.id); if(!o) return;
-        if(o.status!=='pastrim') return;
-        active++;
-        const div=document.createElement('div'); div.className='row';
-        const pieces=(o.tepiha?.length||0)+(o.staza?.length||0)+(o.shkallore?.qty>0?1:0);
-        const euro=o.pay?.euro?.toFixed(2)||'0.00';
-        div.innerHTML=`
-          <div>${o.client?.code||''}</div>
-          <div>${o.client?.name||''}</div>
-          <div>${pieces}</div>
-          <div>${o.pay?.m2?.toFixed(2)||'0.00'}</div>
-          <div class="actions">
-            <button class="btn green" onclick="sendMsg('${o.client?.phone}','${o.client?.name}','${pieces}','${o.pay?.m2}','${euro}')">📩 DËRGO</button>
-            <button class="btn red" onclick="markDone('${o.id}')">✅ GATI SOT</button>
-          </div>
-        `;
-        listEl.appendChild(div);
-      });
-      document.getElementById('activeCount').textContent=active+' aktive';
+<!-- Bottom sheet -->
+<div class="sheet-ov" id="sheetOv">
+  <div class="sheet">
+    <h3>Zgjidh platformën:</h3>
+    <a class="opt viber" id="optViber" target="_blank" rel="noopener">Viber</a>
+    <a class="opt wa" id="optWA" target="_blank" rel="noopener">WhatsApp</a>
+    <a class="opt sms" id="optSMS" target="_blank" rel="noopener">SMS</a>
+    <a class="opt copy" id="optCopy">Kopjo tekstin</a>
+    <div class="helper">⟶ Shtyp e mbaj për opsione. Prekje e shpejtë hap Viber direkt.</div>
+    <a class="opt cancel" id="optCancel">Anulo</a>
+  </div>
+</div>
+
+<script>
+(function(){
+  const LIST_KEY='order_list_v1'; const KEY=id=>'order_'+id;
+  const getIndex=()=>{try{return JSON.parse(localStorage.getItem(LIST_KEY)||'[]')}catch(e){return []}};
+  const getOrder=id=>{try{return JSON.parse(localStorage.getItem(KEY(id))||'null')}catch(e){return null}};
+  const r2=x=>Math.round((x+Number.EPSILON)*100)/100;
+
+  function piecesCount(o){ const t=(o.tepiha||[]).length, s=(o.staza||[]).length, stairs=(o.shkallore&&o.shkallore.qty>0)?1:0; return t+s+stairs; }
+  function m2Compute(o){
+    if(o?.pay?.m2>0) return r2(o.pay.m2);
+    const sum=a=>(a||[]).reduce((s,x)=>s+(+x.m2||0)*(+x.qty||1),0);
+    const st=r2((+o?.shkallore?.qty||0)*(+o?.shkallore?.per||0));
+    return r2(sum(o?.tepiha)+sum(o?.staza)+st);
+  }
+  function euroCompute(o){ if(o?.pay?.euro>0) return r2(o.pay.euro); const rate=+o?.pay?.rate||2.5; return r2(m2Compute(o)*rate); }
+  const padX = code => { const m=/^X(\d+)$/.exec(String(code||'').toUpperCase()); if(!m) return code||'—'; const n=+m[1]; return n<10?`X0${n}`:`X${n}`; };
+
+  async function markGati(o){
+    const updated = {...o, status:'gati', ts:Date.now()};
+    localStorage.setItem(KEY(o.id), JSON.stringify(updated));
+  }
+
+  // ---------- message links
+  function buildMessage(o){
+    const name=o?.client?.name||'Klient';
+    const x=padX(o?.client?.code||'');
+    const pcs=piecesCount(o);
+    const m2=m2Compute(o);
+    const euro=euroCompute(o);
+    return (
+`Përshëndetje ${name}, porosia juaj (${x}) është GATI për marrje.
+Keni ${pcs} copë = ${m2.toFixed(2)} m².
+Totali: ${euro.toFixed(2)} €.
+Ju lutem ejani ta merrni sot deri në ora 21:00.
+Nuk kemi hapësirë për ruajtje afatgjatë.
+Nëse nuk ka njeri në dyqan, telefononi: +383 44 73 53 12
+Faleminderit!`);
+  }
+  function buildLinks(o){
+    const body=encodeURIComponent(buildMessage(o));
+    const digits=String(o?.client?.phone||'').replace(/[^\d]/g,'');
+    return {
+      viber:`viber://forward?text=${body}`,
+      wa: digits?`https://wa.me/${digits}?text=${body}`:`https://wa.me/?text=${body}`,
+      sms:digits?`sms:${digits}?body=${body}`:`sms:?body=${body}`,
+      text:decodeURIComponent(body)
+    };
+  }
+
+  // ---------- bottom sheet helpers
+  const sheetOv=document.getElementById('sheetOv');
+  const optViber=document.getElementById('optViber');
+  const optWA=document.getElementById('optWA');
+  const optSMS=document.getElementById('optSMS');
+  const optCopy=document.getElementById('optCopy');
+  const optCancel=document.getElementById('optCancel');
+  function openSheet(links){
+    optViber.href=links.viber; optWA.href=links.wa; optSMS.href=links.sms;
+    optCopy.onclick=(e)=>{e.preventDefault(); navigator.clipboard?.writeText(links.text).then(()=>alert('Teksti u kopjua.'));};
+    [optViber,optWA,optSMS].forEach(a=>a.onclick=()=>{closeSheet()});
+    optCancel.onclick=(e)=>{e.preventDefault(); closeSheet();};
+    sheetOv.style.display='flex';
+    sheetOv.onclick=(e)=>{ if(e.target===sheetOv) closeSheet(); };
+  }
+  function closeSheet(){ sheetOv.style.display='none'; }
+
+  // ---------- try open viber (with fallback)
+  function openViberFirst(links){
+    // iOS/Safari: direct deep link navigation
+    window.location.href = links.viber;
+    // If Viber not installed, give quick fallback to WA after a short delay
+    setTimeout(()=>{ try{ window.open(links.wa,'_blank'); }catch{} }, 800);
+  }
+
+  function makeMsgButton(btn, order){
+    const links=buildLinks(order);
+    let timer=null, long=false;
+
+    // Long-press = options; short tap = Viber
+    const start=()=>{ long=false; timer=setTimeout(()=>{ long=true; openSheet(links); }, 600); };
+    const end=()=>{ clearTimeout(timer); if(!long){ openViberFirst(links); markGati(order).then(()=>btn.closest('.row').remove()); updateCount(); } };
+
+    btn.addEventListener('touchstart', start, {passive:true});
+    btn.addEventListener('touchend', end);
+    btn.addEventListener('mousedown', start);
+    btn.addEventListener('mouseup', end);
+  }
+
+  function buildRow(o){
+    const row=document.createElement('div'); row.className='row';
+    const pcs=piecesCount(o), m2=m2Compute(o);
+    row.innerHTML=`
+      <div>${padX(o?.client?.code)}</div>
+      <div>${o?.client?.name||'(pa emër)'}</div>
+      <div>${pcs}</div>
+      <div>${m2.toFixed(2)}</div>
+      <div class="actions">
+        <button class="btn msg">📩 Dërgo</button>
+        <button class="btn done">✅ Gati sot</button>
+      </div>`;
+
+    // wire buttons
+    makeMsgButton(row.querySelector('.msg'), o);
+    row.querySelector('.done').addEventListener('click', async ()=>{
+      await markGati(o);
+      row.remove(); updateCount();
+    });
+
+    return row;
+  }
+
+  function updateCount(){
+    const list=document.getElementById('list');
+    const n=list.querySelectorAll('.row').length;
+    document.getElementById('countBadge').textContent=`${n} aktive`;
+    if(n===0) list.textContent='— S’ka punë aktive në PASTRIMI.';
+  }
+
+  function load(){
+    const list=document.getElementById('list'); list.innerHTML='';
+    const idx=getIndex(); let any=false;
+    for(const r of idx){
+      const o=getOrder(r.id); if(!o) continue;
+      if(String(o.status||'').toLowerCase()!=='pastrim') continue;
+      list.appendChild(buildRow(o)); any=true;
     }
+    if(!any) list.textContent='— S’ka punë aktive në PASTRIMI.';
+    updateCount();
+  }
 
-    function sendMsg(phone,name,pieces,m2,euro){
-      const msg=`Përshëndetje ${name||'Klient'}, porosia juaj (${pieces} copë, ${m2} m²) është GATI.\nTotali: ${euro} €.\nJu lutem ejani ta merrni sot (deri në orën 21:00).\n☎️ +38344735312`;
-      const enc=encodeURIComponent(msg);
-      const digits=(phone||'').replace(/[^\d]/g,'');
-      const viber=`viber://forward?text=${enc}`;
-      const wa=digits?`https://wa.me/${digits}?text=${enc}`:`https://wa.me/?text=${enc}`;
-      const sms=digits?`sms:${digits}?body=${enc}`:`sms:?body=${enc}`;
-      // open priority Viber
-      window.location.href=viber;
-      // fallback if not installed
-      setTimeout(()=>{window.open(wa,'_blank')},800);
-    }
-
-    function markDone(id){
-      const key='order_'+id;
-      const o=getOrder(id); if(!o) return;
-      o.status='gati';
-      localStorage.setItem(key, JSON.stringify(o));
-      render();
-    }
-
-    render();
-  })();
-  </script>
+  load();
+})();
+</script>
 </body>
 </html>
