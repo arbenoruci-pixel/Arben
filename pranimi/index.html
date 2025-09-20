@@ -27,7 +27,7 @@
     .btn.red{ border-color: rgba(255,90,172,.45); background: linear-gradient(180deg, rgba(64,10,26,.9), rgba(48,8,20,.9)) }
     .tot{ display:flex; justify-content:space-between; align-items:center; background: rgba(18,22,46,.55); border:1px solid var(--panel-border); border-radius:12px; padding:10px 12px; margin-top:10px }
     .pill{ background: rgba(18,22,46,.55); border:1px solid var(--panel-border); border-radius:12px; padding:10px 12px }
-    /* Footer fixed, but safe for taps */
+    /* Footer fixed, safe for taps */
     body{ padding-bottom: 110px }
     .footer{ position: fixed; min-height: 72px; left:0; right:0; bottom:0; z-index: 10; backdrop-filter: blur(6px); background: linear-gradient(180deg, rgba(6,8,18,.1), rgba(6,8,18,.65)); padding-top: 6px; pointer-events: none }
     .footwrap{ max-width: 960px; margin: 0 auto; padding: 0 16px; display:grid; grid-template-columns:1fr auto auto; gap:10px; align-items:center }
@@ -109,12 +109,24 @@
         </div>
       </div>
       <div class="row">
-        <div><label>KLIENTI DHA (€)</label><input class="input" id="clientPaid" inputmode="decimal" placeholder="p.sh. 15" disabled></div>
-        <div><label>BORXHI (€)</label><input class="input" id="debt" readonly></div>
+        <div>
+          <label>KLIENTI DHA (€)</label>
+          <input class="input" id="clientPaid" inputmode="decimal" placeholder="p.sh. 50" disabled>
+        </div>
+        <div>
+          <label>BORXHI (€)</label>
+          <input class="input" id="debt" readonly>
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label>KTHE (€)</label>
+          <input class="input" id="change" readonly>
+        </div>
+        <div class="pill"><b>Total (€):</b> <span id="euroTotal">0.00</span></div>
       </div>
       <div class="row">
         <div class="pill"><b>M² total:</b> <span id="m2Total">0.00</span></div>
-        <div class="pill"><b>Total (€):</b> <span id="euroTotal">0.00</span></div>
       </div>
     </section>
 
@@ -133,7 +145,7 @@
     (function(){
       function q(s,b){ return (b||document).querySelector(s); }
       function qq(s,b){ return Array.from((b||document).querySelectorAll(s)); }
-      function round2(x){ return Math.round((x + Number.EPSILON) * 100)/100; }
+      function r2(x){ return Math.round((x + Number.EPSILON) * 100)/100; }
 
       function listFor(section){ return q('#list-'+section); }
 
@@ -159,7 +171,7 @@
       function sectionTotal(section){
         const list = listFor(section);
         const rows = qq('.piece-row', list);
-        const total = round2(rows.reduce((s,row)=>{
+        const total = r2(rows.reduce((s,row)=>{
           const m2 = parseFloat((row.querySelector('.piece-input')||{}).value||'0')||0;
           const qv = parseFloat((row.querySelector('.piece-qty')||{}).value||'1')||1;
           return s + (m2*qv);
@@ -171,7 +183,7 @@
       function computeStairs(){
         const qty = parseFloat(q('#stairsQty')?.value||'0')||0;
         const per = parseFloat(q('#stairsPer')?.value||'0.3')||0;
-        const m2 = round2(qty * per); const out=q('#stairsM2'); if(out) out.textContent = m2.toFixed(2) + ' m²';
+        const m2 = r2(qty * per); const out=q('#stairsM2'); if(out) out.textContent = m2.toFixed(2) + ' m²';
         return m2;
       }
 
@@ -179,20 +191,27 @@
         const tT = sectionTotal('tepiha');
         const tS = sectionTotal('staza');
         const tStairs = computeStairs();
-        const totalM2 = round2(tT + tS + tStairs);
+        const totalM2 = r2(tT + tS + tStairs);
         const m2El=q('#m2Total'); if(m2El) m2El.textContent = totalM2.toFixed(2);
         const m2F=q('#m2TotalFooter'); if(m2F) m2F.textContent = totalM2.toFixed(2);
+
         const rate = parseFloat(q('#rate')?.value||'0')||0;
-        const euro = round2(totalM2 * rate);
+        const euro = r2(totalM2 * rate);
         const eurEl=q('#euroTotal'); if(eurEl) eurEl.textContent = euro.toFixed(2);
 
-        const paidUp = q('#paidUpfront')?.checked;
+        const paidToggle = q('#paidUpfront');
+        const paidOn = !!(paidToggle && paidToggle.checked);
         const paidIn = q('#clientPaid');
-        if(paidIn) paidIn.disabled = !paidUp;
-        if(!paidUp && paidIn) paidIn.value = '';
-        const paidVal = paidUp ? (parseFloat(paidIn?.value||'0')||0) : 0;
-        const debt = Math.max(0, round2(euro - paidVal));
+        if(paidIn) paidIn.disabled = !paidOn;
+        if(!paidOn && paidIn) paidIn.value = '';
+
+        const paidVal = paidOn ? (parseFloat(paidIn?.value||'0')||0) : 0;
+
+        const debt = Math.max(0, r2(euro - paidVal));
+        const change = Math.max(0, r2(paidVal - euro));
+
         const debtEl=q('#debt'); if(debtEl) debtEl.value = debt.toFixed(2);
+        const changeEl=q('#change'); if(changeEl) changeEl.value = change.toFixed(2);
       };
 
       // Wire inputs/chips
@@ -211,7 +230,7 @@
       }
       wireChips('chips-tepiha','tepiha'); wireChips('chips-staza','staza');
 
-      // Draft save
+      // Draft save (includes change & debt)
       const LIST_KEY='order_list_v1'; const KEY=id=>`order_${id}`;
       function getId(){ const hid=q('#orderId'); if(hid.value) return hid.value; const id='ord_'+Date.now(); hid.value=id; return id; }
       function readRows(listId){
@@ -224,11 +243,11 @@
       function totals(){
         const m2=parseFloat(q('#m2Total')?.textContent||'0')||0;
         const rate=parseFloat(q('#rate')?.value||'0')||0;
-        const euro=round2(m2*rate);
+        const euro=r2(m2*rate);
         const paidUp=q('#paidUpfront')?.checked;
         const paid=paidUp?(parseFloat(q('#clientPaid')?.value||'0')||0):0;
-        const debt=Math.max(0, round2(euro-paid));
-        const change=Math.max(0, round2(paid-euro));
+        const debt=Math.max(0, r2(euro-paid));
+        const change=Math.max(0, r2(paid-euro));
         return {m2, rate, euro, paidUp, paid, debt, change};
       }
       function saveIndexEntry(id, name, phone){
