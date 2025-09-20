@@ -2,7 +2,7 @@
 <html lang="sq">
 <head>
   <meta charset="utf-8" />
-  <!-- 30% më e vogël, siç e do -->
+  <!-- 30% më e vogël për telefon -->
   <meta name="viewport" content="width=device-width, initial-scale=0.7, maximum-scale=0.7, user-scalable=no" />
   <title>PRANIMI</title>
   <style>
@@ -11,6 +11,7 @@
       --panel: rgba(10,12,25,.62); --panel-border: rgba(120,150,255,.18);
       --glass: rgba(18,22,46,.55); --line: rgba(120,150,255,.20);
       --btn: rgba(24,34,78,.92); --btn-br: rgba(124,168,255,.45);
+      --ticket:#7fff5a;
     }
     *{box-sizing:border-box}
     html,body{
@@ -24,7 +25,14 @@
     }
     .wrap{ max-width: 960px; margin: 0 auto; padding: 0 16px 120px }
     h1{ font-size: clamp(28px, 4vw, 42px); margin: 22px 18px 14px; letter-spacing:.03em; display:flex; align-items:center; gap:12px }
-    .badge{ display:inline-flex; gap:10px; align-items:center; background: linear-gradient(90deg, rgba(124,59,255,.28), rgba(59,232,255,.28)); border:1px solid var(--panel-border); border-radius:999px; padding:8px 14px; font-weight:800; letter-spacing:.08em; font-size:12px }
+    .badge{ display:inline-flex; align-items:center; gap:10px;
+      color: var(--ticket); font-weight: 900; letter-spacing:.08em; font-size: 14px;
+      border:1px solid rgba(127,255,90,.45);
+      padding:8px 14px; border-radius: 999px;
+      background: linear-gradient(180deg, rgba(46,78,24,.25), rgba(24,44,16,.25));
+      box-shadow: 0 0 0 1px rgba(127,255,90,.25), 0 10px 30px rgba(127,255,90,.08);
+    }
+
     .card{ background: linear-gradient(180deg, rgba(10,12,25,.62), rgba(6,9,20,.72)); border:1px solid var(--panel-border); border-radius:18px; padding:16px; margin:16px 0; backdrop-filter: blur(8px) }
     .title{ display:flex; align-items:center; gap:12px; font-size: clamp(18px, 2.2vw, 22px); font-weight: 900; letter-spacing:.04em; margin-bottom: 12px }
     label{ font-size:12px; color:var(--muted); letter-spacing:.08em }
@@ -36,11 +44,14 @@
     .list{ display:flex; flex-direction:column; gap:10px; margin-top:8px }
     .piece-row{ display:grid; grid-template-columns: 80px 1fr 120px; gap:8px; align-items:center }
     .piece-id{ background: linear-gradient(180deg, rgba(18,26,60,.9), rgba(10,18,38,.9)); border:1px solid var(--panel-border); border-radius:12px; padding:12px 14px; text-align:center; font-weight:900; letter-spacing:.08em }
+
     .btnbar{ display:flex; gap:10px; flex-wrap:wrap; margin-top:8px }
     .btn{ border:1px solid var(--btn-br); background: linear-gradient(180deg, var(--btn), rgba(16,26,56,.9)); color:#fff; border-radius:12px; padding:12px 16px; font-weight:900; letter-spacing:.06em }
     .btn.red{ border-color: rgba(255,90,172,.45); background: linear-gradient(180deg, rgba(64,10,26,.9), rgba(48,8,20,.9)) }
+
     .tot{ display:flex; justify-content:space-between; align-items:center; background: var(--glass); border:1px solid var(--panel-border); border-radius:12px; padding:10px 12px; margin-top:10px }
     .pill{ background: var(--glass); border:1px solid var(--panel-border); border-radius:12px; padding:10px 12px }
+
     /* footer i fiksuar */
     body{ padding-bottom: 110px }
     .footer{ position: fixed; min-height: 72px; left:0; right:0; bottom:0; z-index: 10; backdrop-filter: blur(6px); background: linear-gradient(180deg, rgba(6,8,18,.1), rgba(6,8,18,.65)); padding-top: 6px; pointer-events: none }
@@ -53,13 +64,18 @@
   </style>
 </head>
 <body>
-  <h1>PRANIMI <span class="badge">NEON • FUTURE</span></h1>
+  <h1>
+    PRANIMI
+    <span class="badge" id="ticketCode">KODI: ——</span>
+  </h1>
+
   <input type="hidden" id="orderId" value="">
   <div class="wrap">
 
     <!-- KLIENTI -->
     <section class="card">
-      <div class="title">Hapi 1 — Klienti
+      <div class="title">
+        Hapi 1 — Klienti
         <img id="clientThumb" class="thumb" alt="">
       </div>
       <div class="row">
@@ -111,7 +127,6 @@
         <div><label>Sasia (numri i hapave)</label><input class="input" id="stairsQty" inputmode="numeric" placeholder="p.sh. 20"></div>
         <div><label>M² për hap</label><input class="input" id="stairsPer" inputmode="decimal" value="0.3"></div>
       </div>
-      <!-- kamera për shkallore -->
       <div class="btnbar" id="stairsCamWrap">
         <label class="cam-btn">📷
           <input type="file" accept="image/*" capture="environment" id="stairsPhotoInput" style="display:none">
@@ -153,27 +168,68 @@
     </div>
   </div>
 
-  <!-- ============ SCRIPT KOMPAT + FOTO ============ -->
+  <!-- ===== SCRIPT KOMPAT + FOTO + KODI KLIENTIT ===== -->
   <script>
   (function(){
+    /* utilitare */
     function q(s,b){ return (b||document).querySelector(s); }
     function qq(s,b){ return Array.prototype.slice.call((b||document).querySelectorAll(s)); }
     function r2(x){ return Math.round((x + Number.EPSILON) * 100)/100; }
     function uid(){ return 'r'+Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
 
-    function savePhotoFromFile(key, file, cbOk, cbErr){
+    /* ================= CLIENT CODE (permanent) ================= */
+    function loadMap(key){ try{ return JSON.parse(localStorage.getItem(key)||'{}'); }catch(e){ return {}; } }
+    function saveMap(key,obj){ try{ localStorage.setItem(key, JSON.stringify(obj)); }catch(e){} }
+    function normPhone(v){ return String(v||'').replace(/[^\d\+]/g, '').trim(); }
+    function nextCode(){
+      var n = parseInt(localStorage.getItem('client_code_counter') || '0', 10) || 0;
+      n += 1; localStorage.setItem('client_code_counter', String(n));
+      return 'X' + n; // no leading zeros, X prefix
+    }
+    function getOrCreateClientCode(){
+      var phone = normPhone(q('#phone') && q('#phone').value);
+      var name  = (q('#name') && q('#name').value || '').trim();
+      var byPhone = loadMap('client_code_by_phone');
+      var byName  = loadMap('client_code_by_name');
+      var code = '';
+      if (phone) {
+        code = byPhone[phone];
+        if (!code) {
+          if (name && byName[name]) { code = byName[name]; delete byName[name]; saveMap('client_code_by_name', byName); }
+          else { code = nextCode(); }
+          byPhone[phone] = code; saveMap('client_code_by_phone', byPhone);
+        }
+      } else if (name) {
+        code = byName[name];
+        if (!code) { code = nextCode(); byName[name] = code; saveMap('client_code_by_name', byName); }
+      } else {
+        code = '';
+      }
+      return code;
+    }
+    function displayClientCode(code){
+      var el = q('#ticketCode'); if (!el) return;
+      el.textContent = code ? ('KODI: ' + code) : 'KODI: ——';
+    }
+    window.__getClientCode = getOrCreateClientCode;
+    window.__displayClientCode = displayClientCode;
+    ['#phone','#name'].forEach(function(sel){
+      var el = q(sel); if(!el) return;
+      function upd(){ displayClientCode(getOrCreateClientCode()); }
+      el.addEventListener('input', upd); el.addEventListener('blur', upd);
+    });
+    displayClientCode(getOrCreateClientCode());
+
+    /* ================= FOTO helpers ================= */
+    function savePhotoFromFile(key, file, ok, err){
       try{
         var rd = new FileReader();
-        rd.onload = function(){
-          try{ localStorage.setItem(key, rd.result); if(cbOk) cbOk(rd.result); }
-          catch(e){ if(cbErr) cbErr(e); }
-        };
-        rd.onerror = function(e){ if(cbErr) cbErr(e); };
+        rd.onload = function(){ try{ localStorage.setItem(key, rd.result); ok&&ok(rd.result);}catch(e){err&&err(e);} };
+        rd.onerror = function(e){ err&&err(e); };
         rd.readAsDataURL(file);
-      }catch(e){ if(cbErr) cbErr(e); }
+      }catch(e){ err&&err(e); }
     }
     function getPhoto(key){ try{ return localStorage.getItem(key); }catch(e){ return null; } }
-
     function openPreview(dataURL){
       var ov = document.createElement('div');
       ov.style.position='fixed'; ov.style.left=0; ov.style.top=0; ov.style.right=0; ov.style.bottom=0;
@@ -187,15 +243,19 @@
       ov.addEventListener('click', function(){ ov.parentNode && ov.parentNode.removeChild(ov); });
       document.body.appendChild(ov);
     }
+    window.openPreview = openPreview;
 
+    /* ================= ROWS (Tepiha/Staza) ================= */
     function listFor(section){ return q('#list-'+section); }
-
     window.addRow = function(section, value){
       var list = listFor(section); if(!list) return;
       var row = document.createElement('div'); row.className='piece-row';
 
       var idCell = document.createElement('div'); idCell.className='piece-id';
-      idCell.textContent = '#' + String(qq('.piece-row', list).length + 1).padStart(2,'0');
+      var idx = qq('.piece-row', list).length + 1;
+      // Show same client code on each piece (for stamping)
+      var ccode = (window.__getClientCode ? window.__getClientCode() : 'X');
+      idCell.textContent = ccode || 'X' + idx;
 
       var mWrap = document.createElement('div');
       mWrap.style.display='flex'; mWrap.style.gap='6px'; mWrap.style.alignItems='center';
@@ -210,7 +270,11 @@
       var thumb = document.createElement('img'); thumb.className='thumb';
 
       var rid = uid();
-      row.setAttribute('data-photo-key', 'photo_'+section+'_'+rid);
+      var pKey = 'photo_'+section+'_'+(q('#orderId').value || 'ord')+'_'+rid;
+      row.setAttribute('data-photo-key', pKey);
+
+      var prev = getPhoto(pKey);
+      if(prev){ thumb.src = prev; thumb.style.display='inline-block'; cam.style.display='none'; }
 
       mWrap.appendChild(m2); mWrap.appendChild(cam); mWrap.appendChild(thumb);
 
@@ -218,11 +282,11 @@
 
       file.addEventListener('change', function(ev){
         var f = ev.target.files && ev.target.files[0]; if(!f) return;
-        savePhotoFromFile(row.getAttribute('data-photo-key'), f, function(data){
+        savePhotoFromFile(pKey, f, function(data){
           thumb.src = data; thumb.style.display='inline-block'; cam.style.display='none';
         }, function(){ alert('S’u ruajt fotoja'); });
       });
-      thumb.addEventListener('click', function(){ var d=getPhoto(row.getAttribute('data-photo-key')); if(d) openPreview(d); });
+      thumb.addEventListener('click', function(){ var d=getPhoto(pKey); if(d) openPreview(d); });
 
       m2.addEventListener('input', computeTotals);
       qty.addEventListener('input', computeTotals);
@@ -231,14 +295,10 @@
       list.appendChild(row);
       computeTotals();
     };
-
     window.removeRow = function(section){
       var list = listFor(section);
       var rows = qq('.piece-row', list);
       if(rows.length){ rows[rows.length-1].parentNode.removeChild(rows[rows.length-1]); }
-      qq('.piece-row', list).forEach(function(r,i){
-        var c = r.querySelector('.piece-id'); if(c) c.textContent = '#'+String(i+1).padStart(2,'0');
-      });
       computeTotals();
     };
 
@@ -254,6 +314,7 @@
       return total;
     }
 
+    /* ================= STAIRS + TOTALS ================= */
     function computeStairs(){
       var qtyEl = q('#stairsQty'), perEl = q('#stairsPer');
       var qty = parseFloat((qtyEl && qtyEl.value)||'0')||0;
@@ -262,7 +323,6 @@
       var out = q('#stairsM2'); if(out) out.textContent = m2.toFixed(2) + ' m²';
       return m2;
     }
-
     window.computeTotals = function(){
       var tT = sectionTotal('tepiha');
       var tS = sectionTotal('staza');
@@ -287,50 +347,41 @@
       var debtEl = q('#debt');   if(debtEl)   debtEl.value = debt.toFixed(2);
       var changeEl = q('#change'); if(changeEl) changeEl.value = change.toFixed(2);
     };
-
     ['#stairsQty','#stairsPer','#rate','#paidUpfront','#clientPaid'].forEach(function(sel){
       var el = q(sel); if(!el) return;
       el.addEventListener(sel==='#paidUpfront' ? 'change' : 'input', computeTotals);
     });
 
-    function wireChips(id, section){
-      qq('#'+id+' .chip').forEach(function(btn){
-        btn.addEventListener('click', function(){
-          var txt = (btn.textContent||'').trim();
-          var num = parseFloat(txt.replace(/[^\d\.]/g,''));
-          if(!isNaN(num)) addRow(section, num); else addRow(section, null);
-        });
-      });
-    }
-    wireChips('chips-tepiha','tepiha'); wireChips('chips-staza','staza');
-
-    /* klienti: foto + preview */
+    /* ================= CLIENT PHOTO (per order) ================= */
     (function(){
       var inp = q('#clientPhotoInput');
       var thumb = q('#clientThumb');
-      var saved = getPhoto('photo_client');
+      var oid = q('#orderId');
+      if(!oid.value){ oid.value = 'ord_'+Date.now(); }
+      var key = 'photo_client_'+oid.value;
+      var saved = getPhoto(key);
       if(saved && thumb){ thumb.src = saved; thumb.style.display='inline-block'; thumb.style.cursor='pointer'; }
-      if(thumb){ thumb.addEventListener('click', function(){ var d=getPhoto('photo_client'); if(d) openPreview(d); }); }
+      if(thumb){ thumb.addEventListener('click', function(){ var d=getPhoto(key); if(d) openPreview(d); }); }
       if(inp){
         inp.addEventListener('change', function(e){
           var f = e.target.files && e.target.files[0]; if(!f) return;
-          savePhotoFromFile('photo_client', f, function(data){
+          savePhotoFromFile(key, f, function(data){
             if(thumb){ thumb.src=data; thumb.style.display='inline-block'; thumb.style.cursor='pointer'; }
           });
         });
       }
     })();
 
-    /* shkallore: një foto */
+    /* ================= SHKALLORE PHOTO (one) ================= */
     (function(){
       var wrap = q('#stairsCamWrap');
       var inp = q('#stairsPhotoInput');
       if(wrap){
         wrap.style.display='flex'; wrap.style.gap='10px';
-        var saved = getPhoto('photo_shkallore');
+        var oid = q('#orderId').value || 'ord';
+        var saved = getPhoto('photo_shkallore_'+oid);
         if(saved){
-          var t = document.createElement('img');
-          t.className='thumb'; t.style.display='inline-block'; t.src = saved;
+          var t = document.createElement('img'); t.className='thumb'; t.style.display='inline-block'; t.src = saved;
           t.addEventListener('click', function(){ openPreview(saved); });
           wrap.appendChild(t);
         }
@@ -338,12 +389,13 @@
       if(inp){
         inp.addEventListener('change', function(ev){
           var f = ev.target.files && ev.target.files[0]; if(!f) return;
-          savePhotoFromFile('photo_shkallore', f, function(data){ openPreview(data); });
+          var oid = q('#orderId').value || 'ord';
+          savePhotoFromFile('photo_shkallore_'+oid, f, function(data){ openPreview(data); });
         });
       }
     })();
 
-    /* ruaj draft */
+    /* ================= SAVE DRAFT ================= */
     var LIST_KEY='order_list_v1'; function KEY(id){ return 'order_'+id; }
     function getId(){ var hid=q('#orderId'); if(hid && hid.value) return hid.value; var id='ord_'+Date.now(); if(hid) hid.value=id; return id; }
     function readRows(listId){
@@ -378,10 +430,15 @@
       var id=getId();
       var data={
         id:id, ts:Date.now(),
-        client:{ name:(q('#name')?q('#name').value.trim():''), phone: ((q('#phonePrefix')?q('#phonePrefix').value:'') + (q('#phone')?q('#phone').value.trim():'')), photoKey:'photo_client' },
+        client:{
+          name:(q('#name')?q('#name').value.trim():''),
+          phone: ((q('#phonePrefix')?q('#phonePrefix').value:'') + (q('#phone')?q('#phone').value.trim():'')),
+          code: (window.__getClientCode ? window.__getClientCode() : ''),
+          photoKey:'photo_client_'+id
+        },
         tepiha: readRows('tepiha'),
         staza: readRows('staza'),
-        shkallore:{ qty: parseFloat((q('#stairsQty')&&q('#stairsQty').value)||'0')||0, per: parseFloat((q('#stairsPer')&&q('#stairsPer').value)||'0.3')||0, photoKey:'photo_shkallore' },
+        shkallore:{ qty: parseFloat((q('#stairsQty')&&q('#stairsQty').value)||'0')||0, per: parseFloat((q('#stairsPer')&&q('#stairsPer').value)||'0.3')||0, photoKey:'photo_shkallore_'+id },
         pay: totalsObj(),
         status:'pranim'
       };
@@ -393,6 +450,7 @@
     }
     var btnSave=q('#btnSaveDraft'); if(btnSave){ btnSave.addEventListener('click', function(e){ e.preventDefault(); saveDraft(); }); }
 
+    /* START */
     computeTotals();
   })();
   </script>
@@ -400,7 +458,7 @@
   <!-- (opsionale) nëse e ke këtë file: -->
   <!-- <script src="../assets/restore_min.js"></script> -->
 
-  <!-- ============ DEBUG OVERLAY (kundër faqes së bardhë) ============ -->
+  <!-- ===== DEBUG OVERLAY (kundër faqes së bardhë) ===== -->
   <script>
   window.addEventListener('error', function(e){
     document.body.innerHTML =
