@@ -1,187 +1,563 @@
 <!DOCTYPE html>
 <html lang="sq">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>PASTRIMI</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PRANIMI</title>
   <style>
-    :root{ --bg:#000; --ink:#fff; --panel:#0c0f16; --br:#273143; --btn:#1e60ff; --muted:#b9c4da; --danger:#ef4444; --ok:#22c55e }
+    :root{
+      --bg:#000; --ink:#fff; --muted:#b9c4da;
+      --panel:#0c0f16; --panel-br:#273143; --line:#2c3954;
+      --chip-bg:#121829; --chip-br:#2c3a55; --chip-ink:#e6f0ff;
+      --btn:#1e60ff; --btn-ink:#fff; --danger:#ef4444;
+      --uiScale:.85; --h:56px; --rad:14px;
+      --rowScale:.22; --h-row:calc(var(--h)*var(--rowScale));
+      --rad-row:calc(var(--rad)*var(--rowScale));
+      --fs:calc(16px*var(--uiScale));
+      --fs-row:calc(13px*var(--uiScale));
+      --fs-m2:calc(18px*var(--uiScale));
+      --fs-chip:calc(18px*var(--uiScale));
+    }
     *{box-sizing:border-box}
-    html,body{margin:0;background:var(--bg);color:var(--ink);font-family:ui-rounded,system-ui,-apple-system,Segoe UI,Roboto,Arial}
-    .wrap{max-width:980px;margin:0 auto;padding:16px}
-    h1{font-size:clamp(34px,5.4vw,50px);margin:14px 6px 10px;font-weight:1000}
-    .bar{display:flex;gap:8px;flex-wrap:wrap;margin:8px 6px 16px}
-    .input{flex:1;min-width:200px;background:#070a12;border:2px solid #2c3954;border-radius:12px;padding:12px 14px;color:#fff;font-weight:900}
-    .btn{background:var(--btn);color:#fff;border:0;border-radius:12px;padding:12px 16px;font-weight:1000;cursor:pointer}
-    .btn.ghost{background:#0c1220;border:2px solid var(--br)}
-    .btn.ok{background:var(--ok)}
+    html,body{margin:0;background:var(--bg);color:var(--ink);font-family:ui-rounded,system-ui,-apple-system,Segoe UI,Roboto,Arial;font-size:var(--fs);line-height:1.25}
+    .wrap{max-width:980px;margin:0 auto;padding:0 16px 140px}
+    h1{font-size:clamp(34px,5.4vw,50px);margin:20px 6px 6px;font-weight:1000;letter-spacing:.01em;display:flex;align-items:center;gap:12px}
+    .badge{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(180deg,rgba(34,197,94,.18),rgba(34,197,94,.08));border:1px solid rgba(34,197,94,.6);color:#d8ffe9;padding:10px 16px;border-radius:999px;font-weight:1000;font-size:1.1rem}
+    .card{background:var(--panel);border:1px solid var(--panel-br);border-radius:18px;padding:18px;margin:16px 0;box-shadow:0 12px 40px rgba(0,0,0,.55)}
+    .title{display:flex;align-items:center;justify-content:space-between;font-size:clamp(20px,2.6vw,28px);font-weight:1000;margin-bottom:12px}
+    label{font-size:.9rem;color:var(--muted);font-weight:900;letter-spacing:.03em}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    @media (max-width:720px){.row{grid-template-columns:1fr}}
+    .input{width:100%;min-height:56px;background:#070a12;border:2px solid var(--line);border-radius:14px;padding:14px 16px;font-size:1.25rem;font-weight:1000;color:var(--ink);outline:none}
+    .input:focus{border-color:#6aa1ff;box-shadow:0 0 0 3px rgba(30,96,255,.25)}
+    .chips{display:flex;flex-wrap:wrap;gap:12px;padding:6px 0}
+    .chip{border:2px solid var(--chip-br);background:var(--chip-bg);color:var(--chip-ink);border-radius:999px;padding:10px 16px;min-height:56px;font-weight:1000;font-size:var(--fs-chip)}
+    .chip:active,.chip:hover{background:#18223a}
+    .list{display:flex;flex-direction:column;gap:4px;margin-top:4px}
+    .piece-row{display:grid;grid-template-columns: 1fr 58px;gap:4px;align-items:center;margin-top:2px}
+    .mwrap{display:flex;align-items:center;gap:4px}
+    .piece-row .input{min-height: calc(var(--h-row) - 4px);border-radius: calc(var(--rad-row) - 2px);font-size: var(--fs-row);line-height:1.1;padding:6px 8px;border-width:1px}
+    .piece-row .piece-input{ font-size: var(--fs-m2); font-weight:900; }
+    .cam-btn{display:inline-flex;align-items:center;justify-content:center;width:var(--h-row);height:var(--h-row);min-width:var(--h-row);border:1px solid #2b3956;border-radius:calc(var(--rad-row) - 2px);background:#0a1220;color:#e6f0ff;font-size:14px;cursor:pointer;padding:0}
+    .thumb{width:var(--h-row);height:var(--h-row);border-radius:calc(var(--rad-row) - 2px);object-fit:cover;border:1px solid #2b3956;display:none;cursor:pointer}
+    .btnbar{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
+    .btn{border:0;border-radius:14px;padding:14px 18px;min-height:56px;font-weight:1000;font-size:1.1rem;cursor:pointer;background:var(--btn);color:var(--btn-ink)}
     .btn.red{background:var(--danger)}
-    .list{display:flex;flex-direction:column;gap:10px}
-    .card{background:var(--panel);border:1px solid var(--br);border-radius:14px;padding:14px}
-    .top{display:flex;justify-content:space-between;align-items:center;font-weight:1000}
-    .small{opacity:.85;font-size:.95rem}
-    .row{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center}
-    .row2{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-    .status{padding:4px 8px;border-radius:8px;border:1px solid var(--br);font-weight:1000}
-    a.btnlink{display:inline-flex;align-items:center;gap:6px;background:#0c1220;border:1px solid var(--br);padding:10px 12px;border-radius:10px;color:#fff;text-decoration:none;font-weight:900}
+    .btn.ghost{background:#0c1220;color:#e6f0ff;border:2px solid #2b3956}
+    .tot,.pill{display:flex;justify-content:space-between;align-items:center;background:#0b111d;border:1px solid var(--panel-br);border-radius:12px;padding:10px 12px;font-size:1.1rem;font-weight:1000}
+    .tot{margin-top:8px}
+    body{padding-bottom:140px}
+    .footer{position:fixed;left:0;right:0;bottom:0;z-index:10;background:rgba(5,7,12,.97);border-top:1px solid var(--panel-br);backdrop-filter:blur(6px)}
+    .footwrap{max-width:980px;margin:0 auto;padding:12px 16px;display:grid;grid-template-columns:1fr auto auto auto;gap:12px;align-items:center}
+    a.btn{text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+    .client-name-row{display:flex;align-items:center;gap:10px}
+    #clientThumb{width:44px;height:44px;border-radius:10px;object-fit:cover;border:2px solid #2b3956;display:none;cursor:pointer}
+    .client-cam{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:10px;border:2px solid #2b3956;background:#0a1220;color:#e6f0ff;cursor:pointer}
   </style>
 </head>
 <body>
+  <h1>PRANIMI <span class="badge" id="ticketCode">KODI: ——</span></h1>
+
+  <input type="hidden" id="orderId" value="">
   <div class="wrap">
-    <h1>PASTRIMI</h1>
-    <div class="bar">
-      <input class="input" id="q" placeholder="Kërko: emër, kod X#, tel…">
-      <button class="btn" id="refresh">REFRESKO</button>
-      <a class="btnlink" href="../">🏠 KTHEU NË FILLIM</a>
-      <a class="btnlink" href="../pranimi/">➕ SHTO TË RE</a>
+
+    <!-- KLIENTI -->
+    <section class="card">
+      <div class="title"><span>Hapi 1 — Klienti</span></div>
+      <div class="row">
+        <div>
+          <label>EMRI &amp; MBIEMRI*</label>
+          <div class="client-name-row">
+            <input class="input" id="name" placeholder="p.sh. Arben R.">
+            <img id="clientThumb" alt="foto klientit">
+            <label class="client-cam" title="Foto klientit">📷
+              <input type="file" accept="image/*;capture=camera" capture="environment" id="clientPhotoInput" style="display:none">
+            </label>
+          </div>
+        </div>
+        <div>
+          <label>TELEFONI*</label>
+          <div class="row" style="grid-template-columns:160px 1fr">
+            <input class="input" id="phonePrefix" value="+383" readonly>
+            <input class="input" id="phone" inputmode="numeric" placeholder="44177778">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TEPIHA -->
+    <section class="card" id="sec-tepiha">
+      <div class="title"><span>Tepiha</span></div>
+      <div class="chips" id="chips-tepiha">
+        <button class="chip">2.0 m²</button><button class="chip">2.5 m²</button><button class="chip">3.0 m²</button><button class="chip">3.2 m²</button><button class="chip">3.5 m²</button><button class="chip">3.7 m²</button><button class="chip">6.0 m²</button><button class="chip">Manual</button>
+      </div>
+      <div class="list" id="list-tepiha"></div>
+      <div class="btnbar">
+        <button class="btn" onclick="addRow('tepiha', null)">+ Rresht</button>
+        <button class="btn red" onclick="removeRow('tepiha')">− Rresht</button>
+      </div>
+      <div class="tot"><span>Totali tepiha:</span><b id="tot-tepiha">0.00 m²</b></div>
+    </section>
+
+    <!-- STAZA -->
+    <section class="card" id="sec-staza">
+      <div class="title"><span>Staza</span></div>
+      <div class="chips" id="chips-staza">
+        <button class="chip">1.5 m²</button><button class="chip">2.0 m²</button><button class="chip">2.2 m²</button><button class="chip">3.0 m²</button><button class="chip">Manual</button>
+      </div>
+      <div class="list" id="list-staza"></div>
+      <div class="btnbar">
+        <button class="btn" onclick="addRow('staza', null)">+ Rresht</button>
+        <button class="btn red" onclick="removeRow('staza')">− Rresht</button>
+      </div>
+      <div class="tot"><span>Totali staza:</span><b id="tot-staza">0.00 m²</b></div>
+    </section>
+
+    <!-- SHKALLORE -->
+    <section class="card" id="sec-shkallore">
+      <div class="title"><span>Shkallore</span></div>
+      <div class="row">
+        <div><label>Sasia (numri i hapave)</label><input class="input" id="stairsQty" inputmode="numeric" placeholder="p.sh. 20"></div>
+        <div><label>M² për hap</label><input class="input" id="stairsPer" inputmode="decimal" value="0.3"></div>
+      </div>
+      <div class="btnbar" id="stairsCamWrap">
+        <label class="cam-btn">📷
+          <input type="file" accept="image/*;capture=camera" capture="environment" id="stairsPhotoInput" style="display:none">
+        </label>
+      </div>
+      <div class="tot"><span>M² shkallore:</span><b id="stairsM2">0.00 m²</b></div>
+    </section>
+
+    <!-- PAGESA -->
+    <section class="card">
+      <div class="title"><span>Pagesa</span></div>
+      <div class="row">
+        <div><label>€ / m²</label><input class="input" id="rate" inputmode="decimal" value="2.50"></div>
+        <div>
+          <label>PAGUAR NË FILLIM (CASH)</label><br>
+          <label style="display:flex;align-items:center;gap:12px;font-size:1.1rem;font-weight:1000">
+            <input type="checkbox" id="paidUpfront" style="width:26px;height:26px"> <span>Aktivo futjen e shumës</span>
+          </label>
+        </div>
+      </div>
+      <div class="row">
+        <div><label>KLIENTI DHA (€)</label><input class="input" id="clientPaid" inputmode="decimal" placeholder="p.sh. 50" disabled></div>
+        <div><label>BORXHI (€)</label><input class="input" id="debt" readonly></div>
+      </div>
+      <div class="row">
+        <div><label>KTHE (€)</label><input class="input" id="change" readonly></div>
+        <div class="pill"><b>Total (€):</b> <span id="euroTotal">0.00</span></div>
+      </div>
+      <div class="row">
+        <div class="pill"><b>M² total:</b> <span id="m2Total">0.00</span></div>
+      </div>
+
+      <!-- DËRGO MESAZH -->
+      <div class="row" style="margin-top:8px">
+        <div><button class="btn" id="btnNotify" type="button">📩 DËRGO MESAZH</button></div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <div class="footer">
+      <div class="footwrap">
+        <div class="pill"><b>Totali:</b> <span id="m2TotalFooter">0.00</span> m²</div>
+        <a class="btn ghost" id="btnHome" href="../">🏠 KTHEU NË FILLIM</a>
+        <button class="btn ghost" id="btnSaveDraft">💾 RUAJ DRAFT</button>
+        <a class="btn" id="btnContinue" href="../pastrimi/">▶ VAZHDO</a>
+      </div>
     </div>
-    <div class="list" id="orders">Duke u ngarkuar…</div>
   </div>
 
+  <!-- Supabase SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+
+  <!-- KONFIG SUPABASE -->
   <script>
     const CFG = {
       supabase: {
         url: "https://vnidjrxidvusulinozbn.supabase.co",
         anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZuaWRqcnhpZHZ1c3VsaW5vemJuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc1MTk0NjAsImV4cCI6MjA3MzA5NTQ2MH0.hzGSFKU3sKuUKBUBsTE0rKIerj2uhG9pGS8_K9N7tpA",
         bucket: "tepiha-photos"
-      }
+      },
+      syncOrders: true // ← duhet të jetë TRUE për shikim nga pajisje të tjera
     };
-    const sb = supabase.createClient(CFG.supabase.url, CFG.supabase.anonKey);
+    window.sb = (typeof supabase!=='undefined' && CFG.supabase.url && CFG.supabase.anonKey)
+      ? supabase.createClient(CFG.supabase.url, CFG.supabase.anonKey)
+      : null;
+  </script>
 
-    async function listFiles(){
-      const { data: files, error } = await sb.storage
-        .from(CFG.supabase.bucket)
-        .list('orders', { limit: 1000, sortBy: { column: 'name', order: 'desc' } });
-      if(error){ throw error; }
-      return (files||[]).filter(f=>f.name.endsWith('.json'));
-    }
+  <!-- FOTO: HEIC→JPEG + Storage/IndexedDB fallback -->
+  <script>
+  (function(){
+    const DB_NAME='tepiha_photos_v1', STORE='photos'; let _db;
+    function openDB(){return new Promise((res,rej)=>{ if(_db)return res(_db); const r=indexedDB.open(DB_NAME,1); r.onupgradeneeded=e=>e.target.result.createObjectStore(STORE); r.onsuccess=e=>{_db=e.target.result;res(_db)}; r.onerror=e=>rej(e.target.error) }) }
+    async function idbPut(key, blob){ const db=await openDB(); return new Promise((res,rej)=>{const tx=db.transaction(STORE,'readwrite'); tx.objectStore(STORE).put(blob,key); tx.oncomplete=()=>res(true); tx.onerror=e=>rej(e.target.error)}) }
+    async function idbGet(key){ const db=await openDB(); return new Promise((res,rej)=>{const tx=db.transaction(STORE,'readonly'); const rq=tx.objectStore(STORE).get(key); rq.onsuccess=()=>res(rq.result||null); rq.onerror=e=>rej(e.target.error)}) }
 
-    async function publicUrl(path){
-      const { data } = sb.storage.from(CFG.supabase.bucket).getPublicUrl(path);
-      return data?.publicUrl || null;
-    }
-
-    async function fetchOrderWithPath(name){
-      const path = `orders/${name}`;
-      const url = await publicUrl(path);
-      if(!url) return null;
-      const res = await fetch(url, { cache:'no-store' });
-      if(!res.ok) return null;
-      const json = await res.json();
-      // bashkangjit path-in që ta dimë çfarë të upsertojmë kur ndryshojmë statusin
-      json.__path = path;
-      return json;
-    }
-
-    function sanitizeDigits(s){ return (s||'').replace(/[^\d]/g,''); }
-
-    function msgGati(o){
-      const name = o?.client?.name || 'Klient';
-      const code = o?.client?.code || '';
-      const euro = Number(o?.pay?.euro||0).toFixed(2);
-      return `Pershendetje ${name}. Porosia #${code} eshte GATI per marrje. Totali: ${euro} €. Faleminderit!`;
-    }
-
-    function contactLinks(o, text){
-      const phone = sanitizeDigits(o?.client?.phone||'');
-      const enc = encodeURIComponent(text);
-      const viber = `viber://forward?text=${enc}`;
-      const wa = phone ? `https://wa.me/${phone}?text=${enc}` : `https://wa.me/?text=${enc}`;
-      const sms = phone ? `sms:${phone}?body=${enc}` : `sms:?body=${enc}`;
-      return { viber, wa, sms };
-    }
-
-    async function upsertOrder(o){
-      // heqen fushat e brendshme
-      const copy = JSON.parse(JSON.stringify(o));
-      delete copy.__path;
-      const blob = new Blob([JSON.stringify(copy)], { type: 'application/json' });
-      const { error } = await sb.storage
-        .from(CFG.supabase.bucket)
-        .upload(o.__path, blob, { upsert:true, contentType:'application/json' });
-      if(error) throw error;
-    }
-
-    function render(orders){
-      const root = document.getElementById('orders');
-      root.innerHTML = '';
-      if(!orders.length){ root.textContent = 'S’ka porosi të sinkronizuara.'; return; }
-
-      const term = (document.getElementById('q')?.value||'').toLowerCase().trim();
-      const filtered = orders.filter(o=>{
-        if(!term) return true;
-        const name = (o?.client?.name||'').toLowerCase();
-        const code = (o?.client?.code||'').toLowerCase();
-        const phone= (o?.client?.phone||'').toLowerCase();
-        return name.includes(term)||code.includes(term)||phone.includes(term);
+    function fileToJpegBlob(file,maxW=1280,quality=.7){
+      return new Promise((resolve,reject)=>{
+        const img=new Image(), fr=new FileReader();
+        fr.onload=()=>{img.src=fr.result}; fr.onerror=reject;
+        img.onload=()=>{
+          const scale=Math.min(1,maxW/(img.width||maxW)), c=document.createElement('canvas');
+          c.width=Math.round((img.width||maxW)*scale); c.height=Math.round((img.height||maxW)*scale);
+          c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+          c.toBlob(b=> b?resolve(b):reject(new Error('toBlob failed')), 'image/jpeg', quality);
+        }; img.onerror=reject; fr.readAsDataURL(file);
       });
-
-      filtered.sort((a,b)=> (b?.ts||0) - (a?.ts||0));
-
-      if(!filtered.length){ root.textContent = 'Asgjë nuk përputhet me kërkimin.'; return; }
-
-      for(const o of filtered){
-        const div = document.createElement('div');
-        div.className = 'card';
-        const m2 = (o?.pay?.m2 ?? 0);
-        const euro = (o?.pay?.euro ?? 0);
-        const st = (o?.status||'pranim').toUpperCase();
-
-        const msg = msgGati(o);
-        const links = contactLinks(o, msg);
-
-        div.innerHTML = `
-          <div class="row">
-            <div class="top">
-              <div><b>#${o?.client?.code || '-'}</b> — ${o?.client?.name || 'Pa emër'}</div>
-              <div class="status">${st}</div>
-            </div>
-            <div class="small">M²: ${m2} &nbsp;|&nbsp; €: ${Number(euro).toFixed(2)}</div>
-            <div class="small">${o?.client?.phone||''}</div>
-          </div>
-          <div class="row2">
-            <button class="btn ok act-gati">BËJE GATI</button>
-            <a class="btn ghost" target="_blank" rel="noopener" href="${links.viber}">DËRGO — Viber</a>
-            <a class="btn ghost" target="_blank" rel="noopener" href="${links.wa}">DËRGO — WhatsApp</a>
-            <a class="btn ghost" target="_blank" rel="noopener" href="${links.sms}">DËRGO — SMS</a>
-            <a class="btn ghost" href="${await publicUrl(o.__path)}" target="_blank" rel="noopener">SHKARKO JSON</a>
-          </div>
-        `;
-
-        // Wire "BËJE GATI"
-        div.querySelector('.act-gati').addEventListener('click', async ()=>{
-          try{
-            const old = div.querySelector('.status').textContent;
-            div.querySelector('.status').textContent = 'GATI';
-            o.status = 'gati';
-            await upsertOrder(o);
-          }catch(err){
-            alert('S’u përditësua: ' + (err?.message||err));
-          }
-        });
-
-        root.appendChild(div);
-      }
     }
 
-    async function load(){
+    async function savePhoto(key, file){
       try{
-        const files = await listFiles();
-        const orders = [];
-        for(const f of files){
-          const o = await fetchOrderWithPath(f.name);
-          if(o) orders.push(o);
+        const jpeg = await fileToJpegBlob(file, 1280, .7);
+        if(window.sb){
+          const path = `${(window.OID||'ord')}/${key}_${Date.now()}.jpg`;
+          const { error } = sb.storage.from(CFG.supabase.bucket)
+            .upload(path, jpeg, { upsert:false, contentType:'image/jpeg' });
+          if (error) throw error;
+          const { data } = sb.storage.from(CFG.supabase.bucket).getPublicUrl(path);
+          const url = data.publicUrl; if(!url) throw new Error('Public URL bosh');
+          localStorage.setItem(key+'_url', url);
+          return url;
+        }else{
+          await idbPut(key, jpeg);
+          const objUrl = URL.createObjectURL(jpeg);
+          sessionStorage.setItem(key+'_objurl', objUrl);
+          return objUrl;
         }
-        render(orders);
       }catch(err){
-        document.getElementById('orders').textContent = 'Gabim gjatë ngarkimit: ' + (err?.message||err);
+        alert('Foto s’u ruajt: '+(err?.message||err));
+        throw err;
       }
     }
+    async function getPhotoUrl(key){
+      const direct=localStorage.getItem(key+'_url'); if(direct) return direct;
+      const fast=sessionStorage.getItem(key+'_objurl'); if(fast) return fast;
+      const blob=await idbGet(key); if(!blob) return null;
+      const url=URL.createObjectURL(blob); sessionStorage.setItem(key+'_objurl', url); return url;
+    }
+    function preview(url){
+      const ov=document.createElement('div'); ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:99999';
+      const im=document.createElement('img'); im.src=url; im.style.cssText='max-width:96%;max-height:92%;border-radius:10px';
+      ov.appendChild(im); ov.addEventListener('click',()=>ov.remove()); document.body.appendChild(ov);
+    }
+    window._photoAPI={savePhoto,getPhotoUrl,preview};
+  })();
+  </script>
 
-    document.getElementById('refresh').addEventListener('click', load);
-    document.getElementById('q').addEventListener('input', load);
-    document.addEventListener('DOMContentLoaded', load);
+  <!-- LOGJIKA + SHARED CODE LOCK -->
+  <script>
+  (function(){
+    const q=(s,b)=> (b||document).querySelector(s);
+    const qq=(s,b)=> Array.from((b||document).querySelectorAll(s));
+    const r2=x=> Math.round((x+Number.EPSILON)*100)/100;
+
+    /* INIT OrderId */
+    const hid=q('#orderId'); if(!hid.value) hid.value='ord_'+Date.now();
+    window.OID=hid.value;
+
+    /* --- SHARED CODE over Supabase Storage --- */
+    async function reserveSharedCode(){
+      if(!window.sb){ // fallback only local
+        let n=parseInt(localStorage.getItem('client_code_counter')||'0',10)||0;
+        n+=1; localStorage.setItem('client_code_counter', String(n));
+        return 'X'+n;
+      }
+      // list current locks
+      const { data:list, error } = await sb.storage
+        .from(CFG.supabase.bucket)
+        .list('codes', { limit: 1000, sortBy: { column:'name', order:'asc' } });
+      if(error && error.message!=='The resource was not found'){
+        console.warn('codes list error:', error);
+        let n=parseInt(localStorage.getItem('client_code_counter')||'0',10)||0;
+        n+=1; localStorage.setItem('client_code_counter', String(n));
+        return 'X'+n;
+      }
+      let maxN = 0;
+      (list||[]).forEach(f=>{
+        const m = /^x(\d+)\.lock$/i.exec(f.name||'');
+        if(m){ const v=parseInt(m[1],10); if(v>maxN) maxN=v; }
+      });
+      // try to reserve
+      for(let attempt=0; attempt<20; attempt++){
+        const n = maxN + 1 + attempt;
+        const path = `codes/x${n}.lock`;
+        const blob = new Blob([String(Date.now())], {type:'text/plain'});
+        const { error:upErr } = await sb.storage
+          .from(CFG.supabase.bucket)
+          .upload(path, blob, { upsert:false, contentType:'text/plain' });
+        if(!upErr){ return 'X'+n; } // success
+      }
+      // fallback
+      console.warn('reserveSharedCode failed; fallback local');
+      let n=parseInt(localStorage.getItem('client_code_counter')||'0',10)||0;
+      n+=1; localStorage.setItem('client_code_counter', String(n));
+      return 'X'+n;
+    }
+
+    const metaKey='order_meta_'+OID;
+    (async function initCode(){
+      let meta={}; try{ meta=JSON.parse(localStorage.getItem(metaKey)||'{}')||{} }catch{}
+      if(!meta.code){
+        meta.code = await reserveSharedCode();
+        localStorage.setItem(metaKey, JSON.stringify(meta));
+      }
+      (q('#ticketCode')||{}).textContent='KODI: '+meta.code;
+    })();
+
+    /* UI handlers */
+    (function(){
+      function handle(section,e){
+        const chip=e.target.closest('.chip'); if(!chip) return;
+        const t=(chip.textContent||'').trim(); const num=parseFloat(t.replace(/[^\d\.]/g,'')); 
+        if(!isNaN(num)) addRow(section,num); else addRow(section,null);
+      }
+      const t=q('#chips-tepiha'), s=q('#chips-staza');
+      if(t && !t.__w){ t.addEventListener('click',e=>handle('tepiha',e)); t.__w=1; }
+      if(s && !s.__w){ s.addEventListener('click',e=>handle('staza',e)); s.__w=1; }
+    })();
+
+    const listFor=sec=> q('#list-'+sec);
+
+    window.addRow=function(section,value){
+      const list=listFor(section); if(!list) return;
+      const row=document.createElement('div'); row.className='piece-row';
+
+      const mWrap=document.createElement('div'); mWrap.className='mwrap';
+      const m2=document.createElement('input'); m2.className='input piece-input'; m2.placeholder='m²'; m2.inputMode='decimal';
+      if(value!=null) m2.value=value;
+
+      const cam=document.createElement('label'); cam.className='cam-btn'; cam.textContent='📷';
+      const file=document.createElement('input'); file.type='file'; file.accept='image/*;capture=camera'; file.capture='environment'; file.style.display='none';
+      cam.appendChild(file);
+
+      const thumb=document.createElement('img'); thumb.className='thumb';
+
+      const pKey=`photo_${section}_${OID}_`+Date.now().toString(36);
+      row.setAttribute('data-photo-key', pKey);
+      (async()=>{ const prev=await window._photoAPI.getPhotoUrl(pKey); if(prev){ thumb.src=prev; thumb.style.display='inline-block'; cam.style.display='none'; }})();
+
+      file.addEventListener('change', async (ev)=>{
+        const f=ev.target.files && ev.target.files[0]; if(!f) return;
+        try{ const url=await window._photoAPI.savePhoto(pKey,f); thumb.src=url; thumb.style.display='inline-block'; cam.style.display='none'; }catch(e){}
+        ev.target.value='';
+      });
+      thumb.addEventListener('click', async ()=>{ const url=await window._photoAPI.getPhotoUrl(pKey); if(url) window._photoAPI.preview(url); });
+
+      const qty=document.createElement('input'); qty.className='input piece-qty'; qty.placeholder='copë'; qty.inputMode='numeric'; qty.value='1';
+
+      m2.addEventListener('input', computeTotals);
+      qty.addEventListener('input', computeTotals);
+
+      mWrap.appendChild(m2); mWrap.appendChild(cam); mWrap.appendChild(thumb);
+      row.appendChild(mWrap); row.appendChild(qty);
+      list.appendChild(row);
+      computeTotals();
+    };
+
+    window.removeRow=function(section){
+      const list=listFor(section); const rows=qq('.piece-row',list);
+      if(rows.length){ rows[rows.length-1].remove(); }
+      computeTotals();
+    };
+
+    function sectionTotal(section){
+      const rows=qq('.piece-row', listFor(section));
+      const tot=r2(rows.reduce((s,row)=>{
+        const m2=parseFloat((row.querySelector('.piece-input')||{}).value||'0')||0;
+        const qv=parseFloat((row.querySelector('.piece-qty')||{}).value||'1')||1;
+        return s + (m2*qv);
+      },0));
+      const tgt=q('#tot-'+section); if(tgt) tgt.textContent=tot.toFixed(2)+' m²';
+      return tot;
+    }
+
+    function computeStairs(){
+      const qty=parseFloat((q('#stairsQty')&&q('#stairsQty').value)||'0')||0;
+      const per=parseFloat((q('#stairsPer')&&q('#stairsPer').value)||'0.3')||0;
+      const m2=r2(qty*per); const out=q('#stairsM2'); if(out) out.textContent=m2.toFixed(2)+' m²'; return m2;
+    }
+
+    window.computeTotals=function(){
+      const tT=sectionTotal('tepiha'), tS=sectionTotal('staza'), tSt=computeStairs();
+      const m2=r2(tT+tS+tSt);
+      (q('#m2Total')||{}).textContent=m2.toFixed(2);
+      (q('#m2TotalFooter')||{}).textContent=m2.toFixed(2);
+      const rate=parseFloat((q('#rate')&&q('#rate').value)||'0')||0;
+      const euro=r2(m2*rate); (q('#euroTotal')||{}).textContent=euro.toFixed(2);
+
+      const up=!!(q('#paidUpfront')&&q('#paidUpfront').checked);
+      const pIn=q('#clientPaid'); if(pIn){ pIn.disabled=!up; if(!up) pIn.value=''; }
+      const paid=up?(parseFloat((pIn&&pIn.value)||'0')||0):0;
+      const debt=Math.max(0, r2(euro-paid)), change=Math.max(0, r2(paid-euro));
+      (q('#debt')||{}).value=debt.toFixed(2);
+      (q('#change')||{}).value=change.toFixed(2);
+    };
+    ['#stairsQty','#stairsPer','#rate','#paidUpfront','#clientPaid'].forEach(sel=>{
+      const el=q(sel); if(el) el.addEventListener(sel==='#paidUpfront'?'change':'input', computeTotals);
+    });
+
+    /* Foto klient & shkallore */
+    (function(){
+      const key='photo_client_'+OID, inp=q('#clientPhotoInput'), th=q('#clientThumb');
+      (async()=>{ const saved=await window._photoAPI.getPhotoUrl(key); if(saved && th){ th.src=saved; th.style.display='inline-block'; th.addEventListener('click',()=>window._photoAPI.preview(saved)); }})();
+      if(inp){ inp.addEventListener('change', async e=>{
+        const f=e.target.files&&e.target.files[0]; if(!f) return;
+        try{ const url=await window._photoAPI.savePhoto(key,f); if(th){ th.src=url; th.style.display='inline-block'; } }catch(e){}
+        e.target.value='';
+      });}
+      const sinp=q('#stairsPhotoInput'), wrap=q('#stairsCamWrap');
+      if(wrap){
+        (async()=>{ const sSaved=await window._photoAPI.getPhotoUrl('photo_shkallore_'+OID);
+          if(sSaved){ const t=document.createElement('img'); t.className='thumb'; t.style.display='inline-block'; t.src=sSaved; t.addEventListener('click',()=>window._photoAPI.preview(sSaved)); wrap.appendChild(t); }
+        })();
+      }
+      if(sinp){ sinp.addEventListener('change', async e=>{
+        const f=e.target.files&&e.target.files[0]; if(!f) return;
+        try{ const url=await window._photoAPI.savePhoto('photo_shkallore_'+OID, f); window._photoAPI.preview(url); }catch(e){}
+        e.target.value='';
+      });}
+    })();
+
+    /* Persistencë */
+    const LIST_KEY='order_list_v1'; const KEY=id=>'order_'+id;
+    function readRows(listId){
+      const list=q('#list-'+listId); if(!list) return [];
+      return qq('.piece-row', list).map(row=>({
+        m2: parseFloat((row.querySelector('.piece-input')||{}).value||'0')||0,
+        qty: parseFloat((row.querySelector('.piece-qty')||{}).value||'1')||1,
+        photoKey: row.getAttribute('data-photo-key')
+      }));
+    }
+    function totalsObj(){
+      const m2=parseFloat((q('#m2Total')&&q('#m2Total').textContent)||'0')||0;
+      const rate=parseFloat((q('#rate')&&q('#rate').value)||'0')||0;
+      const euro=r2(m2*rate);
+      const up=(q('#paidUpfront')&&q('#paidUpfront').checked);
+      const paid=up?(parseFloat((q('#clientPaid')&&q('#clientPaid').value)||'0')||0):0;
+      const debt=Math.max(0, r2(euro-paid)), change=Math.max(0, r2(paid-euro));
+      return {m2, rate, euro, paidUp:up, paid, debt, change};
+    }
+    function baseData(status='pranim'){
+      const meta = (()=>{ try{return JSON.parse(localStorage.getItem('order_meta_'+OID)||'{}')}catch(e){return{}} })();
+      return {
+        id:OID, ts:Date.now(), status,
+        client:{ name:(q('#name')?q('#name').value.trim():''), phone:(q('#phonePrefix')?q('#phonePrefix').value:'')+(q('#phone')?q('#phone').value.trim():''), code: meta.code||'', photoKey:'photo_client_'+OID },
+        tepiha: readRows('tepiha'),
+        staza:  readRows('staza'),
+        shkallore:{ qty: parseFloat((q('#stairsQty')&&q('#stairsQty').value)||'0')||0, per: parseFloat((q('#stairsPer')&&q('#stairsPer').value)||'0.3')||0, photoKey:'photo_shkallore_'+OID },
+        pay: totalsObj()
+      };
+    }
+    function saveIndexEntry(){
+      let idx=[]; try{ idx=JSON.parse(localStorage.getItem(LIST_KEY)||'[]'); }catch(e){ idx=[]; }
+      const entry={ id:OID, name:(q('#name')?q('#name').value.trim():''), phone:(q('#phonePrefix')?q('#phonePrefix').value:'')+(q('#phone')?q('#phone').value.trim():'') };
+      const i=idx.findIndex(x=>x.id===entry.id); if(i>=0) idx[i]=entry; else idx.unshift(entry);
+      localStorage.setItem(LIST_KEY, JSON.stringify(idx.slice(0,200)));
+    }
+    function saveDraftLocal(status='pranim'){
+      const data=baseData(status);
+      try{ localStorage.setItem(KEY(OID), JSON.stringify(data)); saveIndexEntry(); return data; }
+      catch(e){ alert('S’u ruajt drafti (storage i plotë?)'); return null; }
+    }
+    async function saveDraftOnline(data){
+      try{
+        if(!CFG.syncOrders || !window.sb) return true;
+        const path = `orders/${data.id}.json`;
+        const blob = new Blob([JSON.stringify(data)], {type: 'application/json'});
+        const { error } = sb.storage.from(CFG.supabase.bucket)
+          .upload(path, blob, { upsert:true, contentType:'application/json' });
+        if(error) throw error;
+        return true;
+      }catch(err){
+        console.warn('Online sync failed:', err?.message||err);
+        return false;
+      }
+    }
+    async function saveDraft(status='pranim'){
+      const data = saveDraftLocal(status);
+      if(!data) return false;
+      await saveDraftOnline(data);
+      return true;
+    }
+
+    const btnSave=q('#btnSaveDraft'); if(btnSave) btnSave.addEventListener('click', async e=>{
+      e.preventDefault(); await saveDraft('pranim');
+    });
+
+    /* DËRGO MESAZH */
+    (function(){
+      const btn = document.getElementById('btnNotify');
+      if(!btn || btn.__wired) return;
+      const sanitizeDigits = s => (s||'').replace(/[^\d]/g,'');
+      function buildMessage(){
+        const name  = (q('#name')?.value||'Klient');
+        const m2    = (q('#m2Total')?.textContent||'0.00');
+        const euro  = (q('#euroTotal')?.textContent||'0.00');
+        const rowsT = qq('#list-tepiha .piece-row').length;
+        const rowsS = qq('#list-staza .piece-row').length;
+        const stairsQty = parseFloat(q('#stairsQty')?.value||'0')||0;
+        const pieces = rowsT + rowsS + (stairsQty>0 ? 1 : 0);
+        return `Përshëndetje ${name}, procesi i pastrimit ka filluar.\nKeni ${pieces} copë = ${m2} m².\nTotali: ${euro} €.\nFaleminderit!`;
+      }
+      function buildTargets(msg){
+        const fullPhone = `${q('#phonePrefix')?.value||''}${q('#phone')?.value||''}`.trim();
+        const digits = sanitizeDigits(fullPhone);
+        const enc = encodeURIComponent(msg);
+        const viber = `viber://forward?text=${enc}`;
+        const wa = digits ? `https://wa.me/${digits}?text=${enc}` : `https://wa.me/?text=${enc}`;
+        const sms = digits ? `sms:${digits}?body=${enc}` : `sms:?body=${enc}`;
+        return {viber,wa,sms};
+      }
+      function openSheet(msg){
+        const {viber,wa,sms} = buildTargets(msg);
+        const ov=document.createElement('div'); ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.65);display:flex;align-items:flex-end;justify-content:center;z-index:99999';
+        const box=document.createElement('div'); box.style.cssText='background:#0c0f16;border:1px solid #273143;border-radius:14px 14px 0 0;width:100%;max-width:720px;padding:14px;';
+        const title=document.createElement('div'); title.textContent='Dërgo me:'; title.style.cssText='color:#eaf1ff;font-weight:1000;font-size:1.2rem;margin:4px 4px 10px'; box.appendChild(title);
+        function mkBtn(label, href){
+          const a=document.createElement('a'); a.textContent=label; a.href=href; a.target='_blank'; a.rel='noopener';
+          a.style.cssText='display:block;text-decoration:none;background:#1e60ff;color:#fff;padding:14px 16px;border-radius:12px;font-weight:1000;text-align:center;margin:8px 4px';
+          return a;
+        }
+        box.appendChild(mkBtn('Viber',viber));
+        box.appendChild(mkBtn('WhatsApp',wa));
+        box.appendChild(mkBtn('SMS',sms));
+        const cancel=document.createElement('button'); cancel.textContent='Anulo'; cancel.className='btn ghost'; cancel.style.cssText='width:100%;margin:8px 4px 0'; cancel.onclick=()=>ov.remove(); box.appendChild(cancel);
+        ov.appendChild(box); ov.addEventListener('click',e=>{ if(e.target===ov) ov.remove(); });
+        document.body.appendChild(ov);
+      }
+      btn.addEventListener('click', ()=> openSheet(buildMessage()));
+      btn.__wired = true;
+    })();
+
+    /* Auto-save kur del nga faqja */
+    window.addEventListener('beforeunload', ()=>{ try{ saveDraftLocal('pranim'); }catch{} });
+
+    /* VAZHDO: ruaj & kalo në PASTRIMI me status 'pastrim' */
+    const goBtn = q('#btnContinue');
+    if(goBtn && !goBtn.__wired){
+      goBtn.addEventListener('click', async (e)=>{
+        e.preventDefault();
+        const ok = await saveDraft('pastrim');
+        if(ok) await saveDraftOnline(baseData('pastrim'));
+        location.href = goBtn.getAttribute('href') || '../pastrimi/';
+      });
+      goBtn.__wired = true;
+    }
+
+    computeTotals();
+  })();
+  </script>
+
+  <!-- Debug -->
+  <script>
+    window.addEventListener('error', function(e){
+      document.body.innerHTML =
+        '<pre style="white-space:pre-wrap;color:#fff;background:#111;padding:12px;border:1px solid #333">' +
+        (e.message||'JS error') + '\n' + (e.filename||'') + ':' + (e.lineno||'') +
+        '</pre>';
+    });
   </script>
 </body>
 </html>
