@@ -5,136 +5,81 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>PRANIMI</title>
   <style>
-    /* ===== Tema & Shkallë ===== */
     :root{
-      /* dark, kontrast i lartë */
+      /* Dark i pastër + kontrast i lartë */
       --bg:#000; --ink:#fff; --muted:#b9c4da;
       --panel:#0c0f16; --panel-br:#273143; --line:#2c3954;
-
       --chip-bg:#121829; --chip-br:#2c3a55; --chip-ink:#e6f0ff;
+      --btn:#1e60ff; --btn-ink:#fff; --danger:#ef4444;
 
-      --btn:#1e60ff; --btn-ink:#fff; --ghost:#0c1220; --ghost-br:#2b3956;
-      --danger:#ef4444; --ok:#22c55e;
+      --uiScale:.8;    /* ~20% më i vogël gjithë UI */
+      --h:56px; --rad:14px;
 
-      /* madhësitë bazë */
-      --uiScale: .8;      /* 20% më i vogël gjithë UI */
-      --rowScale: .7;     /* 70% për rreshtat e hapur */
-
-      --h: 56px;          /* lartësia bazë e kontrollit */
-      --rad: 14px;        /* radius bazë */
-
+      /* >>> rreshtat: 80% më të vegjël (domethënë 20% madhësi) */
+      --rowScale:.20;                     /* ⇐ rrite në .25/.30 nëse del shumë i vogël */
       --h-row: calc(var(--h) * var(--rowScale));
       --rad-row: calc(var(--rad) * var(--rowScale));
       --fs: calc(16px * var(--uiScale));
-      --fs-big: calc(22px * var(--uiScale));
-      --fs-chip: calc(18px * var(--uiScale));
       --fs-row: calc(16px * var(--uiScale) * var(--rowScale));
+      --fs-chip: calc(18px * var(--uiScale));
     }
-
     *{box-sizing:border-box}
-    html,body{
-      margin:0; background:var(--bg); color:var(--ink);
-      font-family: ui-rounded, system-ui, -apple-system, Segoe UI, Roboto, Arial;
-      font-size: var(--fs); line-height:1.25;
-    }
-    .wrap{ max-width:980px; margin:0 auto; padding:0 16px 140px; }
+    html,body{margin:0;background:var(--bg);color:var(--ink);font-family:ui-rounded,system-ui,-apple-system,Segoe UI,Roboto,Arial;font-size:var(--fs);line-height:1.25}
+    .wrap{max-width:980px;margin:0 auto;padding:0 16px 140px}
+    h1{font-size:clamp(34px,5.4vw,50px);margin:20px 6px 6px;font-weight:1000;letter-spacing:.01em;display:flex;align-items:center;gap:12px}
+    .badge{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(180deg,rgba(34,197,94,.18),rgba(34,197,94,.08));border:1px solid rgba(34,197,94,.6);color:#d8ffe9;padding:10px 16px;border-radius:999px;font-weight:1000;font-size:1.1rem}
+    .card{background:var(--panel);border:1px solid var(--panel-br);border-radius:18px;padding:18px;margin:16px 0;box-shadow:0 12px 40px rgba(0,0,0,.55)}
+    .title{display:flex;align-items:center;justify-content:space-between;font-size:clamp(20px,2.6vw,28px);font-weight:1000;margin-bottom:12px}
+    label{font-size:.9rem;color:var(--muted);font-weight:900;letter-spacing:.03em}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    @media (max-width:720px){.row{grid-template-columns:1fr}}
+    .input{width:100%;min-height:56px;background:#070a12;border:2px solid var(--line);border-radius:14px;padding:14px 16px;font-size:1.25rem;font-weight:1000;color:var(--ink);outline:none}
+    .input:focus{border-color:#6aa1ff;box-shadow:0 0 0 3px rgba(30,96,255,.25)}
 
-    h1{
-      font-size: clamp(34px, 5.4vw, 50px);
-      margin: 20px 6px 6px; font-weight:1000; letter-spacing:.01em;
-      display:flex; align-items:center; gap:12px;
-    }
-    .badge{
-      display:inline-flex; align-items:center; gap:10px;
-      background: linear-gradient(180deg, rgba(34,197,94,.18), rgba(34,197,94,.08));
-      border:1px solid rgba(34,197,94,.6); color:#d8ffe9;
-      padding:10px 16px; border-radius:999px; font-weight:1000; font-size:1.1rem;
-    }
+    .chips{display:flex;flex-wrap:wrap;gap:12px;padding:6px 0}
+    .chip{border:2px solid var(--chip-br);background:var(--chip-bg);color:var(--chip-ink);border-radius:999px;padding:10px 16px;min-height:56px;font-weight:1000;font-size:var(--fs-chip)}
+    .chip:active,.chip:hover{background:#18223a}
 
-    .card{
-      background:var(--panel); border:1px solid var(--panel-br);
-      border-radius:18px; padding:18px; margin:16px 0;
-      box-shadow:0 12px 40px rgba(0,0,0,.55);
-    }
-    .title{
-      display:flex; align-items:center; justify-content:space-between;
-      font-size: clamp(20px, 2.6vw, 28px); font-weight:1000; margin-bottom:12px;
-    }
-    label{ font-size:.9rem; color:var(--muted); font-weight:900; letter-spacing:.03em }
+    .list{display:flex;flex-direction:column;gap:8px;margin-top:8px}
 
-    .row{ display:grid; grid-template-columns:1fr 1fr; gap:14px }
-    @media (max-width:720px){ .row{ grid-template-columns:1fr } }
-
-    .input{
-      width:100%; min-height:var(--h);
-      background:#070a12; border:2px solid var(--line);
-      border-radius:var(--rad); padding:14px 16px;
-      font-size:1.25rem; font-weight:1000; color:var(--ink);
-      outline:none;
+    /* ===== R R E S H T A T  (80% më të vegjël) ===== */
+    .piece-row{
+      display:grid;
+      grid-template-columns: 1fr 70px; /* m²+kamerë | qty */
+      gap:6px; align-items:center; margin-top:2px;
     }
-    .input:focus{ border-color:#6aa1ff; box-shadow:0 0 0 3px rgba(30,96,255,.25); }
+    .piece-id{display:none} /* s’duhet fare në mes */
+    .mwrap{display:flex;align-items:center;gap:6px}
 
-    .chips{ display:flex; flex-wrap:wrap; gap:12px; padding:6px 0 }
-    .chip{
-      border:2px solid var(--chip-br);
-      background:var(--chip-bg); color:var(--chip-ink);
-      border-radius:999px; padding:10px 16px; min-height:var(--h);
-      font-weight:1000; font-size:var(--fs-chip);
+    .piece-row .input{
+      min-height:var(--h-row);
+      border-radius:var(--rad-row);
+      font-size:var(--fs-row);
+      padding:6px 8px; border-width:1px;
     }
-    .chip:active,.chip:hover{ background:#18223a }
-
-    .list{ display:flex; flex-direction:column; gap:12px; margin-top:8px }
-
-    /* ===== R R E S H T A T  70% ===== */
-    .piece-row{ display:grid; grid-template-columns: 110px 1fr 120px; gap:10px; align-items:center }
-    .piece-id{
-      min-height:var(--h-row); border-radius:var(--rad-row);
-      background:#052312; border:2px solid rgba(34,197,94,.6);
-      color:#b9ffcc; display:flex; align-items:center; justify-content:center;
-      font-weight:1000; font-size:1.1rem;
-    }
-    .piece-row .input{ min-height:var(--h-row); border-radius:var(--rad-row); font-size:var(--fs-row); padding:12px 14px }
-    .mwrap{ display:flex; align-items:center; gap:8px }
-
-    .btnbar{ display:flex; gap:12px; flex-wrap:wrap; margin-top:8px }
-    .btn{
-      border:0; border-radius:var(--rad); padding:14px 18px; min-height:var(--h);
-      font-weight:1000; font-size:1.1rem; letter-spacing:.01em; cursor:pointer;
-      background:var(--btn); color:var(--btn-ink);
-    }
-    .btn.red{ background:var(--danger) }
-    .btn.ghost{ background:var(--ghost); color:#e6f0ff; border:2px solid var(--ghost-br) }
-
-    .tot,.pill{
-      display:flex; justify-content:space-between; align-items:center;
-      background:#0b111d; border:1px solid var(--panel-br);
-      border-radius:12px; padding:12px 14px; font-size:1.25rem; font-weight:1000;
-    }
-    .tot{ margin-top:10px }
-
-    body{ padding-bottom:140px }
-    .footer{
-      position:fixed; left:0; right:0; bottom:0; z-index:10;
-      background:rgba(5,7,12,.97); border-top:1px solid var(--panel-br); backdrop-filter:blur(6px);
-    }
-    .footwrap{
-      max-width:980px; margin:0 auto; padding:12px 16px;
-      display:grid; grid-template-columns:1fr auto auto; gap:12px; align-items:center;
-    }
-
-    /* Kamera */
     .cam-btn{
-      display:inline-flex; align-items:center; justify-content:center;
-      width:var(--h-row); height:var(--h-row); min-width:var(--h-row);
-      border:2px solid var(--ghost-br); border-radius:var(--rad-row);
-      background:#0a1220; cursor:pointer; font-size:22px; user-select:none; color:#e6f0ff;
+      display:inline-flex;align-items:center;justify-content:center;
+      width:var(--h-row);height:var(--h-row);min-width:var(--h-row);
+      border:1px solid #2b3956;border-radius:var(--rad-row);
+      background:#0a1220;color:#e6f0ff;font-size:14px;cursor:pointer;padding:0;
     }
     .thumb{
-      width:var(--h-row); height:var(--h-row); border-radius:var(--rad-row); object-fit:cover; display:none;
-      border:2px solid var(--ghost-br); cursor:pointer;
+      width:var(--h-row);height:var(--h-row);border-radius:var(--rad-row);object-fit:cover;border:1px solid #2b3956;display:none;cursor:pointer
     }
 
-    a.btn{text-decoration:none; display:inline-flex; align-items:center; justify-content:center}
+    .btnbar{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
+    .btn{border:0;border-radius:14px;padding:14px 18px;min-height:56px;font-weight:1000;font-size:1.1rem;cursor:pointer;background:var(--btn);color:var(--btn-ink)}
+    .btn.red{background:var(--danger)}
+    .btn.ghost{background:#0c1220;color:#e6f0ff;border:2px solid #2b3956}
+
+    .tot,.pill{display:flex;justify-content:space-between;align-items:center;background:#0b111d;border:1px solid var(--panel-br);border-radius:12px;padding:10px 12px;font-size:1.1rem;font-weight:1000}
+    .tot{margin-top:8px}
+
+    body{padding-bottom:140px}
+    .footer{position:fixed;left:0;right:0;bottom:0;z-index:10;background:rgba(5,7,12,.97);border-top:1px solid var(--panel-br);backdrop-filter:blur(6px)}
+    .footwrap{max-width:980px;margin:0 auto;padding:12px 16px;display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center}
+
+    a.btn{text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
   </style>
 </head>
 <body>
@@ -219,7 +164,7 @@
         <div><label>€ / m²</label><input class="input" id="rate" inputmode="decimal" value="2.50"></div>
         <div>
           <label>PAGUAR NË FILLIM (CASH)</label><br>
-          <label style="display:flex;align-items:center;gap:12px; font-size:1.1rem; font-weight:1000">
+          <label style="display:flex;align-items:center;gap:12px;font-size:1.1rem;font-weight:1000">
             <input type="checkbox" id="paidUpfront" style="width:26px;height:26px"> <span>Aktivo futjen e shumës</span>
           </label>
         </div>
@@ -252,26 +197,26 @@
 
   <script>
   (function(){
-    /* ===== SUPABASE – vendos të tuat ===== */
+    /* ── KONFIGURO SUPABASE ───────────────────────────────────────── */
     const CFG = {
       supabase: {
-        url: "",             // p.sh. "https://xxxx.supabase.co"
-        anonKey: "",         // Anon public key
+        url: "",              // p.sh. https://xxxx.supabase.co
+        anonKey: "",          // Anon public key
         bucket: "tepiha-photos"
       }
     };
-    function sbReady(){ return typeof window.supabase!=='undefined' && CFG.supabase.url && CFG.supabase.anonKey; }
-    let sb = sbReady() ? supabase.createClient(CFG.supabase.url, CFG.supabase.anonKey) : null;
+    const sbReady = () => typeof window.supabase!=='undefined' && CFG.supabase.url && CFG.supabase.anonKey;
+    const sb = sbReady() ? supabase.createClient(CFG.supabase.url, CFG.supabase.anonKey) : null;
 
-    /* ===== Helpers ===== */
+    /* ── HELPERS ───────────────────────────────────────────────────── */
     const q=(s,b)=> (b||document).querySelector(s);
     const qq=(s,b)=> Array.from((b||document).querySelectorAll(s));
     const r2=x=> Math.round((x+Number.EPSILON)*100)/100;
     const uid=()=> 'r'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 
-    /* ===== orderId + kodi klientit ===== */
+    /* ── ORDER + KODI ──────────────────────────────────────────────── */
     const hid=q('#orderId'); if(!hid.value) hid.value='ord_'+Date.now();
-    const OID = hid.value;
+    const OID=hid.value;
 
     function nextCode(){ let n=parseInt(localStorage.getItem('client_code_counter')||'0',10)||0; n+=1; localStorage.setItem('client_code_counter', String(n)); return 'X'+n; }
     const metaKey='order_meta_'+OID;
@@ -279,31 +224,34 @@
     if(!meta.code){ meta.code=nextCode(); localStorage.setItem(metaKey, JSON.stringify(meta)); }
     (q('#ticketCode')||{}).textContent = 'KODI: '+meta.code;
 
-    /* ===== Photos ===== */
-    async function fileToDataURL(file, max=1280, quality=.82){
-      const img=new Image(); const data=await new Promise((res,rej)=>{ const fr=new FileReader(); fr.onload=()=>res(fr.result); fr.onerror=rej; fr.readAsDataURL(file); });
-      img.src=data; await new Promise(r=>img.onload=r);
-      const r=Math.min(1, max/img.width, max/img.height); const w=Math.round(img.width*r), h=Math.round(img.height*r);
-      const c=document.createElement('canvas'); c.width=w; c.height=h; const ctx=c.getContext('2d'); ctx.drawImage(img,0,0,w,h);
-      return c.toDataURL('image/jpeg',quality);
+    /* ── FOTO: ruaje direkt (Supabase ose localStorage) ───────────── */
+    function readAsDataURL(file){
+      return new Promise((resolve,reject)=>{
+        const fr=new FileReader();
+        fr.onload=()=>resolve(fr.result);
+        fr.onerror=reject;
+        fr.readAsDataURL(file);      // direkt, pa canvas
+      });
     }
     async function savePhoto(key, file){
       try{
         if(sb){
-          const dataURL=await fileToDataURL(file);
-          const blob=await (await fetch(dataURL)).blob();
+          // ngarko file-in direkt siç është
           const path=`${OID}/${key}_${Date.now()}.jpg`;
-          const { error } = await sb.storage.from(CFG.supabase.bucket).upload(path, blob, { upsert:false, contentType:'image/jpeg' });
+          const { error } = await sb.storage.from(CFG.supabase.bucket).upload(path, file, { upsert:false, contentType:file.type||'image/jpeg' });
           if(error) throw error;
           const { data } = sb.storage.from(CFG.supabase.bucket).getPublicUrl(path);
           localStorage.setItem(key+'_url', data.publicUrl);
           return data.publicUrl;
         }else{
-          const dataURL=await fileToDataURL(file);
+          const dataURL = await readAsDataURL(file);
           localStorage.setItem(key+'_url', dataURL);
           return dataURL;
         }
-      }catch(e){ alert('S’u ruajt fotoja'); throw e; }
+      }catch(e){
+        alert('S’u ruajt fotoja');
+        throw e;
+      }
     }
     const getPhotoUrl=k=> localStorage.getItem(k+'_url');
     function preview(url){
@@ -311,30 +259,25 @@
       const im=document.createElement('img'); im.src=url; im.style.cssText='max-width:96%;max-height:92%;border-radius:10px';
       ov.appendChild(im); ov.addEventListener('click',()=>ov.remove()); document.body.appendChild(ov);
     }
+    document.addEventListener('click',(e)=>{const b=e.target.closest('.cam-btn');if(!b)return;const inp=b.querySelector('input[type=file]');if(inp)inp.click();},{capture:true});
 
-    document.addEventListener('click', (e)=>{
-      const b=e.target.closest('.cam-btn'); if(!b) return; const inp=b.querySelector('input[type=file]'); if(inp) inp.click();
-    }, {capture:true});
-
-    /* ===== Chips -> add rows ===== */
+    /* ── CHIPS -> ADD ROWS ─────────────────────────────────────────── */
     (function(){
-      function handle(section, e){
+      function handle(section,e){
         const chip=e.target.closest('.chip'); if(!chip) return;
         const t=(chip.textContent||'').trim(); const num=parseFloat(t.replace(/[^\d\.]/g,'')); 
-        if(!isNaN(num)) addRow(section, num); else addRow(section, null);
+        if(!isNaN(num)) addRow(section,num); else addRow(section,null);
       }
       const t=q('#chips-tepiha'), s=q('#chips-staza');
-      if(t && !t.__w){ t.addEventListener('click', e=>handle('tepiha',e)); t.__w=1; }
-      if(s && !s.__w){ s.addEventListener('click', e=>handle('staza',e)); s.__w=1; }
+      if(t && !t.__w){ t.addEventListener('click',e=>handle('tepiha',e)); t.__w=1; }
+      if(s && !s.__w){ s.addEventListener('click',e=>handle('staza',e)); s.__w=1; }
     })();
 
-    /* ===== Rows ===== */
+    /* ── ROWS ──────────────────────────────────────────────────────── */
     const listFor=sec=> q('#list-'+sec);
-    window.addRow = function(section, value){
+    window.addRow=function(section,value){
       const list=listFor(section); if(!list) return;
       const row=document.createElement('div'); row.className='piece-row';
-
-      const idCell=document.createElement('div'); idCell.className='piece-id'; idCell.textContent=meta.code || 'X';
 
       const mWrap=document.createElement('div'); mWrap.className='mwrap';
       const m2=document.createElement('input'); m2.className='input piece-input'; m2.placeholder='m²'; m2.inputMode='decimal';
@@ -346,28 +289,28 @@
 
       const thumb=document.createElement('img'); thumb.className='thumb';
 
-      const pKey=`photo_${section}_${OID}_${uid()}`; row.setAttribute('data-photo-key', pKey);
+      const pKey=`photo_${section}_${OID}_${uid()}`;
+      row.setAttribute('data-photo-key', pKey);
       const prev=getPhotoUrl(pKey); if(prev){ thumb.src=prev; thumb.style.display='inline-block'; cam.style.display='none'; }
-
       mWrap.appendChild(m2); mWrap.appendChild(cam); mWrap.appendChild(thumb);
 
       const qty=document.createElement('input'); qty.className='input piece-qty'; qty.placeholder='copë'; qty.inputMode='numeric'; qty.value='1';
 
       file.addEventListener('change', async ev=>{
         const f=ev.target.files && ev.target.files[0]; if(!f) return;
-        try{ const url=await savePhoto(pKey, f); thumb.src=url; thumb.style.display='inline-block'; cam.style.display='none'; }catch(e){}
+        try{ const url=await savePhoto(pKey,f); thumb.src=url; thumb.style.display='inline-block'; cam.style.display='none'; }catch(e){}
       });
-      thumb.addEventListener('click', ()=>{ const url=getPhotoUrl(pKey); if(url) preview(url); });
+      thumb.addEventListener('click',()=>{ const url=getPhotoUrl(pKey); if(url) preview(url); });
 
       m2.addEventListener('input', computeTotals);
       qty.addEventListener('input', computeTotals);
 
-      row.appendChild(idCell); row.appendChild(mWrap); row.appendChild(qty);
+      row.appendChild(mWrap); row.appendChild(qty);
       list.appendChild(row);
       computeTotals();
     };
-    window.removeRow = function(section){
-      const list=listFor(section); const rows=qq('.piece-row', list);
+    window.removeRow=function(section){
+      const list=listFor(section); const rows=qq('.piece-row',list);
       if(rows.length){ rows[rows.length-1].remove(); }
       computeTotals();
     };
@@ -383,7 +326,7 @@
       return tot;
     }
 
-    /* ===== Stairs + Totals ===== */
+    /* ── STAIRS + TOTALS ───────────────────────────────────────────── */
     function computeStairs(){
       const qty=parseFloat((q('#stairsQty')&&q('#stairsQty').value)||'0')||0;
       const per=parseFloat((q('#stairsPer')&&q('#stairsPer').value)||'0.3')||0;
@@ -408,13 +351,13 @@
       const el=q(sel); if(el) el.addEventListener(sel==='#paidUpfront'?'change':'input', computeTotals);
     });
 
-    /* Klient & Shkallore foto */
+    /* ── FOTO klient & shkallore ───────────────────────────────────── */
     (function(){
       const key='photo_client_'+OID, inp=q('#clientPhotoInput'), th=q('#clientThumb'), saved=getPhotoUrl(key);
       if(saved && th){ th.src=saved; th.style.display='inline-block'; th.addEventListener('click',()=>preview(saved)); }
       if(inp){ inp.addEventListener('change', async e=>{
         const f=e.target.files&&e.target.files[0]; if(!f) return;
-        try{ const url=await savePhoto(key, f); if(th){ th.src=url; th.style.display='inline-block'; } }catch(e){}
+        try{ const url=await savePhoto(key,f); if(th){ th.src=url; th.style.display='inline-block'; } }catch(e){}
       });}
       const sinp=q('#stairsPhotoInput'), wrap=q('#stairsCamWrap');
       if(wrap){
@@ -427,7 +370,7 @@
       });}
     })();
 
-    /* Ruaj draft */
+    /* ── RUAJ DRAFT ────────────────────────────────────────────────── */
     const LIST_KEY='order_list_v1'; const KEY=id=>'order_'+id;
     function readRows(listId){
       const list=q('#list-'+listId); if(!list) return [];
@@ -471,7 +414,7 @@
   })();
   </script>
 
-  <!-- Debugger i shpejtë për “screen e bardhë” -->
+  <!-- Debug: nëse ka white screen, do të shfaqet errori -->
   <script>
     window.addEventListener('error', function(e){
       document.body.innerHTML =
