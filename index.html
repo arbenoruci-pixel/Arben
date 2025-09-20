@@ -53,6 +53,8 @@ a{color:inherit;text-decoration:none}
 .input{flex:1;padding:12px;border-radius:10px;border:1px solid var(--line);background:#0e1730;color:#fff;font-weight:900;letter-spacing:1px}
 .btn{display:inline-flex;align-items:center;justify-content:center;padding:12px 14px;border-radius:10px;border:1px solid #2aa7d8;text-transform:uppercase;font-weight:1000;color:#fff;letter-spacing:.6px;box-shadow:0 2px 0 rgba(0,0,0,.25),0 0 0 1px rgba(255,255,255,.06) inset}
 .btn.search{background:linear-gradient(180deg,var(--blue1),var(--blue2));}
+.small{font-size:12px;padding:8px 10px;border-radius:9px}
+.buttons{display:flex;gap:8px;align-items:center}
 </style>
 </head>
 <body>
@@ -62,22 +64,24 @@ a{color:inherit;text-decoration:none}
       <div class="logo">🧼</div>
       <div><h1>KOMPANIA JONI</h1><div class="muted">HOME</div></div>
     </div>
-    <!-- link ARKA to ./arka/ -->
-    <a class="badge" href="./arka/">€ ARKA</a>
+    <div class="buttons">
+      <button id="btnSync" class="btn small">🔄 Rifresko nga cloud</button>
+      <div class="badge">€ ARKA</div>
+    </div>
   </div>
 
   <!-- MAIN STAGE BUTTONS -->
   <div class="panel">
     <div class="segment">
-      <a class="seg" href="./pranimi/">PRANIMI <span class="count cPr" id="cPr">0</span></a>
-      <a class="seg" href="./pastrimi/">PASTRIMI <span class="count cPa" id="cPa">0</span></a>
-      <a class="seg" href="./gati/">GATI <span class="count cGa" id="cGa">0</span></a>
-      <a class="seg" href="./marrje-sot/">MARRJE SOT <span class="count cMa" id="cMa">0</span></a>
+      <a class="seg" href="/pranimi/">PRANIMI <span class="count cPr" id="cPr">0</span></a>
+      <a class="seg" href="/pastrimi/">PASTRIMI <span class="count cPa" id="cPa">0</span></a>
+      <a class="seg" href="/gati/">GATI <span class="count cGa" id="cGa">0</span></a>
+      <a class="seg" href="/marrje-sot/">MARRJE SOT <span class="count cMa" id="cMa">0</span></a>
     </div>
   </div>
 
   <!-- BIG BUTTONS STACKED -->
-  <div class="btnBigWrap"><a class="btnBig btnGreen" href="./pranimi/" id="addX">＋ KLIENT I RI</a></div>
+  <div class="btnBigWrap"><a class="btnBig btnGreen" href="/pranimi/" id="addX">＋ KLIENT I RI</a></div>
   <div class="btnBigWrap"><button class="btnBig btnRed" id="togglePap">PAPLOTËSUARA <span class="pill" id="countPap">0</span></button></div>
   <div class="inlinePanel" id="papPanel">
     <div id="papList" class="list muted">—</div>
@@ -107,105 +111,137 @@ a{color:inherit;text-decoration:none}
   </div>
 </div>
 
+<!-- Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+  const CFG = {
+    supabase: {
+      url: "https://vnidjrxidvusulinozbn.supabase.co",
+      anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZuaWRqcnhpZHZ1c3VsaW5vemJuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc1MTk0NjAsImV4cCI6MjA3MzA5NTQ2MH0.hzGSFKU3sKuUKBUBsTE0rKIerj2uhG9pGS8_K9N7tpA",
+      bucket: "tepiha-photos"
+    }
+  };
+  const sb = supabase.createClient(CFG.supabase.url, CFG.supabase.anonKey);
+</script>
+
 <script>
 (function(){
   const LIST_KEY="order_list_v1"; const KEY=id=>`order_${id}`;
   const getIndex=()=>{try{return JSON.parse(localStorage.getItem(LIST_KEY)||"[]")}catch(e){return []}};
-  const getOrder=id=>{try{return JSON.parse(localStorage.getItem(KEY(id))||"null")}catch(e){return null}};
+  const setIndex=idx=>localStorage.setItem(LIST_KEY, JSON.stringify(idx.slice(0,500)));
+
+  async function syncFromCloud(){
+    try{
+      const { data:list, error } = await sb.storage.from(CFG.supabase.bucket)
+        .list('orders', { limit: 10000, sortBy:{column:'name', order:'asc'} });
+      if(error && error.message!=='The resource was not found') throw error;
+
+      const idxMap=new Map((getIndex()||[]).map(x=>[x.id,x]));
+      for(const f of (list||[])){
+        if(!/\.json$/i.test(f.name)) continue;
+        const path = `orders/${f.name}`;
+        const { data:blob, error:dlErr } = await sb.storage.from(CFG.supabase.bucket).download(path);
+        if(dlErr){ console.warn('download fail', path, dlErr.message); continue; }
+        const text = await blob.text();
+        let o=null; try{ o=JSON.parse(text); }catch(e){ continue; }
+        if(!o || !o.id) continue;
+        localStorage.setItem(KEY(o.id), JSON.stringify(o));
+        idxMap.set(o.id, { id:o.id, name:o.client?.name||'', phone:o.client?.phone||'' });
+      }
+      setIndex(Array.from(idxMap.values()).sort((a,b)=> (b.id>a.id?1:-1)));
+      render(); // update counts + lists
+    }catch(e){
+      alert('S’u sinkronizua nga cloud: '+(e.message||e));
+    }
+  }
+
+  // ---- UI from previous version ----
   const text=s=>(s||"").toString();
   const fmtDate=ts=>{try{const d=new Date(ts||Date.now());const p=n=>String(n).padStart(2,"0");return `${p(d.getDate())}.${p(d.getMonth()+1)}.${p(d.getFullYear())} ${p(d.getHours())}:${p(d.getMinutes())}`}catch(e){return""}};
   const padX=n=>{n=parseInt(n)||0;return n<10?'X0'+n:'X'+n};
+  const getOrder=id=>{try{return JSON.parse(localStorage.getItem(KEY(id))||"null")}catch(e){return null}};
 
-  const idx=getIndex();
-  const counts={pranim:0,pastrim:0,gati:0,marrje:0};
-  let taCount=0;
-  for(const row of idx){
-    const o=getOrder(row.id); if(!o) continue;
-    const s=String(o.status||'').toLowerCase();
-    if(s==='pranim') counts.pranim++;
-    else if(s==='pastrim') counts.pastrim++;
-    else if(s==='gati') counts.gati++;
-    else if(s==='marrje') counts.marrje++;
-    const t=(o.transport&&o.transport.code)||o.transport_code||o.tcode||(o.client&&o.client.transportCode)||'';
-    const active=!!t && s!=='marrje';
-    if(active) taCount++;
-  }
-  document.getElementById('cPr').textContent=counts.pranim;
-  document.getElementById('cPa').textContent=counts.pastrim;
-  document.getElementById('cGa').textContent=counts.gati;
-  document.getElementById('cMa').textContent=counts.marrje;
-  document.getElementById('countPap').textContent=counts.pranim;
-  document.getElementById('countTA').textContent=taCount;
-
-  function fillPap(){
-    const list=document.getElementById('papList'); const items=[];
-    for(const row of idx){const o=getOrder(row.id); if(!o) continue;
-      if(String(o.status||'').toLowerCase()==='pranim'){
-        const name=text(o.client&&o.client.name)||'(pa emër)';
-        const phone=text(o.client&&o.client.phone)||'';
-        const raw=(o.client&&o.client.code)||'';
-        const code=raw && /^X\d+$/.test(raw)?' • '+raw.replace(/^X(\d+)$/,(m,n)=>padX(n)):(raw?' • '+raw:'');
-        const when=o.ts?' • '+fmtDate(o.ts):'';
-        items.push({id:o.id,label:`${name} • ${phone}${code}${when}`});
-      }
-    }
-    if(!items.length){ list.textContent="S’KA POROSI TË PAPLOTËSUARA."; }
-    else {
-      list.classList.remove('muted');
-      list.innerHTML=items.map(x=>`<a class="rowitem" href="./pranimi/?id=${x.id}"><div>${x.label}</div><div>➜</div></a>`).join("");
-    }
-  }
-
-  function fillTA(){
-    const list=document.getElementById('taList'); const rows=[];
-    for(const row of idx){const o=getOrder(row.id); if(!o) continue;
-      const t=(o.transport&&o.transport.code)||o.transport_code||o.tcode||(o.client&&o.client.transportCode)||'';
+  function render(){
+    const idx=getIndex();
+    const counts={pranim:0,pastrim:0,gati:0,marrje:0};
+    let taCount=0;
+    for(const row of idx){
+      const o=getOrder(row.id); if(!o) continue;
       const s=String(o.status||'').toLowerCase();
+      if(s==='pranim') counts.pranim++;
+      else if(s==='pastrim') counts.pastrim++;
+      else if(s==='gati') counts.gati++;
+      else if(s==='marrje') counts.marrje++;
+      const t=(o.transport&&o.transport.code)||o.transport_code||o.tcode||(o.client&&o.client.transportCode)||'';
       const active=!!t && s!=='marrje';
-      if(active){
-        const name=text(o.client&&o.client.name)||'(pa emër)';
-        const when=o.ts?' • '+fmtDate(o.ts):'';
-        rows.push(`<a class="rowitem" href="./transporti/?id=${o.id}"><div>${t} • ${name} • ${s.toUpperCase()}${when}</div><div>➜</div></a>`);
-      }
+      if(active) taCount++;
     }
-    if(!rows.length){ list.textContent="S’KA TRANSPORT AKTIV."; }
-    else { list.classList.remove('muted'); list.innerHTML=rows.join(""); }
+    document.getElementById('cPr').textContent=counts.pranim;
+    document.getElementById('cPa').textContent=counts.pastrim;
+    document.getElementById('cGa').textContent=counts.gati;
+    document.getElementById('cMa').textContent=counts.marrje;
+    document.getElementById('countPap').textContent=counts.pranim;
+    document.getElementById('countTA').textContent=taCount;
+
+    function fillPap(){
+      const list=document.getElementById('papList'); const items=[];
+      for(const row of idx){const o=getOrder(row.id); if(!o) continue;
+        if(String(o.status||'').toLowerCase()==='pranim'){
+          const name=text(o.client&&o.client.name)||'(pa emër)';
+          const phone=text(o.client&&o.client.phone)||'';
+          const raw=(o.client&&o.client.code)||'';
+          const code=raw && /^X\d+$/.test(raw)?' • '+raw.replace(/^X(\d+)$/,(m,n)=>padX(n)):(raw?' • '+raw:'');
+          const when=o.ts?' • '+fmtDate(o.ts):'';
+          items.push({id:o.id,label:`${name} • ${phone}${code}${when}`});
+        }
+      }
+      if(!items.length){ list.textContent="S’KA POROSI TË PAPLOTËSUARA."; }
+      else { list.classList.remove('muted'); list.innerHTML=items.map(x=>`<a class="rowitem" href="/pranimi/?id=${x.id}"><div>${x.label}</div><div>➜</div></a>`).join(""); }
+    }
+    function fillTA(){
+      const list=document.getElementById('taList'); const rows=[];
+      for(const row of idx){const o=getOrder(row.id); if(!o) continue;
+        const t=(o.transport&&o.transport.code)||o.transport_code||o.tcode||(o.client&&o.client.transportCode)||'';
+        const s=String(o.status||'').toLowerCase();
+        const active=!!t && s!=='marrje';
+        if(active){
+          const name=text(o.client&&o.client.name)||'(pa emër)';
+          const when=o.ts?' • '+fmtDate(o.ts):'';
+          rows.push(`<a class="rowitem" href="/transporti/?id=${o.id}"><div>${t} • ${name} • ${s.toUpperCase()}${when}</div><div>➜</div></a>`);
+        }
+      }
+      if(!rows.length){ list.textContent="S’KA TRANSPORT AKTIV."; }
+      else { list.classList.remove('muted'); list.innerHTML=rows.join(""); }
+    }
+
+    const papPanel=document.getElementById('papPanel');
+    document.getElementById('togglePap')?.onclick=()=>{
+      papPanel.style.display = (papPanel.style.display==='block')?'none':'block';
+      if(papPanel.style.display==='block'){ fillPap(); papPanel.scrollIntoView({behavior:'smooth'}); }
+    };
+
+    const taPanel=document.getElementById('taPanel');
+    document.getElementById('toggleTA')?.onclick=()=>{
+      taPanel.style.display = (taPanel.style.display==='block')?'none':'block';
+      if(taPanel.style.display==='block'){ fillTA(); taPanel.scrollIntoView({behavior:'smooth'}); }
+    };
+
+    document.getElementById('searchX')?.addEventListener('click', ()=>{
+      const q=(document.getElementById('qX')?.value||'').trim().toUpperCase(); if(!q)return;
+      for(const row of idx){const o=getOrder(row.id); if(!o) continue; if((o.client&&String(o.client.code||'').toUpperCase())===q){ location.href=`/pranimi/?id=${o.id}`; return; }}
+      alert('S’u gjet KODI: '+q);
+    });
+    document.getElementById('searchT')?.addEventListener('click', ()=>{
+      const q=(document.getElementById('qT')?.value||'').trim().toUpperCase(); if(!q)return;
+      for(const row of idx){const o=getOrder(row.id); if(!o) continue; const t=(o.transport&&o.transport.code)||o.transport_code||o.tcode||(o.client&&o.client.transportCode)||''; if(String(t).toUpperCase()===q){ location.href=`/transporti/?id=${o.id}`; return; }}
+      alert('S’u gjet KODI T: '+q);
+    });
   }
 
-  const papPanel=document.getElementById('papPanel');
-  document.getElementById('togglePap')?.addEventListener('click', ()=>{
-    papPanel.style.display = (papPanel.style.display==='block')?'none':'block';
-    if(papPanel.style.display==='block'){ fillPap(); papPanel.scrollIntoView({behavior:'smooth'}); }
-  });
-
-  const taPanel=document.getElementById('taPanel');
-  document.getElementById('toggleTA')?.addEventListener('click', ()=>{
-    taPanel.style.display = (taPanel.style.display==='block')?'none':'block';
-    if(taPanel.style.display==='block'){ fillTA(); taPanel.scrollIntoView({behavior:'smooth'}); }
-  });
-
-  document.getElementById('searchX')?.addEventListener('click', ()=>{
-    const q=(document.getElementById('qX')?.value||'').trim().toUpperCase(); if(!q)return;
-    for(const row of idx){
-      const o=getOrder(row.id); if(!o) continue;
-      if((o.client&&String(o.client.code||'').toUpperCase())===q){
-        location.href=`./pranimi/?id=${o.id}`; return;
-      }
-    }
-    alert('S’u gjet KODI: '+q);
-  });
-
-  document.getElementById('searchT')?.addEventListener('click', ()=>{
-    const q=(document.getElementById('qT')?.value||'').trim().toUpperCase(); if(!q)return;
-    for(const row of idx){
-      const o=getOrder(row.id); if(!o) continue;
-      const t=(o.transport&&o.transport.code)||o.transport_code||o.tcode||(o.client&&o.client.transportCode)||'';
-      if(String(t).toUpperCase()===q){
-        location.href=`./transporti/?id=${o.id}`; return;
-      }
-    }
-    alert('S’u gjet KODI T: '+q);
-  });
+  // Hook sync button + auto sync on load
+  document.getElementById('btnSync').addEventListener('click', syncFromCloud);
+  render();
+  syncFromCloud(); // auto attempt once
 })();
 </script>
 </body>
