@@ -77,15 +77,15 @@ button{cursor:pointer}
   <!-- MAIN STAGE BUTTONS -->
   <div class="panel">
     <div class="segment">
-      <a class="seg nav" data-href="/pranimi/">PRANIMI <span class="count cPr" id="cPr">0</span></a>
-      <a class="seg nav" data-href="/pastrimi/">PASTRIMI <span class="count cPa" id="cPa">0</span></a>
-      <a class="seg nav" data-href="/gati/">GATI <span class="count cGa" id="cGa">0</span></a>
-      <a class="seg nav" data-href="/marrje-sot/">MARRJE SOT <span class="count cMa" id="cMa">0</span></a>
+      <a class="seg" href="/pranimi/">PRANIMI <span class="count cPr" id="cPr">0</span></a>
+      <a class="seg" href="/pastrimi/">PASTRIMI <span class="count cPa" id="cPa">0</span></a>
+      <a class="seg" href="/gati/">GATI <span class="count cGa" id="cGa">0</span></a>
+      <a class="seg" href="/marrje-sot/">MARRJE SOT <span class="count cMa" id="cMa">0</span></a>
     </div>
   </div>
 
   <!-- BIG BUTTONS STACKED -->
-  <div class="btnBigWrap"><a class="btnBig btnGreen nav" data-href="/pranimi/" id="addX">＋ KLIENT I RI</a></div>
+  <div class="btnBigWrap"><a class="btnBig btnGreen" href="/pranimi/" id="addX">＋ KLIENT I RI</a></div>
   <div class="btnBigWrap"><button class="btnBig btnRed" id="togglePap">PAPLOTËSUARA <span class="pill" id="countPap">0</span></button></div>
   <div class="inlinePanel" id="papPanel">
     <div id="papList" class="list muted">—</div>
@@ -118,6 +118,7 @@ button{cursor:pointer}
 <!-- Supabase SDK -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script>
+  // Safe Supabase init (won’t crash if CDN blocked)
   const CFG = {
     supabase: {
       url: "https://vnidjrxidvusulinozbn.supabase.co",
@@ -125,7 +126,9 @@ button{cursor:pointer}
       bucket: "tepiha-photos"
     }
   };
-  const sb = supabase.createClient(CFG.supabase.url, CFG.supabase.anonKey);
+  const sb = (typeof supabase!=='undefined')
+    ? supabase.createClient(CFG.supabase.url, CFG.supabase.anonKey)
+    : null;
 </script>
 
 <script>
@@ -138,9 +141,10 @@ button{cursor:pointer}
   const fmtDate=ts=>{try{const d=new Date(ts||Date.now());const p=n=>String(n).padStart(2,"0");return `${p(d.getDate())}.${p(d.getMonth()+1)}.${p(d.getFullYear())} ${p(d.getHours())}:${p(d.getMinutes())}`}catch(e){return""}};
   const padX=n=>{n=parseInt(n)||0;return n<10?'X0'+n:'X'+n};
 
+  // ---- Cloud sync (guard all sb usage) ----
   let syncing=false;
   async function syncFromCloud(){
-    if(syncing) return; syncing=true;
+    if(!sb || syncing) return; syncing=true;
     try{
       const { data:list, error } = await sb.storage.from(CFG.supabase.bucket)
         .list('orders', { limit: 10000, sortBy:{column:'name', order:'asc'} });
@@ -165,8 +169,8 @@ button{cursor:pointer}
     }finally{ syncing=false; }
   }
 
-  // Try to resolve X-code directly via codes/xN.used => id
   async function resolveXCodeToId(xcode){
+    if(!sb) return null;
     try{
       const m=/^X(\d+)$/i.exec((xcode||'').trim().toUpperCase()); if(!m) return null;
       const path=`codes/x${parseInt(m[1],10)}.used`;
@@ -177,6 +181,7 @@ button{cursor:pointer}
     }catch(e){ return null; }
   }
 
+  // ---- Render & UI logic ----
   function render(){
     const idx=getIndex();
     const counts={pranim:0,pastrim:0,gati:0,marrje:0};
@@ -232,49 +237,47 @@ button{cursor:pointer}
       else { listEl.classList.remove('muted'); listEl.innerHTML=rows.join(""); }
     }
 
-    // toggle handlers
-    const papPanel=document.getElementById('papPanel');
-    document.getElementById('togglePap')?.onclick=()=>{
-      papPanel.style.display = (papPanel.style.display==='block')?'none':'block';
-      if(papPanel.style.display==='block'){ fillPap(); papPanel.scrollIntoView({behavior:'smooth'}); }
-    };
-    const taPanel=document.getElementById('taPanel');
-    document.getElementById('toggleTA')?.onclick=()=>{
-      taPanel.style.display = (taPanel.style.display==='block')?'none':'block';
-      if(taPanel.style.display==='block'){ fillTA(); taPanel.scrollIntoView({behavior:'smooth'}); }
-    };
+    // toggles
+    document.getElementById('togglePap')?.addEventListener('click', ()=>{
+      const p=document.getElementById('papPanel');
+      p.style.display = (p.style.display==='block')?'none':'block';
+      if(p.style.display==='block'){ fillPap(); p.scrollIntoView({behavior:'smooth'}); }
+    });
+    document.getElementById('toggleTA')?.addEventListener('click', ()=>{
+      const p=document.getElementById('taPanel');
+      p.style.display = (p.style.display==='block')?'none':'block';
+      if(p.style.display==='block'){ fillTA(); p.scrollIntoView({behavior:'smooth'}); }
+    });
   }
 
-  // Search X — now cloud-aware
+  // Search X — local, then cloud resolve, then full sync
   document.getElementById('searchX')?.addEventListener('click', async ()=>{
     const q=(document.getElementById('qX')?.value||'').trim().toUpperCase();
     if(!q) return;
 
-    // 1) Try local exact match
+    // 1) local
     for(const row of getIndex()){ const o=getOrder(row.id); if(!o) continue;
       if((o.client&&String(o.client.code||'').toUpperCase())===q){
         location.href=`/pranimi/?id=${o.id}`; return;
       }
     }
-
-    // 2) Try cloud direct resolve via codes/xN.used
+    // 2) cloud code resolve
     const resolved = await resolveXCodeToId(q);
-    if(resolved){
-      // ensure order exists locally; if not, download it
-      if(!getOrder(resolved)){
+    if(resolved && !getOrder(resolved)){
+      const ok = await (async()=>{
+        if(!sb) return false;
         const { data:blob, error } = await sb.storage.from(CFG.supabase.bucket).download(`orders/${resolved}.json`);
-        if(!error){
-          const order=JSON.parse(await blob.text());
-          localStorage.setItem(KEY(order.id), JSON.stringify(order));
-          const idxMap=new Map((getIndex()||[]).map(x=>[x.id,x]));
-          idxMap.set(order.id,{id:order.id,name:order.client?.name||'',phone:order.client?.phone||''});
-          setIndex(Array.from(idxMap.values()));
-        }
-      }
-      location.href=`/pranimi/?id=${resolved}`; return;
+        if(error) return false;
+        const order=JSON.parse(await blob.text());
+        localStorage.setItem(KEY(order.id), JSON.stringify(order));
+        const idxMap=new Map((getIndex()||[]).map(x=>[x.id,x]));
+        idxMap.set(order.id,{id:order.id,name:order.client?.name||'',phone:order.client?.phone||''});
+        setIndex(Array.from(idxMap.values()));
+        return true;
+      })();
+      if(ok){ location.href=`/pranimi/?id=${resolved}`; return; }
     }
-
-    // 3) Fallback: full sync then retry local
+    // 3) full cloud sync then retry local
     await syncFromCloud();
     for(const row of getIndex()){ const o=getOrder(row.id); if(!o) continue;
       if((o.client&&String(o.client.code||'').toUpperCase())===q){
@@ -284,7 +287,7 @@ button{cursor:pointer}
     alert('S’u gjet KODI: '+q);
   });
 
-  // Search T stays local for now (can be made cloud-aware later if needed)
+  // Transport search (local; can be cloudified later)
   document.getElementById('searchT')?.addEventListener('click', ()=>{
     const q=(document.getElementById('qT')?.value||'').trim().toUpperCase(); if(!q)return;
     for(const row of getIndex()){const o=getOrder(row.id); if(!o) continue;
@@ -294,25 +297,23 @@ button{cursor:pointer}
     alert('S’u gjet KODI T: '+q);
   });
 
-  // Auto-sync triggers
-  const autoSync=()=>syncFromCloud();
+  // Auto-sync (only if cloud client exists)
+  const autoSync=()=>{ if(sb) syncFromCloud(); };
   window.addEventListener('focus', autoSync);
   document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='visible') autoSync(); });
-  document.getElementById('btnSync').addEventListener('click', autoSync);
+  document.getElementById('btnSync')?.addEventListener('click', autoSync);
 
-  // “nav” links: sync first, then go
-  document.querySelectorAll('.nav').forEach(el=>{
-    el.addEventListener('click', async (e)=>{
-      e.preventDefault();
-      const href=el.getAttribute('data-href')||'/';
-      await syncFromCloud();
-      location.href=href;
-    });
-  });
-
-  // First render + initial sync
+  // First render + initial (safe) sync
   render();
-  syncFromCloud();
+  autoSync();
+
+  // On-page error helper so you see what went wrong next time
+  window.addEventListener('error', function(e){
+    const box=document.createElement('div');
+    box.style.cssText='position:fixed;left:8px;right:8px;bottom:8px;background:#220; color:#fff; padding:10px;border:1px solid #933;border-radius:8px; z-index:99999; font-family:monospace; white-space:pre-wrap';
+    box.textContent='JS ERROR: '+(e.message||'')+'\n'+(e.filename||'')+':'+(e.lineno||'');
+    document.body.appendChild(box);
+  });
 })();
 </script>
 </body>
