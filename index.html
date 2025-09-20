@@ -1,92 +1,195 @@
-<!doctype html><html lang="sq"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=0.7, maximum-scale=0.7, user-scalable=no">
-<title>KOMPANIA JONI • HOME</title>
+<!doctype html><html lang="sq">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>HOME • Big Buttons Inline Lists</title>
 <style>
 :root{
   --bg:#0b1220; --bg2:#0a111c;
   --panel:#0f1a2a; --panel2:#101a27;
   --line:#1f2e46; --text:#eaf1ff; --muted:#9fb4d6;
-  --pill:#12263e; --pillBlue1:#1aa5d8; --pillBlue2:#146b95;
-  --green:#0e7a3a; --green2:#0a5e2d;
+  --blue1:#1aa5d8; --blue2:#146b95;
+  --green1:#19a25f; --green2:#0e6d3d;
+  --amber1:#c78a2a; --amber2:#8a5f19;
+  --red1:#ff5a5a; --red2:#8b2a2a;
 }
-*{box-sizing:border-box} body{margin:0;background:radial-gradient(1200px 600px at 10% -10%, rgba(26,165,216,.12), transparent 50%), linear-gradient(180deg,var(--bg),var(--bg2)); color:var(--text); font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial}
-.app{max-width:860px;margin:0 auto;padding:16px}
-.panel{background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02)); border:1px solid var(--line); border-radius:18px; padding:16px; box-shadow:0 0 0 1px rgba(255,255,255,.04) inset}
-.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
-.badge{background:linear-gradient(180deg,#1d8a52,#13643b); border:1px solid #3bbd7e; color:#e8ffef; padding:6px 12px; border-radius:999px; font-weight:900}
-h1{margin:4px 0 0; font-size:24px; letter-spacing:.6px; text-align:center}
-.sub{color:var(--muted); font-size:12px; text-align:center; margin:6px 0 12px}
-.pills{display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-top:8px}
-.pill{display:inline-flex; align-items:center; justify-content:center; height:52px; padding:0 22px; border-radius:999px; text-decoration:none; color:var(--text); font-weight:900; border:1px solid var(--line); background:linear-gradient(180deg,#1c2f46,#111a2b)}
-.pill.primary{background:linear-gradient(180deg, var(--pillBlue1), var(--pillBlue2)); border-color:#2aa7d8}
-.section{margin-top:14px}
-.sec-title{font-weight:900; letter-spacing:.5px; margin:0 2px 10px}
-.btnBig{display:flex; align-items:center; justify-content:center; height:56px; border-radius:16px; text-decoration:none; font-weight:900; color:var(--text); border:1px solid var(--line); background:linear-gradient(180deg, var(--pillBlue1), var(--pillBlue2))}
-.searchRow{display:grid; grid-template-columns:1fr 120px; gap:10px; margin-top:10px}
-.input{width:100%; padding:12px; border-radius:12px; border:1px solid var(--line); background:#0f1826; color:var(--text); font-weight:800}
-.btn{display:flex; align-items:center; justify-content:center; border-radius:12px; border:1px solid var(--line); background:linear-gradient(180deg,#1c2f46,#111a2b); color:var(--text); text-decoration:none; font-weight:900}
-.btn h{display:block; font-weight:900}
-.transportBtn{display:flex; align-items:center; justify-content:center; height:56px; border-radius:16px; text-decoration:none; font-weight:900; color:var(--text); border:1px solid var(--line); background:linear-gradient(180deg,#2a3446,#1a2436)}
-/* Footer tap fix */
-.footer { pointer-events: none; }
-.footer .footwrap, .footer .btn, .footer .pill { pointer-events: auto; }
-</style>
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(1000px 600px at 50% -120px, rgba(255,255,255,.04), transparent), linear-gradient(180deg,var(--bg),var(--bg2));color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;letter-spacing:.2px}
+a{color:inherit;text-decoration:none}
+.app{max-width:960px;margin:0 auto;padding:16px}
+.panel{background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:0 0 0 1px rgba(255,255,255,.04) inset}
 
-<!-- injected by scale_65 -->
-<style id="global_scale_65">
-  /* 35% më e vogël (scale 0.65) – pa prek dizajnin, vetëm shrink */
-  html, body { height: auto !important; }
-  body {
-    /* */ */
-    transform-origin: top left;
-    /* */ */
-  }
-/* Footer tap fix */
-.footer { pointer-events: none; }
-.footer .footwrap, .footer .btn, .footer .pill { pointer-events: auto; }
-</style>
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.brand{display:flex;align-items:center;gap:10px}
+.logo{width:40px;height:40px;border-radius:10px;background:linear-gradient(180deg,#254369,#15263c);border:1px solid #203651;display:flex;align-items:center;justify-content:center}
+.brand h1{margin:0;font-size:18px;letter-spacing:.6px}
+.badge{background:linear-gradient(180deg,var(--blue1),var(--blue2));border:1px solid #1f6f97;color:#eaffff;padding:6px 10px;border-radius:999px;font-weight:1000}
 
-</head><body>
+.segment{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+@media (max-width:760px){.segment{grid-template-columns:repeat(2,minmax(0,1fr));}}
+.seg{position:relative;display:flex;align-items:center;justify-content:center;height:54px;border-radius:12px;border:1px solid var(--line);text-transform:uppercase;font-weight:1000;background:linear-gradient(180deg,#1c2f46,#111a2b)}
+.count{position:absolute;right:8px;top:8px;min-width:22px;height:22px;border-radius:999px;display:flex;align-items:center;justify-content:center;padding:0 7px;border:1px solid var(--line);font-size:12px}
+.cPa{background:linear-gradient(180deg,var(--blue1),var(--blue2))}
+.cPr{background:linear-gradient(180deg,#c44444,#812a2a)}
+.cGa{background:linear-gradient(180deg,#1b9b5a,#0f6b3d)}
+.cMa{background:linear-gradient(180deg,var(--amber1),var(--amber2))}
+
+.btnBigWrap{display:flex;justify-content:center;margin:12px 0}
+.btnBig{min-width:320px;max-width:520px;width:90%;padding:14px 18px;border-radius:14px;border:1px solid #2aa7d8;font-weight:1000;color:#fff;letter-spacing:.6px;text-transform:uppercase;box-shadow:0 2px 0 rgba(0,0,0,.25),0 0 0 1px rgba(255,255,255,.06) inset;text-align:center}
+.btnGreen{background:linear-gradient(180deg,var(--green1),var(--green2));}
+.btnRed{background:linear-gradient(180deg,var(--red1),var(--red2));border-color:#a94444}
+.btnOrange{background:linear-gradient(180deg,var(--amber1),var(--amber2));border-color:#8a5f19}
+.btnBig .pill{margin-left:8px;min-width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;padding:0 8px;border-radius:999px;background:rgba(255,255,255,.15);border:1px solid rgba(0,0,0,.25);font-size:12px}
+
+.inlinePanel{display:none; max-width:720px; margin:8px auto 0; padding:0 8px}
+.list a.rowitem{display:flex;align-items:center;justify-content:space-between;padding:12px;border-radius:10px;background:#0e1930;border:1px solid var(--line);margin-top:8px}
+.muted{color:#9fb4d6;font-size:12px}
+
+.tools{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+@media (max-width:760px){.tools{grid-template-columns:1fr;}}
+.card{border:1px dashed var(--line);border-radius:12px;padding:10px;background:#101a31}
+.row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
+.tag{margin-bottom:6px;font-weight:900;letter-spacing:.6px;color:#cbd7ef}
+.input{flex:1;padding:12px;border-radius:10px;border:1px solid var(--line);background:#0e1730;color:#fff;font-weight:900;letter-spacing:1px}
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:12px 14px;border-radius:10px;border:1px solid #2aa7d8;text-transform:uppercase;font-weight:1000;color:#fff;letter-spacing:.6px;box-shadow:0 2px 0 rgba(0,0,0,.25),0 0 0 1px rgba(255,255,255,.06) inset}
+.btn.search{background:linear-gradient(180deg,var(--blue1),var(--blue2));}
+</style>
+</head>
+<body>
 <div class="app">
+  <div class="header">
+    <div class="brand">
+      <div class="logo">🧼</div>
+      <div><h1>KOMPANIA JONI</h1><div class="muted">HOME</div></div>
+    </div>
+    <div class="badge">€ ARKA</div>
+  </div>
+
+  <!-- MAIN STAGE BUTTONS -->
   <div class="panel">
-    <div class="header">
-      <div></div>
-      <div class="badge">€ ARKA</div>
-    </div>
-    <h1>KOMPANIA JONI</h1>
-    <div class="sub">PËR PASTRIMIN E TEPIHAVE</div>
-    <div class="pills">
-      <a class="pill primary" href="./pranimi/">PRANIMI</a>
-      <a class="pill" href="./pastrimi/">PASTRIMI</a>
-      <a class="pill" href="./gati/">GATI</a>
-      <a class="pill" href="./transporti/">TRANSPORTI</a>
-      <a class="pill" href="./marrje-sot/">MARRJE SOT</a>
+    <div class="segment">
+      <a class="seg" href="/pranimi/">PRANIMI <span class="count cPr" id="cPr">0</span></a>
+      <a class="seg" href="/pastrimi/">PASTRIMI <span class="count cPa" id="cPa">0</span></a>
+      <a class="seg" href="/gati/">GATI <span class="count cGa" id="cGa">0</span></a>
+      <a class="seg" href="/marrje-sot/">MARRJE SOT <span class="count cMa" id="cMa">0</span></a>
     </div>
   </div>
 
-  <div class="panel section">
-    <div class="sec-title">KLIENTË — SHTO & KËRKO SHPEJT</div>
-    <a class="btnBig" href="./pranimi/">＋ SHTO KLIENT TË RI</a>
-    <div class="searchRow">
-      <input class="input" placeholder="KËRKO KLIENTIN (EMËR / TELEFON)">
-      <a class="btn" href="./pastrimi/">KËRKO</a>
-    </div>
+  <!-- BIG BUTTONS STACKED -->
+  <div class="btnBigWrap"><a class="btnBig btnGreen" href="/pranimi/" id="addX">＋ KLIENT I RI</a></div>
+  <div class="btnBigWrap"><button class="btnBig btnRed" id="togglePap">PAPLOTËSUARA <span class="pill" id="countPap">0</span></button></div>
+  <div class="inlinePanel" id="papPanel">
+    <div id="papList" class="list muted">—</div>
+  </div>
+  <div class="btnBigWrap"><button class="btnBig btnOrange" id="toggleTA">🚚 TRANSPORT AKTIV <span class="pill" id="countTA">0</span></button></div>
+  <div class="inlinePanel" id="taPanel">
+    <div id="taList" class="list muted">—</div>
   </div>
 
-  
-  <div class="panel section">
-    <div class="sec-title">PRANIMI — I RI</div>
-    <a class="btnBig" href="./pranimi/">➕  KLIENT I RI (PRANIMI)</a>
-    <div class="muted" style="margin-top:6px">Hap pranimin për klient të ri dhe fut copat/m².</div>
-  </div>
-
-  <div class="panel section">
-    <div class="sec-title">TRANSPORT — KËRKO</div>
-    <a class="transportBtn" href="./transporti/">🚚  KLIENT TRANSPORTI</a>
-    <div class="searchRow">
-      <input class="input" placeholder="KËRKO KLIENT TRANSPORTI (EMËR / TEL)">
-      <a class="btn" href="./transporti/">KËRKO</a>
+  <!-- TOOLS -->
+  <div class="tools">
+    <div class="card">
+      <div class="tag">KLIENTËT E BAZËS — KODI X</div>
+      <div class="row">
+        <input class="input" id="qX" placeholder="X01">
+        <a class="btn search" id="searchX">KËRKO</a>
+      </div>
     </div>
-    
+
+    <div class="card">
+      <div class="tag">TRANSPORT — KODI T</div>
+      <div class="row">
+        <input class="input" id="qT" placeholder="T2">
+        <a class="btn search" id="searchT">KËRKO</a>
+      </div>
+    </div>
+  </div>
 </div>
-</body></html>
+
+<script>
+(function(){
+  const LIST_KEY="order_list_v1"; const KEY=id=>`order_${id}`;
+  const getIndex=()=>{try{return JSON.parse(localStorage.getItem(LIST_KEY)||"[]")}catch(e){return []}};
+  const getOrder=id=>{try{return JSON.parse(localStorage.getItem(KEY(id))||"null")}catch(e){return null}};
+  const text=s=>(s||"").toString();
+  const fmtDate=ts=>{try{const d=new Date(ts||Date.now());const p=n=>String(n).padStart(2,"0");return `${p(d.getDate())}.${p(d.getMonth()+1)}.${p(d.getFullYear())} ${p(d.getHours())}:${p(d.getMinutes())}`}catch(e){return""}};
+  const padX=n=>{n=parseInt(n)||0;return n<10?'X0'+n:'X'+n};
+
+  const idx=getIndex();
+  const counts={pranim:0,pastrim:0,gati:0,marrje:0};
+  let taCount=0;
+  for(const row of idx){
+    const o=getOrder(row.id); if(!o) continue;
+    const s=String(o.status||'').toLowerCase();
+    if(s==='pranim') counts.pranim++;
+    else if(s==='pastrim') counts.pastrim++;
+    else if(s==='gati') counts.gati++;
+    else if(s==='marrje') counts.marrje++;
+    const t=(o.transport&&o.transport.code)||o.transport_code||o.tcode||(o.client&&o.client.transportCode)||'';
+    const active=!!t && s!=='marrje';
+    if(active) taCount++;
+  }
+  document.getElementById('cPr').textContent=counts.pranim;
+  document.getElementById('cPa').textContent=counts.pastrim;
+  document.getElementById('cGa').textContent=counts.gati;
+  document.getElementById('cMa').textContent=counts.marrje;
+  document.getElementById('countPap').textContent=counts.pranim;
+  document.getElementById('countTA').textContent=taCount;
+
+  function fillPap(){
+    const list=document.getElementById('papList'); const items=[];
+    for(const row of idx){const o=getOrder(row.id); if(!o) continue;
+      if(String(o.status||'').toLowerCase()==='pranim'){
+        const name=text(o.client&&o.client.name)||'(pa emër)';
+        const phone=text(o.client&&o.client.phone)||'';
+        const raw=(o.client&&o.client.code)||'';
+        const code=raw && /^X\d+$/.test(raw)?' • '+raw.replace(/^X(\d+)$/,(m,n)=>padX(n)):(raw?' • '+raw:'');
+        const when=o.ts?' • '+fmtDate(o.ts):'';
+        items.push({id:o.id,label:`${name} • ${phone}${code}${when}`});
+      }
+    }
+    if(!items.length){ list.textContent="S’KA POROSI TË PAPLOTËSUARA."; }
+    else { list.classList.remove('muted'); list.innerHTML=items.map(x=>`<a class="rowitem" href="/pranimi/?id=${x.id}"><div>${x.label}</div><div>➜</div></a>`).join(""); }
+  }
+  function fillTA(){
+    const list=document.getElementById('taList'); const rows=[];
+    for(const row of idx){const o=getOrder(row.id); if(!o) continue;
+      const t=(o.transport&&o.transport.code)||o.transport_code||o.tcode||(o.client&&o.client.transportCode)||'';
+      const s=String(o.status||'').toLowerCase();
+      const active=!!t && s!=='marrje';
+      if(active){
+        const name=text(o.client&&o.client.name)||'(pa emër)';
+        const when=o.ts?' • '+fmtDate(o.ts):'';
+        rows.push(`<a class="rowitem" href="/transporti/?id=${o.id}"><div>${t} • ${name} • ${s.toUpperCase()}${when}</div><div>➜</div></a>`);
+      }
+    }
+    if(!rows.length){ list.textContent="S’KA TRANSPORT AKTIV."; }
+    else { list.classList.remove('muted'); list.innerHTML=rows.join(""); }
+  }
+
+  const papPanel=document.getElementById('papPanel');
+  document.getElementById('togglePap')?.addEventListener('click', ()=>{
+    papPanel.style.display = (papPanel.style.display==='block')?'none':'block';
+    if(papPanel.style.display==='block'){ fillPap(); papPanel.scrollIntoView({behavior:'smooth'}); }
+  });
+
+  const taPanel=document.getElementById('taPanel');
+  document.getElementById('toggleTA')?.addEventListener('click', ()=>{
+    taPanel.style.display = (taPanel.style.display==='block')?'none':'block';
+    if(taPanel.style.display==='block'){ fillTA(); taPanel.scrollIntoView({behavior:'smooth'}); }
+  });
+
+  document.getElementById('searchX')?.addEventListener('click', ()=>{
+    const q=(document.getElementById('qX')?.value||'').trim().toUpperCase(); if(!q)return;
+    for(const row of idx){const o=getOrder(row.id); if(!o) continue; if((o.client&&String(o.client.code||'').toUpperCase())===q){ location.href=`/pranimi/?id=${o.id}`; return; }}
+    alert('S’u gjet KODI: '+q);
+  });
+  document.getElementById('searchT')?.addEventListener('click', ()=>{
+    const q=(document.getElementById('qT')?.value||'').trim().toUpperCase(); if(!q)return;
+    for(const row of idx){const o=getOrder(row.id); if(!o) continue; const t=(o.transport&&o.transport.code)||o.transport_code||o.tcode||(o.client&&o.client.transportCode)||''; if(String(t).toUpperCase()===q){ location.href=`/transporti/?id=${o.id}`; return; }}
+    alert('S’u gjet KODI T: '+q);
+  });
+})();
+</script>
+</body>
+</html>
