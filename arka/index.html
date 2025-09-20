@@ -2,457 +2,393 @@
 <html lang="sq">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>ARKA • Transport • Shpenzime • Dita</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ARKA • Historia e Ditëve</title>
 <style>
 :root{
   --bg:#0b1220; --bg2:#0a111c;
-  --panel:#0f1a2a; --panel2:#101a27;
-  --line:#1f2e46; --text:#eaf1ff; --muted:#9fb4d6;
+  --panel:#0f1a2a; --line:#1f2e46;
+  --text:#eaf1ff; --muted:#9fb4d6;
   --blue1:#1aa5d8; --blue2:#146b95;
   --green1:#19a25f; --green2:#0e6d3d;
   --amber1:#c78a2a; --amber2:#8a5f19;
-  --red1:#ff5a5a; --red2:#8b2a2a;
 }
 *{box-sizing:border-box}
-body{margin:0;background:linear-gradient(180deg,var(--bg),var(--bg2));color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;letter-spacing:.2px}
+body{margin:0;background:linear-gradient(180deg,var(--bg),var(--bg2));color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial}
 a{color:inherit;text-decoration:none}
 .app{max-width:980px;margin:0 auto;padding:16px}
-.panel{background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:0 0 0 1px rgba(255,255,255,.04) inset}
-.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.panel{background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid var(--line);border-radius:14px;padding:14px}
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .brand{display:flex;align-items:center;gap:10px}
 .logo{width:40px;height:40px;border-radius:10px;background:linear-gradient(180deg,#254369,#15263c);border:1px solid #203651;display:flex;align-items:center;justify-content:center}
 .brand h1{margin:0;font-size:18px;letter-spacing:.6px}
-.badge{background:linear-gradient(180deg,var(--blue1),var(--blue2));border:1px solid #1f6f97;color:#eaffff;padding:6px 10px;border-radius:999px;font-weight:1000}
-
-h2{margin:10px 0 6px;font-size:16px;letter-spacing:.4px}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-@media (max-width:760px){.grid2{grid-template-columns:1fr}}
-.input{padding:12px;border-radius:10px;border:1px solid var(--line);background:#0e1730;color:#fff;font-weight:900;letter-spacing:.6px}
-.btn{display:inline-flex;align-items:center;justify-content:center;padding:12px 14px;border-radius:10px;border:1px solid #2aa7d8;text-transform:uppercase;font-weight:1000;color:#fff;letter-spacing:.6px;box-shadow:0 2px 0 rgba(0,0,0,.25),0 0 0 1px rgba(255,255,255,.06) inset;background:linear-gradient(180deg,var(--blue1),var(--blue2))}
+.kv{display:flex;gap:8px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 12px;border-radius:10px;border:1px solid #2aa7d8;color:#fff;font-weight:800;letter-spacing:.4px;background:linear-gradient(180deg,var(--blue1),var(--blue2));cursor:pointer}
 .btn.ghost{background:#0f182b}
 .btn.green{background:linear-gradient(180deg,var(--green1),var(--green2));border-color:#14804b}
-.btn.red{background:linear-gradient(180deg,var(--red1),var(--red2));border-color:#8b2a2a}
-.btn.orange{background:linear-gradient(180deg,var(--amber1),var(--amber2));border-color:#8a5f19}
-.row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center}
-.row3{display:grid;grid-template-columns:140px 1fr auto;gap:8px;align-items:center}
-.row4{display:grid;grid-template-columns:120px 1fr 1fr auto;gap:8px;align-items:center}
-.kv{display:flex;gap:8px;flex-wrap:wrap}
-.pill{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:999px;border:1px solid var(--line);background:#0e1830;font-weight:1000}
-.list{margin-top:6px}
-.item{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:10px;border-radius:10px;background:#0e1930;border:1px solid var(--line);margin-top:8px}
-.small{font-size:12px;color:var(--muted);letter-spacing:.4px}
-.tbl{width:100%;border-collapse:collapse;margin-top:6px}
-.tbl th,.tbl td{border-bottom:1px solid var(--line);padding:8px 6px;text-align:left;font-size:14px}
-.tbl th{color:#cfe3ff;font-weight:900}
-.right{text-align:right}
-.sep{border-top:1px dashed var(--line);margin:10px 0}
-.footerNav{position:sticky;bottom:0;background:rgba(10,14,24,.9);backdrop-filter:blur(6px);border-top:1px solid var(--line);padding:10px;margin-top:14px;border-radius:12px 12px 0 0;display:flex;gap:10px;justify-content:space-between}
+.btn.amber{background:linear-gradient(180deg,var(--amber1),var(--amber2));border-color:#8a5f19}
+.small{color:var(--muted);font-size:12px}
+.input{padding:10px;border-radius:10px;border:1px solid var(--line);background:#0e1730;color:#fff;font-weight:900;letter-spacing:.5px}
+.grid{display:grid;grid-template-columns:1fr;gap:10px}
+.list .row{display:grid;grid-template-columns: 160px 1fr auto;gap:10px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:10px;background:#0f182b}
+.list .row .date{font-weight:900}
+.sectionTitle{font-weight:1000;margin:12px 0 8px}
+.details{margin-top:10px;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.details .head{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:#0f182b;border-bottom:1px solid var(--line)}
+.table{width:100%;border-collapse:collapse}
+.table th,.table td{border-bottom:1px solid var(--line);padding:10px;text-align:left}
+.pill{display:inline-flex;gap:6px;align-items:center;padding:6px 8px;border-radius:999px;border:1px solid var(--line);background:#0f182b}
+.footerBtns{display:flex;gap:8px;flex-wrap:wrap}
+hr.sep{border:0;border-top:1px solid var(--line);margin:12px 0}
+.note{font-size:12px;color:#bcd0ef}
 </style>
+
+<!-- jsPDF + html2canvas for PDF -->
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+
+<!-- Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 </head>
 <body>
 <div class="app">
   <div class="header">
     <div class="brand">
       <div class="logo">💶</div>
-      <div><h1>ARKA</h1><div class="small">Pagesat • Transport • Shpenzime</div></div>
+      <div>
+        <h1>ARKA — HISTORIA</h1>
+        <div class="small">Ditët e mbyllura • eksport • PDF • dërgesë email</div>
+      </div>
     </div>
     <div class="kv">
-      <span class="pill" id="dayState">Dita: —</span>
       <a class="btn ghost" href="../">🏠 HOME</a>
+      <a class="btn ghost" href="./">⬅︎ ARKA</a>
     </div>
   </div>
 
-  <!-- DITA: Hape / Mbylle -->
   <div class="panel">
-    <div class="row">
-      <div class="kv">
-        <button class="btn green" id="btnOpenDay">⇢ HAPE DITËN</button>
-        <button class="btn red" id="btnCloseDay">⇠ MBYLLE DITËN</button>
-        <button class="btn ghost" id="btnToday">SOT</button>
+    <div class="kv">
+      <button class="btn" id="filterThisWeek">Këtë javë</button>
+      <button class="btn" id="filter7">7 ditët</button>
+      <div class="pill">
+        <span>Prej</span><input class="input" type="date" id="from">
+        <span>Deri</span><input class="input" type="date" id="to">
+        <button class="btn" id="filterRange">Filtro</button>
       </div>
-      <div class="pill" id="todayLabel">—</div>
+      <div class="pill">
+        <span>Email:</span>
+        <input class="input" id="emailTo" style="width:240px">
+        <button class="btn green" id="saveEmail">Ruaj</button>
+      </div>
     </div>
-    <div class="sep"></div>
-    <div class="grid2">
-      <div>
-        <h2>Transport • Shto Pagesë</h2>
-        <div class="row4">
-          <input class="input" id="twTcode" placeholder="T5">
-          <input class="input" id="twAmount" inputmode="decimal" placeholder="Shuma €">
-          <input class="input" id="twNote" placeholder="Shënim (opsional)">
-          <button class="btn" id="twAdd">+ Regjistro</button>
+
+    <hr class="sep">
+
+    <div class="sectionTitle">Ditët</div>
+    <div id="daysList" class="list"></div>
+
+    <div id="dayDetails" class="details" style="display:none">
+      <div class="head">
+        <div id="dayTitle"><b>Dita:</b> —</div>
+        <div class="footerBtns">
+          <button class="btn amber" id="btnCSV">Export CSV</button>
+          <button class="btn" id="btnPDF">Krijo PDF</button>
+          <button class="btn green" id="btnSendEmail">Ngarko & Dërgo Email</button>
         </div>
-        <div class="list" id="tpayList"></div>
       </div>
-      <div>
-        <h2>Shpenzime</h2>
-        <div class="row4">
-          <input class="input" id="exTcode" placeholder="T? (ops.)">
-          <input class="input" id="exAmount" inputmode="decimal" placeholder="Shuma €">
-          <input class="input" id="exNote" placeholder="Arsyeja p.sh. karburant">
-          <button class="btn orange" id="exAdd">+ Shto</button>
-        </div>
-        <div class="list" id="exList"></div>
-      </div>
+      <div id="dayBody" style="padding:12px"></div>
+      <div class="note" style="padding:8px 12px">Shënim: PDF ruhet në Supabase dhe linku futet në email. Për dërgesë automatike me server mund të shtojmë më vonë një Edge Function.</div>
     </div>
-    <div class="sep"></div>
-    <div>
-      <h2>ARKA • Pagesë Bazë (desk)</h2>
-      <div class="row3">
-        <input class="input" id="bpAmount" inputmode="decimal" placeholder="Shuma €">
-        <input class="input" id="bpNote" placeholder="p.sh. Paguar në bazë">
-        <button class="btn" id="bpAdd">+ Regjistro</button>
-      </div>
-      <div class="list" id="bpList"></div>
-    </div>
-  </div>
-
-  <!-- PËRMBLEDHJE E DITËS -->
-  <div class="panel" style="margin-top:12px">
-    <h2>Përmbledhje e Ditës</h2>
-    <table class="tbl">
-      <thead><tr><th>Kategori</th><th class="right">€</th></tr></thead>
-      <tbody id="dayTbl">
-        <!-- rows injected -->
-      </tbody>
-      <tfoot>
-        <tr><th>Total Neto</th><th class="right" id="dayNet">0.00</th></tr>
-      </tfoot>
-    </table>
-  </div>
-
-  <!-- JAVA: TRANSPORT -->
-  <div class="panel" style="margin-top:12px">
-    <div class="row">
-      <h2>Transport • Java</h2>
-      <div class="kv">
-        <button id="twPrev" class="btn ghost" type="button">◀</button>
-        <div id="twLabel" class="pill">—</div>
-        <button id="twNext" class="btn ghost" type="button">▶</button>
-        <button id="twToday2" class="btn ghost" type="button">Sot</button>
-      </div>
-    </div>
-    <table class="tbl" id="twTbl">
-      <thead>
-        <tr>
-          <th>T</th><th>Emri</th><th class="right">m²</th><th class="right">€ Faturuar</th><th class="right">€ Të arkëtuara</th><th class="right">€ Mbetje</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
-
-  <!-- DETYRIME (All-time) -->
-  <div class="panel" style="margin-top:12px">
-    <h2>Detyrime nga Transporti (Gjithsej)</h2>
-    <table class="tbl" id="debtTbl">
-      <thead><tr><th>T</th><th>Emri</th><th class="right">€ Borxh</th></tr></thead>
-      <tbody></tbody>
-    </table>
-  </div>
-
-  <div class="footerNav">
-    <a class="btn ghost" href="../">🏠 HOME</a>
-    <a class="btn ghost" href="../pastrimi/">🧼 PASTRIMI</a>
   </div>
 </div>
 
 <script>
-// ---------- Shared localStorage structure (compatible with your app) ----------
-const LIST_KEY='order_list_v1';
-const KEY=id=>`order_${id}`;
-function getIndex(){ try{return JSON.parse(localStorage.getItem(LIST_KEY)||'[]')}catch(_){return []} }
-function getOrder(id){ try{return JSON.parse(localStorage.getItem(KEY(id))||'null')}catch(_){return null} }
-
-// Extract T code from an order
-function tcodeOf(o){
-  return String(
-    (o?.transport && o.transport.code) ||
-    o?.transport_code || o?.tcode ||
-    (o?.client && o.client.transportCode) || ''
-  ).toUpperCase();
-}
-
-// Optional transporter names mapping: localStorage.t_names = {"T1":"Blerim","T2":"Doni"}
-function getTNames(){ try{ return JSON.parse(localStorage.getItem('t_names')||'{}'); }catch(_){ return {}; } }
-
-// ---------- Ledgers ----------
-const TPAY_KEY='arka_transport_payments_v1'; // {id,ts,tcode,amount,note}
-const EX_KEY='arka_expenses_v1';             // {id,ts,tcode?,amount,note}
-const BPAY_KEY='arka_base_payments_v1';      // {id,ts,amount,note}
-
-function getArr(k){ try{ return JSON.parse(localStorage.getItem(k)||'[]'); }catch(_){ return []; } }
-function setArr(k, arr){ localStorage.setItem(k, JSON.stringify(arr||[])); }
-
-function addTPayment(tcode, amount, note){
-  tcode = String(tcode||'').toUpperCase();
-  const amt = +Number(amount||0).toFixed(2);
-  if(!/^T\d+$/.test(tcode) || !(amt>0)) return {ok:false,msg:'T ose shuma e pavlefshme'};
-  const arr = getArr(TPAY_KEY);
-  arr.push({id:'tp_'+Date.now(), ts:Date.now(), tcode, amount:amt, note:String(note||'')});
-  setArr(TPAY_KEY, arr);
-  return {ok:true};
-}
-function addExpense(tcode, amount, note){
-  const hasT = !!String(tcode||'').trim();
-  const t = hasT ? String(tcode).toUpperCase() : '';
-  const amt = +Number(amount||0).toFixed(2);
-  if(!(amt>0)) return {ok:false,msg:'Shuma e shpenzimit është e pavlefshme'};
-  if(hasT && !/^T\d+$/.test(t)) return {ok:false,msg:'Kodi T i pavlefshëm'};
-  const arr = getArr(EX_KEY);
-  arr.push({id:'ex_'+Date.now(), ts:Date.now(), tcode: t || null, amount:amt, note:String(note||'')});
-  setArr(EX_KEY, arr);
-  return {ok:true};
-}
-function addBasePayment(amount, note){
-  const amt = +Number(amount||0).toFixed(2);
-  if(!(amt>0)) return {ok:false,msg:'Shuma e pavlefshme'};
-  const arr = getArr(BPAY_KEY);
-  arr.push({id:'bp_'+Date.now(), ts:Date.now(), amount:amt, note:String(note||'')});
-  setArr(BPAY_KEY, arr);
-  return {ok:true};
-}
-
-// ---------- Day open/close ----------
-const DAY_OPEN_KEY='arka_day_open_v1'; // {date:'YYYY-MM-DD', ts_open}
-const DAYS_KEY='arka_days_v1';         // [{date, open_ts, close_ts, sums:{...}, tbreakdown:{T:{collected,expenses}}}]
-
-function todayStr(d=new Date()){ const p=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`; }
-function fmt(ts){ const d=new Date(ts); const p=n=>String(n).padStart(2,'0'); return `${p(d.getDate())}.${p(d.getMonth()+1)} ${p(d.getHours())}:${p(d.getMinutes())}`; }
-
-function getOpenDay(){ try{return JSON.parse(localStorage.getItem(DAY_OPEN_KEY)||'null')}catch(_){return null} }
-function setOpenDay(obj){ if(obj) localStorage.setItem(DAY_OPEN_KEY, JSON.stringify(obj)); else localStorage.removeItem(DAY_OPEN_KEY); }
-function pushClosedDay(rec){ const arr=getArr(DAYS_KEY); arr.unshift(rec); setArr(DAYS_KEY, arr); }
-
-// ---------- Date range helpers ----------
-function ts00(d){ return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime(); }
-function rangeFor(dateStr){ const [y,m,d]=dateStr.split('-').map(x=>parseInt(x,10)); const s=new Date(y,m-1,d); const start=ts00(s); const end=start+24*3600*1000; return {start,end}; }
-function inRange(ts,start,end){ const t=Number(ts||0); return t>=start && t<end; }
-
-// ---------- Daily computations ----------
-function sumTransportCollected(start,end){
-  return getArr(TPAY_KEY).filter(x=>inRange(x.ts,start,end))
-    .reduce((s,x)=>s+Number(x.amount||0),0);
-}
-function sumBaseCollected(start,end){
-  return getArr(BPAY_KEY).filter(x=>inRange(x.ts,start,end))
-    .reduce((s,x)=>s+Number(x.amount||0),0);
-}
-function sumExpenses(start,end){
-  return getArr(EX_KEY).filter(x=>inRange(x.ts,start,end))
-    .reduce((s,x)=>s+Number(x.amount||0),0);
-}
-
-// For T breakdown (collected & expenses today)
-function tBreakdownToday(start,end){
-  const out={};
-  for(const p of getArr(TPAY_KEY)){ if(!inRange(p.ts,start,end)) continue; const t=p.tcode; out[t]=out[t]||{collected:0,expenses:0}; out[t].collected += Number(p.amount||0); }
-  for(const e of getArr(EX_KEY)){ if(!inRange(e.ts,start,end)) continue; if(!e.tcode) continue; const t=e.tcode; out[t]=out[t]||{collected:0,expenses:0}; out[t].expenses += Number(e.amount||0); }
-  for(const k in out){ out[k].collected=+out[k].collected.toFixed(2); out[k].expenses=+out[k].expenses.toFixed(2); }
-  return out;
-}
-
-// ---------- Weekly aggregates from orders + payments ----------
-function weekRange(offsetWeeks=0){
-  const now=new Date(); const d=new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const wd=d.getDay(); const deltaToMon = (wd===0 ? -6 : (1-wd));
-  const startDate=new Date(d); startDate.setDate(d.getDate()+deltaToMon+offsetWeeks*7);
-  const start=ts00(startDate); const end=start+7*24*3600*1000;
-  const s=new Date(start), e=new Date(end-1);
-  const p=n=>String(n).padStart(2,'0');
-  const label=`${p(s.getDate())}.${p(s.getMonth()+1)}.${String(s.getFullYear()).slice(-2)} – ${p(e.getDate())}.${p(e.getMonth()+1)}.${String(e.getFullYear()).slice(-2)}`;
-  return {start,end,label};
-}
-function weeklyBilledByT(start,end){
-  const acc={};
-  for(const row of getIndex()){
-    const o=getOrder(row.id); if(!o) continue;
-    if(!inRange(o.ts,start,end)) continue; // this week
-    const t=tcodeOf(o); if(!/^T\d+$/.test(t)) continue;
-    const m2=Number(o?.pay?.m2||0); const euro=Number(o?.pay?.euro||0);
-    if(!acc[t]) acc[t]={m2:0,billed:0};
-    acc[t].m2+=m2; acc[t].billed+=euro;
+/* ---------- CONFIG ---------- */
+const CFG = {
+  supabase: {
+    url: "https://vnidjrxidvusulinozbn.supabase.co",
+    anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZuaWRqcnhpZHZ1c3VsaW5vemJuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc1MTk0NjAsImV4cCI6MjA3MzA5NTQ2MH0.hzGSFKU3sKuUKBUBsTE0rKIerj2uhG9pGS8_K9N7tpA",
+    bucket: "tepiha-photos" // we’ll store reports under folder 'reports/'
   }
-  for(const t in acc){ acc[t].m2=+acc[t].m2.toFixed(2); acc[t].billed=+acc[t].billed.toFixed(2); }
-  return acc;
-}
-function weeklyCollectedByT(start,end){
-  const map={};
-  for(const p of getArr(TPAY_KEY)){ if(!inRange(p.ts,start,end)) continue; const t=p.tcode; map[t]=(Number(map[t]||0)+Number(p.amount||0)); }
-  for(const t in map){ map[t]=+map[t].toFixed(2); }
-  return map;
-}
+};
+const sb = (typeof supabase!=='undefined') ? supabase.createClient(CFG.supabase.url, CFG.supabase.anonKey) : null;
 
-// All-time billed vs collected (debts)
-function allTimeDebts(){
-  const billed={};
-  for(const row of getIndex()){
-    const o=getOrder(row.id); if(!o) continue;
-    const t=tcodeOf(o); if(!/^T\d+$/.test(t)) continue;
-    billed[t]=(Number(billed[t]||0)+Number(o?.pay?.euro||0));
+/* ---------- UTIL ---------- */
+const fmtMoney = v => (Number(v||0).toFixed(2)+' €');
+const pad = n => String(n).padStart(2,'0');
+function fmtDateStr(d){
+  const dt=(d instanceof Date)?d:new Date(d);
+  return `${pad(dt.getDate())}.${pad(dt.getMonth()+1)}.${dt.getFullYear()}`;
+}
+const download = (name, blob) => {
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+};
+const readDays = ()=> { try{ return JSON.parse(localStorage.getItem('arka_days_v1')||'[]'); }catch(e){ return [] } };
+
+/* Email memory with your default */
+(function initEmailDefault(){
+  const key='arka_email_to';
+  const existing = localStorage.getItem(key);
+  if(!existing){
+    localStorage.setItem(key, 'arbenoruci@gmail.com'); // your address
   }
-  const collected={};
-  for(const p of getArr(TPAY_KEY)){ const t=p.tcode; collected[t]=(Number(collected[t]||0)+Number(p.amount||0)); }
-  const out=[];
-  for(const t in billed){
-    const due = +(Number(billed[t]) - Number(collected[t]||0)).toFixed(2);
-    if(due>0.005) out.push({t, due});
-  }
-  // sort desc by due
-  out.sort((a,b)=>b.due-a.due);
-  return out;
-}
-
-// ---------- Rendering ----------
-const el = sel=>document.querySelector(sel);
-
-function renderDay(dateStr){
-  const {start,end}=rangeFor(dateStr);
-  el('#todayLabel').textContent = `${dateStr} • ${fmt(start)}`;
-  // State label
-  const opened=getOpenDay();
-  if(opened && opened.date===dateStr){
-    el('#dayState').textContent = `Dita: Hapur (${dateStr})`;
-  }else{
-    el('#dayState').textContent = `Dita: Mbyllur (${dateStr})`;
-  }
-
-  // Transport payments list (today)
-  const tpayDiv=el('#tpayList'); const todayTP=getArr(TPAY_KEY).filter(x=>inRange(x.ts,start,end));
-  if(todayTP.length===0) tpayDiv.innerHTML='<div class="small">— pa regjistrime sot</div>';
-  else tpayDiv.innerHTML = todayTP.map(p=>`
-    <div class="item">
-      <div><b>${p.tcode}</b> • €${p.amount.toFixed(2)} <span class="small">• ${fmt(p.ts)}</span><br><span class="small">${p.note||''}</span></div>
-      <div class="small">id: ${p.id}</div>
-    </div>
-  `).join('');
-
-  // Expenses (today)
-  const exDiv=el('#exList'); const todayEX=getArr(EX_KEY).filter(x=>inRange(x.ts,start,end));
-  if(todayEX.length===0) exDiv.innerHTML='<div class="small">— pa shpenzime sot</div>';
-  else exDiv.innerHTML = todayEX.map(e=>`
-    <div class="item">
-      <div><b>€${e.amount.toFixed(2)}</b> ${e.tcode?`• ${e.tcode}`:''} <span class="small">• ${fmt(e.ts)}</span><br><span class="small">${e.note||''}</span></div>
-      <div class="small">${e.id}</div>
-    </div>
-  `).join('');
-
-  // Base payments (today)
-  const bpDiv=el('#bpList'); const todayBP=getArr(BPAY_KEY).filter(x=>inRange(x.ts,start,end));
-  if(todayBP.length===0) bpDiv.innerHTML='<div class="small">— pa pagesa në bazë sot</div>';
-  else bpDiv.innerHTML = todayBP.map(p=>`
-    <div class="item">
-      <div><b>€${p.amount.toFixed(2)}</b> <span class="small">• ${fmt(p.ts)}</span><br><span class="small">${p.note||''}</span></div>
-      <div class="small">${p.id}</div>
-    </div>
-  `).join('');
-
-  // Day table
-  const tCol = sumTransportCollected(start,end);
-  const bCol = sumBaseCollected(start,end);
-  const ex   = sumExpenses(start,end);
-  const net  = +(tCol + bCol - ex).toFixed(2);
-
-  el('#dayTbl').innerHTML = `
-    <tr><td>Transport (të arkëtuara)</td><td class="right">${tCol.toFixed(2)}</td></tr>
-    <tr><td>Bazë (të arkëtuara)</td><td class="right">${bCol.toFixed(2)}</td></tr>
-    <tr><td>Shpenzime</td><td class="right">− ${ex.toFixed(2)}</td></tr>
-  `;
-  el('#dayNet').textContent = net.toFixed(2);
-}
-
-let weekOffset=0;
-function renderWeek(){
-  const {start,end,label}=weekRange(weekOffset);
-  el('#twLabel').textContent = label;
-  const billed=weeklyBilledByT(start,end);
-  const collected=weeklyCollectedByT(start,end);
-  const tnames=getTNames();
-  const tbody=el('#twTbl tbody');
-  const rows=[];
-  const keys=new Set([...Object.keys(billed), ...Object.keys(collected)]);
-  for(const t of [...keys].sort((a,b)=>a.localeCompare(b))){
-    const b=billed[t]?.billed||0;
-    const m2=billed[t]?.m2||0;
-    const c=collected[t]||0;
-    const due=+(b-c).toFixed(2);
-    rows.push(`<tr>
-      <td>${t}</td>
-      <td>${tnames[t]||''}</td>
-      <td class="right">${m2.toFixed(2)}</td>
-      <td class="right">${b.toFixed(2)}</td>
-      <td class="right">${c.toFixed(2)}</td>
-      <td class="right" style="color:${due>0?'#ff9f9f':'#9fffa2'}">${due.toFixed(2)}</td>
-    </tr>`);
-  }
-  tbody.innerHTML = rows.join('') || `<tr><td colspan="6" class="small">— pa të dhëna për këtë javë</td></tr>`;
-}
-
-function renderDebts(){
-  const tnames=getTNames();
-  const tbody=el('#debtTbl tbody');
-  const arr=allTimeDebts();
-  tbody.innerHTML = arr.length? arr.map(d=>`
-    <tr><td>${d.t}</td><td>${tnames[d.t]||''}</td><td class="right">${d.due.toFixed(2)}</td></tr>
-  `).join('') : `<tr><td colspan="3" class="small">— pa borxhe</td></tr>`;
-}
-
-// ---------- UI wiring ----------
-function toast(msg){ alert(msg); }
-
-(function init(){
-  const today = todayStr(); renderDay(today); renderWeek(); renderDebts();
-
-  el('#btnToday')?.addEventListener('click', ()=>{ renderDay(todayStr()); });
-  el('#btnOpenDay')?.addEventListener('click', ()=>{
-    const t=todayStr(); const cur=getOpenDay();
-    if(cur && cur.date===t){ toast('Dita tashmë është e hapur.'); return; }
-    setOpenDay({date:t, ts_open:Date.now()});
-    renderDay(t);
-  });
-  el('#btnCloseDay')?.addEventListener('click', ()=>{
-    const cur=getOpenDay(); if(!cur){ toast('Asnjë ditë e hapur.'); return; }
-    const d=cur.date; const {start,end}=rangeFor(d);
-    const sums={
-      transport: +sumTransportCollected(start,end).toFixed(2),
-      base: +sumBaseCollected(start,end).toFixed(2),
-      expenses: +sumExpenses(start,end).toFixed(2),
-    };
-    const tbr=tBreakdownToday(start,end);
-    pushClosedDay({date:d, open_ts:cur.ts_open, close_ts:Date.now(), sums, tbreakdown:tbr});
-    setOpenDay(null);
-    renderDay(todayStr());
-    toast('Dita u mbyll.');
-  });
-
-  // transport payment add
-  el('#twAdd')?.addEventListener('click', ()=>{
-    const t=el('#twTcode')?.value||''; const a=el('#twAmount')?.value||''; const n=el('#twNote')?.value||'';
-    const r=addTPayment(t,a,n); if(!r.ok){ toast(r.msg); return; }
-    el('#twAmount').value=''; el('#twNote').value='';
-    renderDay(todayStr()); renderWeek(); renderDebts();
-  });
-  // expenses add
-  el('#exAdd')?.addEventListener('click', ()=>{
-    const t=el('#exTcode')?.value||''; const a=el('#exAmount')?.value||''; const n=el('#exNote')?.value||'';
-    const r=addExpense(t,a,n); if(!r.ok){ toast(r.msg); return; }
-    el('#exAmount').value=''; el('#exNote').value='';
-    renderDay(todayStr()); renderWeek(); // debts unchanged
-  });
-  // base payment add
-  el('#bpAdd')?.addEventListener('click', ()=>{
-    const a=el('#bpAmount')?.value||''; const n=el('#bpNote')?.value||'';
-    const r=addBasePayment(a,n); if(!r.ok){ toast(r.msg); return; }
-    el('#bpAmount').value=''; el('#bpNote').value='';
-    renderDay(todayStr());
-  });
-
-  // week nav
-  el('#twPrev')?.addEventListener('click', ()=>{ weekOffset--; renderWeek(); });
-  el('#twNext')?.addEventListener('click', ()=>{ weekOffset++; renderWeek(); });
-  el('#twToday2')?.addEventListener('click', ()=>{ weekOffset=0; renderWeek(); });
 })();
+
+/* ---------- STATE ---------- */
+let allDays = readDays(); // each day object created by ARKA close-day code
+let filtered = [];
+let selected = null; // the day object currently opened in details
+
+/* ---------- RENDER LIST ---------- */
+function totalSummary(day){
+  const base = Number(day.base_cash||0);
+  const trCash = Number(day.transport_cash||0);
+  const expenses = Number(day.expenses_total||0);
+  const borxhe = Number(day.debts_added||0);
+  const totalIn = base + trCash;
+  return {base, trCash, expenses, borxhe, totalIn, net: totalIn - expenses};
+}
+
+function rowHTML(day){
+  const dt = new Date(day.date || day.day || Date.now());
+  const sum = totalSummary(day);
+  return `
+  <div class="row">
+    <div class="date">${fmtDateStr(dt)}</div>
+    <div class="small">Bazë: <b>${fmtMoney(sum.base)}</b> • Transport: <b>${fmtMoney(sum.trCash)}</b> • Shpenzime: <b>${fmtMoney(sum.expenses)}</b> • Net: <b>${fmtMoney(sum.net)}</b></div>
+    <div><button class="btn" data-open="${day.id || day.date}">Hap</button></div>
+  </div>`;
+}
+
+function renderList(){
+  const box = document.getElementById('daysList');
+  filtered = [...allDays].sort((a,b)=>(new Date(b.date||b.day))-(new Date(a.date||a.day)));
+  if(!filtered.length){ box.innerHTML = '<div class="small">S’ka ditë të mbyllura ende.</div>'; return; }
+  box.innerHTML = filtered.map(rowHTML).join('');
+}
+
+/* ---------- DETAILS ---------- */
+function humanTransporters(day){
+  // day.transporters is expected from ARKA close (array of {name, delivered_m2, delivered_eur, paid_to_arka, missing})
+  return Array.isArray(day.transporters) ? day.transporters : [];
+}
+function dayHTML(day){
+  const sum = totalSummary(day);
+  const trs = humanTransporters(day);
+  const orders = Array.isArray(day.orders)? day.orders : []; // optional snapshot list of orders finished that day
+
+  return `
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+    <div class="panel">
+      <div class="sectionTitle">Përmbledhje</div>
+      <table class="table">
+        <tr><th>Bazë (cash)</th><td>${fmtMoney(sum.base)}</td></tr>
+        <tr><th>Transport (cash)</th><td>${fmtMoney(sum.trCash)}</td></tr>
+        <tr><th>Shpenzime</th><td>${fmtMoney(sum.expenses)}</td></tr>
+        <tr><th>Borxhe të shtuara</th><td>${fmtMoney(sum.borxhe)}</td></tr>
+        <tr><th>Tot. brenda</th><td>${fmtMoney(sum.totalIn)}</td></tr>
+        <tr><th>Netto</th><td><b>${fmtMoney(sum.net)}</b></td></tr>
+      </table>
+    </div>
+    <div class="panel">
+      <div class="sectionTitle">Transportuesit</div>
+      <table class="table">
+        <thead><tr><th>Emri</th><th>m²</th><th>€ totale</th><th>Pagoi</th><th>Mbete</th></tr></thead>
+        <tbody>
+          ${trs.length? trs.map(t=>`
+            <tr>
+              <td>${t.name||'-'}</td>
+              <td>${Number(t.delivered_m2||0)}</td>
+              <td>${fmtMoney(t.delivered_eur||0)}</td>
+              <td>${fmtMoney(t.paid_to_arka||0)}</td>
+              <td>${fmtMoney((t.delivered_eur||0)-(t.paid_to_arka||0))}</td>
+            </tr>
+          `).join('') : `<tr><td colspan="5" class="small">— s’ka të dhëna</td></tr>`}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-top:10px">
+    <div class="sectionTitle">Porositë (opsionale)</div>
+    <table class="table">
+      <thead><tr><th>KODI</th><th>Klienti</th><th>Copë</th><th>m²</th><th>€</th><th>Pagesa</th></tr></thead>
+      <tbody>
+        ${orders.length? orders.map(o=>`
+          <tr>
+            <td>${o.client?.code||'-'}</td>
+            <td>${o.client?.name||'-'}</td>
+            <td>${o.pieces||0}</td>
+            <td>${Number(o.pay?.m2||0).toFixed(2)}</td>
+            <td>${fmtMoney(o.pay?.euro||0)}</td>
+            <td>${o.pay?.paidUp ? ('Paguar '+fmtMoney(o.pay?.paid||0)) : (Number(o.pay?.debt||0)>0?'BORXH '+fmtMoney(o.pay?.debt):'-')}</td>
+          </tr>
+        `).join('') : `<tr><td colspan="6" class="small">— s’ka listë porosish në këtë ditë</td></tr>`}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+function openDay(id){
+  selected = filtered.find(d=>(String(d.id||d.date)===String(id)));
+  if(!selected) return;
+  document.getElementById('dayTitle').innerHTML = `<b>Dita:</b> ${fmtDateStr(new Date(selected.date||selected.day))}`;
+  document.getElementById('dayBody').innerHTML = dayHTML(selected);
+  document.getElementById('dayDetails').style.display='block';
+  // remember last opened day
+  localStorage.setItem('arka_hist_last', String(selected.id||selected.date));
+}
+
+/* ---------- CSV / PDF / EMAIL ---------- */
+function csvForDay(day){
+  const lines = [];
+  const sum = totalSummary(day);
+  lines.push(['Dita', fmtDateStr(new Date(day.date||day.day))].join(','));
+  lines.push(['Baza (€)', sum.base].join(','));
+  lines.push(['Transport (€)', sum.trCash].join(','));
+  lines.push(['Shpenzime (€)', sum.expenses].join(','));
+  lines.push(['Borxhe (€)', sum.borxhe].join(','));
+  lines.push(['Netto (€)', sum.net].join(','));
+  lines.push([]);
+  lines.push(['Transportuesi','m2','€ totale','Pagoi','Mbete'].join(','));
+  for(const t of humanTransporters(day)){
+    lines.push([t.name||'', t.delivered_m2||0, t.delivered_eur||0, t.paid_to_arka||0, (t.delivered_eur||0)-(t.paid_to_arka||0)].join(','));
+  }
+  lines.push([]);
+  lines.push(['KODI','Klienti','Copë','m2','€','Pagesa'].join(','));
+  (day.orders||[]).forEach(o=>{
+    lines.push([
+      o.client?.code||'',
+      (o.client?.name||'').replaceAll(',',' '),
+      o.pieces||0,
+      Number(o.pay?.m2||0).toFixed(2),
+      Number(o.pay?.euro||0).toFixed(2),
+      o.pay?.paidUp ? `Paguar ${Number(o.pay?.paid||0).toFixed(2)}` : (Number(o.pay?.debt||0)>0?`BORXH ${Number(o.pay?.debt||0).toFixed(2)}`:'-')
+    ].join(','));
+  });
+  return new Blob([lines.join('\n')], {type:'text/csv;charset=utf-8'});
+}
+
+async function pdfForDay(day){
+  const el = document.getElementById('dayBody');
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF({unit:'pt', format:'a4'});
+  const pageW = pdf.internal.pageSize.getWidth();
+  // snapshot as image
+  const canvas = await html2canvas(el, {scale:2, backgroundColor:'#0b1220'});
+  const imgData = canvas.toDataURL('image/png');
+  const imgW = pageW - 40; // 20pt margin each side
+  const imgH = canvas.height * (imgW / canvas.width);
+  pdf.setFillColor(11,18,32); pdf.rect(0,0,pageW,20,'F');
+  pdf.text(`ARKA — ${fmtDateStr(new Date(day.date||day.day))}`, 20, 40);
+  pdf.addImage(imgData, 'PNG', 20, 60, imgW, imgH);
+  return pdf.output('blob');
+}
+
+async function uploadReportPDF(day, blob){
+  if(!sb) throw new Error('Supabase client jo aktiv');
+  const dateKey = (day.date||day.day||Date.now());
+  const fname = `reports/arka_${String(dateKey)}.pdf`;
+  const { error } = await sb.storage.from(CFG.supabase.bucket)
+    .upload(fname, blob, { upsert:true, contentType:'application/pdf' });
+  if(error) throw error;
+  const { data } = sb.storage.from(CFG.supabase.bucket).getPublicUrl(fname);
+  return data.publicUrl;
+}
+
+function openEmailLink(url, day){
+  const to = (document.getElementById('emailTo').value||'').trim();
+  const subject = encodeURIComponent(`Raporti i arkës — ${fmtDateStr(new Date(day.date||day.day))}`);
+  const body = encodeURIComponent(
+    `Përshëndetje,\n\nJu dërgojmë PDF raportin e ditës ${fmtDateStr(new Date(day.date||day.day))}.\nLinku i shkarkimit: ${url}\n\nFaleminderit!`
+  );
+  // fallback if no email:
+  const mailto = `mailto:${encodeURIComponent(to)}?subject=${subject}&body=${body}`;
+  location.href = mailto;
+}
+
+/* ---------- HOOKS ---------- */
+function attachEvents(){
+  document.getElementById('daysList').addEventListener('click', (e)=>{
+    const id = e.target?.getAttribute?.('data-open');
+    if(id) openDay(id);
+  });
+
+  document.getElementById('btnCSV').addEventListener('click', ()=>{
+    if(!selected) return;
+    download(`arka_${String(selected.date||selected.day)}.csv`, csvForDay(selected));
+  });
+
+  document.getElementById('btnPDF').addEventListener('click', async ()=>{
+    if(!selected) return;
+    const blob = await pdfForDay(selected);
+    download(`arka_${String(selected.date||selected.day)}.pdf`, blob);
+  });
+
+  document.getElementById('btnSendEmail').addEventListener('click', async ()=>{
+    if(!selected) return;
+    try{
+      const blob = await pdfForDay(selected);
+      const url = await uploadReportPDF(selected, blob);
+      openEmailLink(url, selected);
+      alert('PDF u ngarkua dhe linku u fut në email. Kontrollo klientin e email-it.');
+    }catch(err){
+      alert('S’u dërgua: '+(err?.message||err));
+    }
+  });
+
+  // filters
+  document.getElementById('filter7').addEventListener('click', ()=>{
+    const now = new Date(); const from = new Date(now); from.setDate(now.getDate()-6);
+    (document.getElementById('from').value) = from.toISOString().slice(0,10);
+    (document.getElementById('to').value) = now.toISOString().slice(0,10);
+    applyRange();
+  });
+  document.getElementById('filterThisWeek').addEventListener('click', ()=>{
+    const now=new Date(); const day=now.getDay()||7; const monday=new Date(now);
+    monday.setDate(now.getDate()-(day-1));
+    const today = new Date();
+    document.getElementById('from').value = monday.toISOString().slice(0,10);
+    document.getElementById('to').value = today.toISOString().slice(0,10);
+    applyRange();
+  });
+  document.getElementById('filterRange').addEventListener('click', applyRange);
+
+  // email save
+  const emailTo = document.getElementById('emailTo');
+  const saved = localStorage.getItem('arka_email_to') || 'arbenoruci@gmail.com';
+  emailTo.value = saved;
+  document.getElementById('saveEmail').addEventListener('click', ()=>{
+    const v = (emailTo.value||'').trim();
+    if(!v) return alert('Vendos email-in');
+    localStorage.setItem('arka_email_to', v);
+    alert('U ruajt email-i i destinacionit.');
+  });
+
+  // open last opened day if any
+  const last = localStorage.getItem('arka_hist_last');
+  if(last){ setTimeout(()=> openDay(last), 0); }
+}
+
+function applyRange(){
+  const f = document.getElementById('from').value;
+  const t = document.getElementById('to').value;
+  if(!f || !t){ renderList(); return; }
+  const df = new Date(f+'T00:00:00'); const dt = new Date(t+'T23:59:59');
+  filtered = readDays().filter(d=>{
+    const dd = new Date(d.date||d.day||Date.now());
+    return dd>=df && dd<=dt;
+  }).sort((a,b)=>(new Date(b.date||b.day))-(new Date(a.date||a.day)));
+  const box = document.getElementById('daysList');
+  box.innerHTML = filtered.length ? filtered.map(rowHTML).join('') : '<div class="small">S’ka ditë në këtë interval.</div>';
+  document.getElementById('dayDetails').style.display='none';
+  selected=null;
+}
+
+/* ---------- INIT ---------- */
+renderList();
+attachEvents();
 </script>
 </body>
 </html>
