@@ -1,186 +1,48 @@
 <!DOCTYPE html>
 <html lang="sq">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=0.7, maximum-scale=0.7, user-scalable=no">
-<title>PRANIMI — v5 (Futuristic)</title>
-<style>
-  :root{
-    /* Futuristic / cyber neon palette */
-    --bg: #05060d;
-    --fg: #eaf0ff;
-    --muted: #9fb0d9;
-    --panel: rgba(10,12,25,.62);
-    --panel-border: rgba(120,150,255,.18);
-    --glass: rgba(18,22,46,.55);
-    --line: rgba(120,150,255,.20);
-    --chip-bg: rgba(16,24,56,.88);
-    --chip-br: rgba(120,150,255,.35);
-    --chip-active: rgba(58,234,255,.16);
-    --accent1: #7c3bff;  /* violet neon */
-    --accent2: #3be8ff;  /* cyan neon */
-    --accent3: #7fff5a;  /* lime neon */
-    --accent4: #ff5aac;  /* pink neon */
-    --btn: rgba(24,34,78,.92);
-    --btn-br: rgba(124,168,255,.45);
-    --warn: #ff3b6b;
-    --glow: 0 0 0 1px rgba(124,168,255,.35), 0 10px 40px rgba(59,232,255,.08);
-    --chip-glow: 0 0 0 1px rgba(124,168,255,.25), 0 6px 18px rgba(59,232,255,.08);
-    --shadow: 0 16px 60px rgba(0,0,0,.45);
-    --grad-a: radial-gradient(1100px 600px at 10% -10%, rgba(124,59,255,.22), transparent 60%);
-    --grad-b: radial-gradient(900px 520px at 98% -15%, rgba(59,232,255,.18), transparent 60%);
-    --grad-c: radial-gradient(1200px 700px at 30% 110%, rgba(127,255,90,.12), transparent 60%);
-  }
-  *{box-sizing:border-box}
-  html,body{
-    margin:0; padding:0;
-    background: var(--grad-a), var(--grad-b), var(--grad-c), var(--bg);
-    color:var(--fg);
-    font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-  }
-  h1{
-    font-size: clamp(28px, 4vw, 42px);
-    margin: 22px 18px 14px;
-    letter-spacing:.03em;
-    display:flex; align-items:center; gap:12px;
-  }
-  .badge{
-    display:inline-flex; gap:10px; align-items:center;
-    background: linear-gradient(90deg, rgba(124,59,255,.28), rgba(59,232,255,.28));
-    border: 1px solid var(--panel-border);
-    border-radius: 999px; padding: 8px 14px; font-weight: 800;
-    text-transform: uppercase; letter-spacing: .08em; font-size: 12px;
-    box-shadow: var(--glow);
-  }
-  .wrap{ max-width: 960px; margin: 0 auto; padding: 0 16px 120px; }
-  .card{
-    background: linear-gradient(180deg, var(--panel), rgba(6,9,20,.72));
-    border:1px solid var(--panel-border);
-    border-radius: 18px;
-    padding: 16px;
-    margin: 16px 0;
-    box-shadow: var(--shadow);
-    backdrop-filter: blur(8px);
-  }
-  .title{
-    display:flex; align-items:center; gap:12px;
-    font-size: clamp(18px, 2.2vw, 22px);
-    font-weight: 900; letter-spacing:.04em; margin-bottom: 12px;
-  }
-  .dot{ width:10px; height:10px; border-radius:999px; background:var(--accent2);
-        box-shadow: 0 0 12px var(--accent2); }
-  .dot.v{ background: var(--accent1); box-shadow: 0 0 12px var(--accent1); }
-  .dot.g{ background: var(--accent3); box-shadow: 0 0 12px var(--accent3); }
-  .dot.p{ background: var(--accent4); box-shadow: 0 0 12px var(--accent4); }
-  label{ font-size:12px; color:var(--muted); letter-spacing:.08em }
-  .row{ display:grid; grid-template-columns: 1fr 1fr; gap:12px }
-  @media (max-width:640px){ .row{ grid-template-columns:1fr } }
-  .input{
-    background: rgba(14,20,44,.82);
-    border:1px solid var(--line);
-    border-radius: 14px;
-    padding: 14px 16px; color:var(--fg); font-size: 16px;
-    outline: none; box-shadow: var(--glow);
-  }
-  .chips{
-    display:flex; gap:10px; overflow-x:auto; -webkit-overflow-scrolling:touch;
-    padding: 6px 0 10px;
-  }
-  .chip{
-    flex:0 0 auto;
-    border:1px solid var(--chip-br);
-    background: linear-gradient(180deg, var(--chip-bg), rgba(10,16,40,.88));
-    color:#e9f2ff;
-    border-radius: 12px; padding: 10px 14px;
-    font-weight: 900; letter-spacing: .04em;
-    box-shadow: var(--chip-glow);
-    transition: transform .06s ease, box-shadow .2s ease, background .2s ease;
-  }
-  .chip:active{ transform: translateY(1px); background: var(--chip-active); }
-  .list{ display:flex; flex-direction:column; gap:10px; margin-top:8px }
-  .piece-row{
-    display:grid; grid-template-columns: 96px 1fr; gap:10px; align-items:center
-  }
-  .piece-id{
-    background: linear-gradient(180deg, rgba(18,26,60,.9), rgba(10,18,38,.9));
-    border:1px solid var(--panel-border);
-    border-radius: 12px; padding: 12px 14px; text-align:center;
-    font-weight: 900; letter-spacing:.08em; box-shadow: var(--glow);
-  }
-  .btnbar{ display:flex; gap:10px; flex-wrap:wrap; margin-top:8px }
-  .btn{
-    border:1px solid var(--btn-br);
-    background: linear-gradient(180deg, var(--btn), rgba(16,26,56,.9));
-    color:#fff; border-radius: 12px; padding: 12px 16px;
-    font-weight: 900; letter-spacing:.06em; box-shadow: var(--glow);
-  }
-  .btn.red{ border-color: rgba(255,90,172,.45); background: linear-gradient(180deg, rgba(64,10,26,.9), rgba(48,8,20,.9)) }
-  .tot{
-    display:flex; justify-content:space-between; align-items:center;
-    background: var(--glass);
-    border:1px solid var(--panel-border);
-    border-radius: 12px; padding: 10px 12px; margin-top: 10px;
-    box-shadow: var(--glow);
-  }
-  .pill{
-    background: var(--glass);
-    border:1px solid var(--panel-border);
-    border-radius: 12px; padding: 10px 12px; box-shadow: var(--glow);
-  }
-  .footer{
-    position: sticky; bottom:0; left:0; right:0;
-    background: linear-gradient(180deg, rgba(5,6,13,0), rgba(5,6,13,.96));
-    padding: 14px 0; border-top: 1px solid var(--panel-border);
-    backdrop-filter: blur(8px);
-  }
-  .footwrap{ max-width: 960px; margin: 0 auto; padding: 0 16px;
-    display:grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items:center }
-
-/* injected: manual qty support */
-.input.piece-qty{ max-width:120px; }
-.piece-row{ display:grid; grid-template-columns: 80px 1fr 120px; gap:8px; align-items:center; }
-
-
-/* payments colors */
-b#euroTotal{ color:#9fd3ff; }
-b#borxhi{ color:#ff8aa0; }
-b#kthimi{ color:#8dffa2; }
-#paidChips .btn{ height:36px; padding:0 10px; font-weight:800 }
-#paidChips .btn.ghost{ border-color:#355; }
-
-/* --- PATCH v2: footer fixed + reserved space to avoid movement --- */
-body{ padding-bottom: 110px; } /* space for footer height */
-.footer{
-  position: fixed;
-  min-height: 72px; left:0; right:0; bottom:0; z-index: 10;
-  backdrop-filter: blur(6px);
-  background: linear-gradient(180deg, rgba(6,8,18,.1), rgba(6,8,18,.65));
-  padding-top: 6px;
-}
-.footwrap{display:grid; grid-template-columns:1fr auto auto; gap:10px; align-items:center;}
-.footwrap .btn{ min-width: 160px; }
-.pill{ min-width: 160px; }
-/* --- END PATCH --- */
-/* Footer tap fix */
-.footer { pointer-events: none; }
-.footer .footwrap, .footer .btn, .footer .pill { pointer-events: auto; }
-</style>
-
-
-<!-- injected by scale_65 -->
-<style id="global_scale_65">
-  /* 35% më e vogël (scale 0.65) – pa prek dizajnin, vetëm shrink */
-  html, body { height: auto !important; }
-  body {
-    /* */ */
-    transform-origin: top left;
-    /* */ */
-  }
-/* Footer tap fix */
-.footer { pointer-events: none; }
-.footer .footwrap, .footer .btn, .footer .pill { pointer-events: auto; }
-</style>
-
+  <meta charset="utf-8" />
+  <!-- 30% smaller safely (no transform) -->
+  <meta name="viewport" content="width=device-width, initial-scale=0.7, maximum-scale=0.7, user-scalable=no" />
+  <title>PRANIMI</title>
+  <style>
+    :root{
+      /* same neon look */
+      --bg:#05060d; --fg:#eaf0ff; --muted:#9fb0d9;
+      --panel: rgba(10,12,25,.62); --panel-border: rgba(120,150,255,.18);
+      --glass: rgba(18,22,46,.55); --line: rgba(120,150,255,.20);
+      --btn: rgba(24,34,78,.92); --btn-br: rgba(124,168,255,.45);
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;background:radial-gradient(1000px 560px at 10% -10%, rgba(124,59,255,.22), transparent 60%), radial-gradient(900px 520px at 98% -15%, rgba(59,232,255,.18), transparent 60%), var(--bg); color:var(--fg); font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial}
+    .wrap{ max-width: 960px; margin: 0 auto; padding: 0 16px 120px; }
+    h1{ font-size: clamp(28px, 4vw, 42px); margin: 22px 18px 14px; letter-spacing:.03em; display:flex; align-items:center; gap:12px }
+    .badge{ display:inline-flex; gap:10px; align-items:center; background: linear-gradient(90deg, rgba(124,59,255,.28), rgba(59,232,255,.28)); border:1px solid var(--panel-border); border-radius:999px; padding:8px 14px; font-weight:800; letter-spacing:.08em; font-size:12px }
+    .card{ background: linear-gradient(180deg, rgba(10,12,25,.62), rgba(6,9,20,.72)); border:1px solid var(--panel-border); border-radius:18px; padding:16px; margin:16px 0; backdrop-filter: blur(8px) }
+    .title{ display:flex; align-items:center; gap:12px; font-size: clamp(18px, 2.2vw, 22px); font-weight: 900; letter-spacing:.04em; margin-bottom: 12px }
+    label{ font-size:12px; color:var(--muted); letter-spacing:.08em }
+    .row{ display:grid; grid-template-columns: 1fr 1fr; gap:12px }
+    @media (max-width:640px){ .row{ grid-template-columns:1fr } }
+    .input{ background: rgba(14,20,44,.82); border:1px solid var(--line); border-radius: 14px; padding: 14px 16px; color:var(--fg); font-size: 16px; outline: none }
+    .chips{ display:flex; gap:10px; overflow-x:auto; -webkit-overflow-scrolling:touch; padding:6px 0 10px }
+    .chip{ flex:0 0 auto; border:1px solid rgba(120,150,255,.35); background: linear-gradient(180deg, rgba(16,24,56,.88), rgba(10,16,40,.88)); color:#e9f2ff; border-radius:12px; padding:10px 14px; font-weight:900 }
+    .list{ display:flex; flex-direction:column; gap:10px; margin-top:8px }
+    .piece-row{ display:grid; grid-template-columns: 80px 1fr 120px; gap:8px; align-items:center }
+    .piece-id{ background: linear-gradient(180deg, rgba(18,26,60,.9), rgba(10,18,38,.9)); border:1px solid var(--panel-border); border-radius:12px; padding:12px 14px; text-align:center; font-weight:900; letter-spacing:.08em }
+    .btnbar{ display:flex; gap:10px; flex-wrap:wrap; margin-top:8px }
+    .btn{ border:1px solid var(--btn-br); background: linear-gradient(180deg, var(--btn), rgba(16,26,56,.9)); color:#fff; border-radius:12px; padding:12px 16px; font-weight:900; letter-spacing:.06em }
+    .btn.red{ border-color: rgba(255,90,172,.45); background: linear-gradient(180deg, rgba(64,10,26,.9), rgba(48,8,20,.9)) }
+    .tot{ display:flex; justify-content:space-between; align-items:center; background: rgba(18,22,46,.55); border:1px solid var(--panel-border); border-radius:12px; padding:10px 12px; margin-top:10px }
+    .pill{ background: rgba(18,22,46,.55); border:1px solid var(--panel-border); border-radius:12px; padding:10px 12px }
+    /* Footer fixed, but safe for taps */
+    body{ padding-bottom: 110px; }
+    .footer{ position: fixed; min-height: 72px; left:0; right:0; bottom:0; z-index: 10; backdrop-filter: blur(6px); background: linear-gradient(180deg, rgba(6,8,18,.1), rgba(6,8,18,.65)); padding-top: 6px; pointer-events: none; }
+    .footwrap{ max-width: 960px; margin: 0 auto; padding: 0 16px; display:grid; grid-template-columns:1fr auto auto; gap:10px; align-items:center }
+    .footwrap .btn, .footwrap .pill{ pointer-events: auto; }
+    /* payments colors */
+    b#euroTotal{ color:#9fd3ff } b#borxhi{ color:#ff8aa0 } b#kthimi{ color:#8dffa2 }
+    #paidChips .btn{ height:36px; padding:0 10px; font-weight:800 }
+  </style>
 </head>
 <body>
   <h1>PRANIMI <span class="badge">NEON • FUTURE</span></h1>
@@ -189,17 +51,23 @@ body{ padding-bottom: 110px; } /* space for footer height */
 
     <!-- KLIENTI -->
     <section class="card">
-      <div class="title"><span class="dot p"></span> Hapi 1 — Klienti<img id="clientThumb" alt="" style="width:36px;height:36px;border-radius:6px;margin-left:6px;object-fit:cover;border:1px solid var(--panel-border);display:none"></div>
+      <div class="title">Hapi 1 — Klienti <img id="clientThumb" alt="" style="width:36px;height:36px;border-radius:6px;margin-left:6px;object-fit:cover;border:1px solid var(--panel-border);display:none"></div>
       <div class="row">
         <div>
           <label>EMRI &amp; MBIEMRI*</label>
-          <div class="client-name-row" style="display:flex;align-items:center;gap:6px;"><input class="input" id="name" placeholder="p.sh. Arben R." /><label class="cam-inline" id="clientCam" title="Foto klientit" style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:8px;border:1px solid var(--panel-border);background:linear-gradient(180deg,rgba(24,34,78,.9),rgba(16,26,56,.9));"><span style="font-size:13px">📷</span><input type="file" accept="image/*" capture="environment" id="clientPhotoInput" style="display:none"></label></div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <input class="input" id="name" placeholder="p.sh. Arben R.">
+            <label title="Foto klientit" style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:8px;border:1px solid var(--panel-border);background:linear-gradient(180deg,rgba(24,34,78,.9),rgba(16,26,56,.9));cursor:pointer">
+              <span style="font-size:13px">📷</span>
+              <input type="file" accept="image/*" capture="environment" id="clientPhotoInput" style="display:none">
+            </label>
+          </div>
         </div>
         <div>
           <label>TELEFONI*</label>
           <div class="row" style="grid-template-columns:110px 1fr">
-            <input class="input"  id="phonePrefix" value="+383" readonly />
-            <input class="input" id="phone" inputmode="numeric" placeholder="44177778" />
+            <input class="input" id="phonePrefix" value="+383" readonly>
+            <input class="input" id="phone" inputmode="numeric" placeholder="44177778">
           </div>
         </div>
       </div>
@@ -207,86 +75,50 @@ body{ padding-bottom: 110px; } /* space for footer height */
 
     <!-- TEPIHA -->
     <section class="card" id="sec-tepiha">
-      <div class="title"><span class="dot v"></span> Tepiha</div>
+      <div class="title">Tepiha</div>
       <div class="chips" id="chips-tepiha">
-        <button class="chip">2.0 m²</button>
-        <button class="chip">2.5 m²</button>
-        <button class="chip">3.0 m²</button>
-        <button class="chip">3.2 m²</button>
-        <button class="chip">3.5 m²</button>
-        <button class="chip">3.7 m²</button>
-        <button class="chip">6.0 m²</button>
-        <button class="chip">Manual</button>
+        <button class="chip">2.0 m²</button><button class="chip">2.5 m²</button><button class="chip">3.0 m²</button><button class="chip">3.2 m²</button><button class="chip">3.5 m²</button><button class="chip">3.7 m²</button><button class="chip">6.0 m²</button><button class="chip">Manual</button>
       </div>
       <div class="list" id="list-tepiha"></div>
-      <div class="btnbar">
-        <button class="btn" onclick="addRow('tepiha', null)">+ Rresht</button>
-        <button class="btn red" onclick="removeRow('tepiha')">− Rresht</button>
-      </div>
+      <div class="btnbar"><button class="btn" onclick="addRow('tepiha', null)">+ Rresht</button><button class="btn red" onclick="removeRow('tepiha')">− Rresht</button></div>
       <div class="tot"><span>Totali tepiha:</span><b id="tot-tepiha">0.00 m²</b></div>
     </section>
 
-    <!-- STAZA (runner) -->
+    <!-- STAZA -->
     <section class="card" id="sec-staza">
-      <div class="title"><span class="dot g"></span> Staza</div>
+      <div class="title">Staza</div>
       <div class="chips" id="chips-staza">
-        <button class="chip">1.5 m²</button>
-        <button class="chip">2.0 m²</button>
-        <button class="chip">2.2 m²</button>
-        <button class="chip">3.0 m²</button>
-        <button class="chip">Manual</button>
+        <button class="chip">1.5 m²</button><button class="chip">2.0 m²</button><button class="chip">2.2 m²</button><button class="chip">3.0 m²</button><button class="chip">Manual</button>
       </div>
       <div class="list" id="list-staza"></div>
-      <div class="btnbar">
-        <button class="btn" onclick="addRow('staza', null)">+ Rresht</button>
-        <button class="btn red" onclick="removeRow('staza')">− Rresht</button>
-      </div>
+      <div class="btnbar"><button class="btn" onclick="addRow('staza', null)">+ Rresht</button><button class="btn red" onclick="removeRow('staza')">− Rresht</button></div>
       <div class="tot"><span>Totali staza:</span><b id="tot-staza">0.00 m²</b></div>
     </section>
 
-    <!-- SHKALLORE (steps) -->
+    <!-- SHKALLORE -->
     <section class="card" id="sec-shkallore">
-      <div class="title"><span class="dot"></span> Shkallore</div>
+      <div class="title">Shkallore</div>
       <div class="row">
-        <div>
-          <label>Sasia (numri i hapave)</label>
-          <input class="input" id="stairsQty" inputmode="numeric" placeholder="p.sh. 20" />
-        </div>
-        <div>
-          <label>M² për hap</label>
-          <input class="input" id="stairsPer" inputmode="decimal" value="0.3" />
-        </div>
+        <div><label>Sasia (numri i hapave)</label><input class="input" id="stairsQty" inputmode="numeric" placeholder="p.sh. 20"></div>
+        <div><label>M² për hap</label><input class="input" id="stairsPer" inputmode="decimal" value="0.3"></div>
       </div>
       <div class="tot"><span>M² shkallore:</span><b id="stairsM2">0.00 m²</b></div>
     </section>
 
     <!-- PAGESA -->
     <section class="card">
-      <div class="title"><span class="dot p"></span> Pagesa</div>
+      <div class="title">Pagesa</div>
       <div class="row">
+        <div><label>€ / m²</label><input class="input" id="rate" inputmode="decimal" value="2.50"></div>
         <div>
-          <label>€ / m²</label>
-          <input class="input" id="rate" inputmode="decimal" value="2.50" />
-        </div>
-        <div>
-          <label>PAGUAR NË FILLIM (CASH)</label><br/>
-          <label style="display:flex;align-items:center;gap:10px">
-            <input type="checkbox" id="paidUpfront" />
-            <span>Aktivo për të futur shumën e dhënë</span>
-          </label>
+          <label>PAGUAR NË FILLIM (CASH)</label><br>
+          <label style="display:flex;align-items:center;gap:10px"><input type="checkbox" id="paidUpfront"><span>Aktivo për të futur shumën e dhënë</span></label>
         </div>
       </div>
       <div class="row">
-        <div>
-          <label>KLIENTI DHA (€)</label>
-          <input class="input" id="clientPaid" inputmode="decimal" placeholder="p.sh. 15" disabled />
-        </div>
-        <div>
-          <label>BORXHI (€)</label>
-          <input class="input" id="debt" readonly />
-        </div>
+        <div><label>KLIENTI DHA (€)</label><input class="input" id="clientPaid" inputmode="decimal" placeholder="p.sh. 15" disabled></div>
+        <div><label>BORXHI (€)</label><input class="input" id="debt" readonly></div>
       </div>
-
       <div class="row">
         <div class="pill"><b>M² total:</b> <span id="m2Total">0.00</span></div>
         <div class="pill"><b>Total (€):</b> <span id="euroTotal">0.00</span></div>
@@ -295,439 +127,146 @@ body{ padding-bottom: 110px; } /* space for footer height */
 
     <!-- FOOTER -->
     <div class="footer">
-  <div id="savedNote" class="small" style="display:none; margin-right:8px;"></div>
       <div class="footwrap">
         <div class="pill"><b>Totali:</b> <span id="m2TotalFooter">0.00</span> m²</div>
         <button class="btn" id="btnSaveDraft">💾 RUAJ DRAFT</button>
-        <button class="btn" id="btnContinue">▶ VAZHDO</button>
+        <a class="btn" id="btnContinue" href="../pastrimi/">▶ VAZHDO</a>
       </div>
     </div>
   </div>
 
-<script>
-const LIST = 'order_list_v1';
+  <!-- Minimal, safe scripts: no global click capture, no preventDefault -->
+  <script>
+    (function(){
+      function q(s,b){ return (b||document).querySelector(s); }
+      function qq(s,b){ return Array.from((b||document).querySelectorAll(s)); }
+      function round2(x){ return Math.round((x + Number.EPSILON) * 100)/100; }
 
-(function(){
-  function q(s,b){ return (b||document).querySelector(s); }
-  function qq(s,b){ return Array.from((b||document).querySelectorAll(s)); }
-  function round2(x){ return Math.round((x + Number.EPSILON) * 100) / 100; }
+      function listFor(section){ return q('#list-'+section); }
 
-  function listFor(section){ return q('#list-'+section); }
+      window.addRow = function(section, value){
+        const list = listFor(section);
+        const row = document.createElement('div'); row.className = 'piece-row';
+        const id = document.createElement('div'); id.className = 'piece-id';
+        const idx = qq('.piece-row', list).length + 1; id.textContent = '#' + String(idx).padStart(2,'0');
+        const inp = document.createElement('input'); inp.className = 'input piece-input'; inp.placeholder='m²'; inp.inputMode='decimal';
+        if (value != null) inp.value = value;
+        const qty = document.createElement('input'); qty.className = 'input piece-qty'; qty.placeholder='copë'; qty.inputMode='numeric'; qty.value='1';
+        inp.addEventListener('input', computeTotals); qty.addEventListener('input', computeTotals);
+        row.appendChild(id); row.appendChild(inp); row.appendChild(qty); list.appendChild(row);
+        computeTotals();
+      }
 
-  window.addRow = function(section, value){
-    const list = listFor(section);
-    const row = document.createElement('div');
-    row.className = 'piece-row';
-    const id = document.createElement('div');
-    id.className = 'piece-id';
-    const idx = qq('.piece-row', list).length + 1;
-    id.textContent = '#' + String(idx).padStart(2,'0');
-    const inp = document.createElement('input');
-    inp.className = 'input piece-input';
-    inp.placeholder = 'm²';
-    inp.inputMode = 'decimal';
-    if (value != null) inp.value = value;
-    inp.addEventListener('input', computeTotals);
-    row.appendChild(id);
-    row.appendChild(inp);
-    const qty = document.createElement('input');
-    qty.className = 'input piece-qty';
-    qty.placeholder = 'copë';
-    qty.inputMode = 'numeric';
-    qty.value = '1';
-    qty.addEventListener('input', computeTotals);
-    row.appendChild(qty);
-    list.appendChild(row);
-    computeTotals();
-  }
+      window.removeRow = function(section){
+        const list = listFor(section);
+        const rows = qq('.piece-row', list);
+        if(rows.length){ rows[rows.length-1].remove(); computeTotals(); }
+      }
 
-  window.removeRow = function(section){
-    const list = listFor(section);
-    const rows = qq('.piece-row', list);
-    if(rows.length){ rows[rows.length-1].remove(); computeTotals(); }
-  }
+      function sectionTotal(section){
+        const list = listFor(section);
+        const rows = qq('.piece-row', list);
+        const total = round2(rows.reduce((s,row)=>{
+          const m2 = parseFloat((row.querySelector('.piece-input')||{}).value||'0')||0;
+          const qv = parseFloat((row.querySelector('.piece-qty')||{}).value||'1')||1;
+          return s + (m2*qv);
+        }, 0));
+        const tgt = q('#tot-'+section); if (tgt) tgt.textContent = total.toFixed(2) + ' m²';
+        return total;
+      }
 
-  function sectionTotal(section){
-    const list = listFor(section);
-    const rows = qq('.piece-row', list);
-    const total = round2(rows.reduce((s,row)=>{ const m2=parseFloat((row.querySelector('.piece-input')||{}).value||'0')||0; const qv=parseFloat((row.querySelector('.piece-qty')||{}).value||'1')||1; return s + (m2*qv); }, 0));
-    const tgt = q('#tot-'+section);
-    if (tgt) tgt.textContent = total.toFixed(2) + ' m²';
-    return total;
-  }
+      function computeStairs(){
+        const qty = parseFloat(q('#stairsQty').value||'0')||0;
+        const per = parseFloat(q('#stairsPer').value||'0.3')||0;
+        const m2 = round2(qty * per); q('#stairsM2').textContent = m2.toFixed(2) + ' m²';
+        return m2;
+      }
 
-  function computeStairs(){
-    const qty = parseFloat(q('#stairsQty').value||'0') || 0;
-    const per = parseFloat(q('#stairsPer').value||'0.3') || 0;
-    const m2 = round2(qty * per);
-    q('#stairsM2').textContent = m2.toFixed(2) + ' m²';
-    return m2;
-  }
+      window.computeTotals = function computeTotals(){
+        const tT = sectionTotal('tepiha');
+        const tS = sectionTotal('staza');
+        const tStairs = computeStairs();
+        const totalM2 = round2(tT + tS + tStairs);
+        q('#m2Total').textContent = totalM2.toFixed(2);
+        q('#m2TotalFooter').textContent = totalM2.toFixed(2);
+        const rate = parseFloat(q('#rate').value||'0')||0;
+        const euro = round2(totalM2 * rate);
+        q('#euroTotal').textContent = euro.toFixed(2);
 
-  function computeTotals(){
-    const tT = sectionTotal('tepiha');
-    const tS = sectionTotal('staza');
-    const tStairs = computeStairs();
-    const totalM2 = round2(tT + tS + tStairs);
-    q('#m2Total').textContent = totalM2.toFixed(2);
-    q('#m2TotalFooter').textContent = totalM2.toFixed(2);
+        const paidUp = q('#paidUpfront').checked;
+        const paidVal = paidUp ? (parseFloat(q('#clientPaid').value||'0')||0) : 0;
+        q('#clientPaid').disabled = !paidUp;
+        if(!paidUp) q('#clientPaid').value = '';
+        const debt = Math.max(0, round2(euro - paidVal));
+        q('#debt').value = debt.toFixed(2);
+      }
 
-    const rate = parseFloat(q('#rate').value||'0') || 0;
-    const euro = round2(totalM2 * rate);
-    q('#euroTotal').textContent = euro.toFixed(2);
-
-    const paidUp = q('#paidUpfront').checked;
-    const paidVal = paidUp ? (parseFloat(q('#clientPaid').value||'0')||0) : 0;
-    const debt = Math.max(0, round2(euro - paidVal));
-    q('#clientPaid').disabled = !paidUp;
-    if(!paidUp) q('#clientPaid').value = '';
-    q('#debt').value = debt.toFixed(2);
-  }
-
-  function wireChips(containerId, section){
-    qq('#'+containerId+' .chip').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const txt = (btn.textContent||'').trim();
-        const num = parseFloat(txt.replace(/[^\d\.]/g,''));
-        if (!isNaN(num)) addRow(section, num); else addRow(section, null);
+      // Wire inputs
+      ['#stairsQty','#stairsPer','#rate','#paidUpfront','#clientPaid'].forEach(sel=>{
+        const el = q(sel); if(!el) return;
+        el.addEventListener(sel==='#paidUpfront' ? 'change' : 'input', computeTotals);
       });
-    });
-  }
-
-  q('#stairsQty').addEventListener('input', computeTotals);
-  q('#stairsPer').addEventListener('input', computeTotals);
-  q('#rate').addEventListener('input', computeTotals);
-  q('#paidUpfront').addEventListener('change', computeTotals);
-  q('#clientPaid').addEventListener('input', computeTotals);
-
-  wireChips('chips-tepiha','tepiha');
-  wireChips('chips-staza','staza');
-  computeTotals();
-})();
-</script>
-
-<script>
-(function(){
-  // Utility: resize image and return dataURL
-  async function fileToDataURL(file, maxW=1280, quality=0.7){
-    const img = new Image();
-    const fr = new FileReader();
-    const data = await new Promise((res, rej)=>{ fr.onload=()=>res(fr.result); fr.onerror=rej; fr.readAsDataURL(file); });
-    img.src = data; await new Promise(res=>img.onload=res);
-    const canvas = document.createElement('canvas');
-    const scale = Math.min(1, maxW/(img.width||maxW));
-    canvas.width = Math.round((img.width||maxW)*scale);
-    canvas.height = Math.round((img.height||maxW)*scale);
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-    return canvas.toDataURL('image/jpeg', quality);
-  }
-
-  const clientInput = document.getElementById('clientPhotoInput');
-  const clientThumb = document.getElementById('clientThumb');
-  if(clientInput){
-    // Restore saved client photo
-    const saved = localStorage.getItem('photo_client');
-    if(saved && clientThumb){ clientThumb.src = saved; clientThumb.style.display='inline-block'; }
-    clientInput.addEventListener('change', async (e)=>{
-      const f = e.target.files && e.target.files[0];
-      if(!f) return;
-      try{
-        const dataURL = await fileToDataURL(f);
-        localStorage.setItem('photo_client', dataURL);
-        if(clientThumb){ clientThumb.src = dataURL; clientThumb.style.display='inline-block'; }
-      }catch(err){ console.warn('client photo save failed', err); }
-    });
-  }
-
-  // Phone prefix (editable) + persist
-  const phonePref = document.getElementById('phonePrefix');
-  if(phonePref){
-    if(!phonePref.value || phonePref.value.trim()===''){ phonePref.value = '+383'; }
-    const savedPref = localStorage.getItem('phone_prefix');
-    if(savedPref){ phonePref.value = savedPref; }
-    phonePref.addEventListener('input', ()=>{
-      localStorage.setItem('phone_prefix', phonePref.value.trim());
-    });
-  }
-})();
-</script>
-
-
-<!-- PATCH v1: math fix + photo buttons for STAZA/SHKALLORE -->
-<script>
-(function(){
-  function val(el){ return parseFloat((el && el.value || '').replace(',', '.')) || 0; }
-  function round2(x){ return Math.round((x + Number.EPSILON) * 100) / 100; }
-  function q(s,b){ return (b||document).querySelector(s); }
-  function qq(s,b){ return Array.from((b||document).querySelectorAll(s)); }
-
-  // Robust computeTotals (idempotent – safe override)
-  function computeTotalsPatched(){
-    // Section totals
-    function totalFor(listId){
-      const list = q('#list-'+listId);
-      if(!list) return 0;
-      return round2(qq('.piece-row', list).reduce((sum,row)=>{
-        const m2 = parseFloat((row.querySelector('.input.m2')||{}).value||'0'.replace(',', '.')) || 0;
-        const qty = parseFloat((row.querySelector('.input.piece-qty')||{}).value||'1'.replace(',', '.')) || 1;
-        return sum + (m2 * qty);
-      }, 0));
-    }
-    const totTepiha = totalFor('tepiha');
-    const totStaza  = totalFor('staza');
-
-    // Shkallore
-    const stairsQty = val(q('#stairsQty'));
-    const stairsPer = val(q('#stairsPer'));
-    const totShkallore = round2(stairsQty * (stairsPer || 0));
-
-    // m2 + €
-    const m2Total = round2(totTepiha + totStaza + totShkallore);
-    const rate = val(q('#rate')) || 0;
-    const euroTotal = round2(m2Total * rate);
-
-    const m2Out = q('#m2Total'); if(m2Out) m2Out.textContent = m2Total.toFixed(2);
-    const m2Foot = q('#m2TotalFooter'); if(m2Foot) m2Foot.textContent = m2Total.toFixed(2);
-    const eurOut = q('#euroTotal'); if(eurOut) eurOut.textContent = euroTotal.toFixed(2);
-
-    // Payments
-    const paidToggle = q('#paidUpfront');
-    const paidInput  = q('#clientPaid');
-    const debtOut    = q('#debt');
-    if(paidToggle){
-      const enabled = !!paidToggle.checked;
-      if(paidInput){
-        paidInput.disabled = !enabled;
-        if(!enabled){ paidInput.value = ''; }
+      // Chips
+      function wireChips(containerId, section){
+        qq('#'+containerId+' .chip').forEach(btn=>{
+          btn.addEventListener('click', ()=>{
+            const txt=(btn.textContent||'').trim(); const num=parseFloat(txt.replace(/[^\d\.]/g,'')); 
+            if(!isNaN(num)) addRow(section, num); else addRow(section, null);
+          });
+        });
       }
-      if(debtOut){
-        const paid = enabled ? val(paidInput) : 0;
-        const debt = Math.max(0, euroTotal - paid);
-        debtOut.value = debt.toFixed(2);
-        // Optionally store change into data attribute (UI doesn't have a field)
-        const change = Math.max(0, paid - euroTotal);
-        debtOut.setAttribute('data-change', change.toFixed(2));
-        debtOut.title = change > 0 ? ('KTHE: ' + change.toFixed(2) + ' €') : '';
+      wireChips('chips-tepiha','tepiha'); wireChips('chips-staza','staza');
+
+      // Draft save (localStorage) and continue
+      const LIST_KEY = 'order_list_v1'; const KEY = id => `order_${id}`;
+      function getId(){ const hid=q('#orderId'); if(hid.value) return hid.value; const id='ord_'+Date.now(); hid.value=id; return id; }
+      function readRows(listId){
+        const list=q('#list-'+listId); if(!list) return [];
+        return qq('.piece-row', list).map(row=>({
+          m2: parseFloat(row.querySelector('.piece-input')?.value||'0')||0,
+          qty: parseFloat(row.querySelector('.piece-qty')?.value||'1')||1
+        }));
       }
-    }
-  }
-
-  // Wire events (idempotent guards)
-  ['#stairsQty','#stairsPer','#rate','#paidUpfront','#clientPaid'].forEach(sel=>{
-    const el = q(sel);
-    if(el && !el.__patched){
-      el.addEventListener(sel === '#paidUpfront' ? 'change' : 'input', computeTotalsPatched);
-      el.__patched = true;
-    }
-  });
-
-  // Also observe dynamic rows to recompute
-  const lists = ['#list-tepiha', '#list-staza'];
-  lists.forEach(sel=>{
-    const el = q(sel);
-    if(!el) return;
-    const mo = new MutationObserver(computeTotalsPatched);
-    mo.observe(el, {childList:true, subtree:true});
-    // delegate input events
-    el.addEventListener('input', e=>{
-      if(e.target && (e.target.classList.contains('input'))){
-        computeTotalsPatched();
-  window.computeTotals = computeTotalsPatched;
+      function totals(){
+        const m2=parseFloat(q('#m2Total').textContent||'0')||0;
+        const rate=parseFloat(q('#rate').value||'0')||0;
+        const euro=Math.round(m2*rate*100)/100;
+        const paidUp=q('#paidUpfront').checked;
+        const paid=paidUp?(parseFloat(q('#clientPaid').value||'0')||0):0;
+        const debt=Math.max(0, euro-paid);
+        const change=Math.max(0, paid-euro);
+        return {m2, rate, euro, paidUp, paid, debt, change};
       }
-    });
-  });
-
-  // Ensure photo buttons on STAZA rows like TEPIHA
-  function ensurePhotos(selector){
-    const list = q(selector);
-    if(!list) return;
-    qq('.piece-row', list).forEach((row, i)=>{
-      if(row.querySelector('input[type=file]')) return; // already has
-      const wrap = document.createElement('div');
-      wrap.className = 'btnbar';
-      const lab = document.createElement('label');
-      lab.className = 'btn ghost';
-      lab.textContent = '📷 Foto';
-      const inp = document.createElement('input');
-      inp.type = 'file';
-      inp.accept = 'image/*';
-      inp.capture = 'environment';
-      inp.style.display = 'none';
-      lab.appendChild(inp);
-      wrap.appendChild(lab);
-      row.appendChild(wrap);
-      // Persist to localStorage
-      inp.addEventListener('change', async (ev)=>{
-        const file = ev.target.files && ev.target.files[0];
-        if(!file) return;
-        const fr = new FileReader();
-        fr.onload = ()=>{
-          try {
-            const key = 'photo_' + selector.replace('#list-','') + '_' + i;
-            localStorage.setItem(key, fr.result);
-          } catch(e){}
+      function saveIndexEntry(id, name, phone){
+        let idx=[]; try{ idx=JSON.parse(localStorage.getItem(LIST_KEY)||'[]'); }catch(e){ idx=[]; }
+        const i=idx.findIndex(x=>x.id===id);
+        const entry={id, name:name.trim(), phone:phone.trim()};
+        if(i>=0) idx[i]=entry; else idx.unshift(entry);
+        localStorage.setItem(LIST_KEY, JSON.stringify(idx.slice(0,200)));
+      }
+      function saveDraft(){
+        const id=getId();
+        const name=q('#name')?.value||'';
+        const phone=`${q('#phonePrefix')?.value||''}${(q('#phone')?.value||'').trim()}`;
+        const data={
+          id, ts:Date.now(),
+          client:{name, phone},
+          tepiha: readRows('tepiha'),
+          staza: readRows('staza'),
+          shkallore:{ qty: parseFloat(q('#stairsQty')?.value||'0')||0, per: parseFloat(q('#stairsPer')?.value||'0.3')||0 },
+          pay: totals(),
+          status:'pranim',
         };
-        fr.readAsDataURL(file);
-      });
-    });
-  }
-
-  // One camera input for SHKALLORE section
-  function ensureStairsPhoto(){
-    const holderId = 'stairsPhotoHolder';
-    if(q('#'+holderId)) return;
-    const sec = document.querySelector('section.card .title')?.textContent?.toLowerCase().includes('shkallore')
-      ? document.querySelector('section.card .title').closest('section.card')
-      : document.querySelectorAll('section.card')[2]; // heuristic third card
-    if(!sec) return;
-    const div = document.createElement('div');
-    div.id = holderId;
-    div.className = 'btnbar';
-    div.style.marginTop = '8px';
-    const lab = document.createElement('label');
-    lab.className = 'btn ghost';
-    lab.textContent = '📷 Foto (Shkallore)';
-    const inp = document.createElement('input');
-    inp.type = 'file'; inp.accept='image/*'; inp.capture='environment'; inp.style.display='none';
-    lab.appendChild(inp); div.appendChild(lab);
-    sec.appendChild(div);
-    inp.addEventListener('change', (ev)=>{
-      const f = ev.target.files && ev.target.files[0];
-      if(!f) return;
-      const rd = new FileReader();
-      rd.onload = ()=>{ try{ localStorage.setItem('photo_shkallore', rd.result);}catch(e){} };
-      rd.readAsDataURL(f);
-    });
-  }
-
-  // Stickiness: prevent layout jump on action buttons
-  function stabilizeActions(){
-    const fw = document.querySelector('.footwrap');
-    if(fw){ fw.style.minHeight = fw.offsetHeight + 'px'; }
-  }
-
-  // Kick it off
-  ensurePhotos('#list-staza');
-  ensureStairsPhoto();
-  stabilizeActions();
-  computeTotalsPatched();
-  window.computeTotals = computeTotalsPatched;
-
-  // Re-run when rows change
-  const obs = new MutationObserver(()=>{
-    ensurePhotos('#list-staza');
-    ensureStairsPhoto();
-    computeTotalsPatched();
-  window.computeTotals = computeTotalsPatched;
-  });
-  obs.observe(document.body, {childList:true, subtree:true});
-})();
-</script>
-<!-- END PATCH v1 -->
-
-
-<!-- PATCH v3: Save Draft + Continue handlers (compatible with /orders using assets/app.js) -->
-<script>
-(function(){
-  const LIST_KEY = 'order_list_v1';
-  const KEY = id => `order_${id}`;
-  function q(sel, b){ return (b||document).querySelector(sel); }
-  function qq(sel, b){ return Array.from((b||document).querySelectorAll(sel)); }
-  function round2(x){ return Math.round((x + Number.EPSILON) * 100)/100; }
-  function num(v){ return parseFloat(String(v||'').replace(',', '.')) || 0; }
-
-  function getId(){
-    const hid = q('#orderId');
-    if(hid.value) return hid.value;
-    const id = 'ord_' + Date.now();
-    hid.value = id;
-    return id;
-  }
-
-  function totals(){
-    function totalFor(listId){
-      const list = q('#list-'+listId);
-      if(!list) return 0;
-      return round2(qq('.piece-row', list).reduce((sum,row)=>{
-        const m2 = num(row.querySelector('.input.m2')?.value);
-        const qty = num(row.querySelector('.input.piece-qty')?.value || 1);
-        return sum + (m2 * qty);
-      }, 0));
-    }
-    const stairsQty = num(q('#stairsQty')?.value);
-    const stairsPer = num(q('#stairsPer')?.value);
-    const m2 = round2(totalFor('tepiha') + totalFor('staza') + (stairsQty * stairsPer));
-    const rate = num(q('#rate')?.value);
-    const euro = round2(m2 * rate);
-    const paidEnabled = !!q('#paidUpfront')?.checked;
-    const paid = paidEnabled ? num(q('#clientPaid')?.value) : 0;
-    const debt = Math.max(0, euro - paid);
-    const change = Math.max(0, paid - euro);
-    return {m2, rate, euro, paidEnabled, paid, debt, change};
-  }
-
-  function readRows(listId){
-    const list = q('#list-'+listId);
-    if(!list) return [];
-    return qq('.piece-row', list).map(row=> ({
-      m2: num(row.querySelector('.input.m2')?.value),
-      qty: num(row.querySelector('.input.piece-qty')?.value || 1),
-      note: (row.querySelector('.input.note')?.value || '').trim()
-    }));
-  }
-
-  function saveIndexEntry(id, name, phone){
-    const raw = localStorage.getItem(LIST_KEY);
-    let idx = [];
-    try{ idx = raw ? JSON.parse(raw) : []; }catch(e){ idx = []; }
-    const i = idx.findIndex(x=>x.id===id);
-    const entry = {id, name: (name||'').trim(), phone: (phone||'').trim()};
-    if(i>=0) idx[i] = entry; else idx.unshift(entry);
-    localStorage.setItem(LIST_KEY, JSON.stringify(idx.slice(0,200)));
-  }
-
-  function saveDraft(){
-    const id = getId();
-    const name = q('#name')?.value || '';
-    const phone = `${q('#phonePrefix')?.value||''}${(q('#phone')?.value||'').trim()}`;
-    const data = {
-      id, ts: Date.now(),
-      client: {name, phone},
-      tepiha: readRows('tepiha'),
-      staza: readRows('staza'),
-      shkallore: { qty: num(q('#stairsQty')?.value), per: num(q('#stairsPer')?.value) },
-      pay: totals(),
-      status: 'pranim',
-    };
-    try{
-      localStorage.setItem(KEY(id), JSON.stringify(data));
-      saveIndexEntry(id, name, phone);
-      const note = document.getElementById('savedNote');
-      if(note){ note.style.display='inline-block'; note.textContent='U ruajt drafti.'; setTimeout(()=>note.style.display='none', 1500); }
-      return true;
-    }catch(e){
-      alert('S’u ruajt dot drafti (localStorage i plotë?)');
-      return false;
-    }
-  }
-
-  const btnSave = document.getElementById('btnSaveDraft');
-  if(btnSave && !btnSave.__wired){
-    btnSave.addEventListener('click', (e)=>{ e.preventDefault(); saveDraft(); });
-    btnSave.__wired = true;
-  }
-  const btnGo = document.getElementById('btnContinue');
-  if(btnGo && !btnGo.__wired){
-    btnGo.addEventListener('click', (e)=>{
-      e.preventDefault();
-      if(saveDraft()){ window.location.href = '../pastrimi/'; }
-    });
-    btnGo.__wired = true;
-  }
-})();
-</script>
-<!-- END PATCH v3 -->
-
+        try{
+          localStorage.setItem(KEY(id), JSON.stringify(data));
+          saveIndexEntry(id, name, phone);
+          return true;
+        }catch(e){ alert('S’u ruajt dot drafti (localStorage i plotë?)'); return false; }
+      }
+      const btnSave=q('#btnSaveDraft'); if(btnSave){ btnSave.addEventListener('click', (e)=>{ e.preventDefault(); saveDraft(); }); }
+      // NOTE: Continue is a normal <a href="../pastrimi/">; no JS needed.
+      computeTotals();
+    })();
+  </script>
 </body>
 </html>
