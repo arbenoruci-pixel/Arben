@@ -1,55 +1,274 @@
-<!doctype html><html><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=0.7, maximum-scale=0.7, user-scalable=no">
-<title>PASTRIMI</title>
-<link rel="stylesheet" href="./assets/styles.css.html">
-<script type="module">
-import {ensureOrderFromURL, calcTotals, saveOrder, fmt2, openMessage, setStatusAndTheme} from '/assets/app.js';
-const o = ensureOrderFromURL();
-window.addEventListener('DOMContentLoaded', ()=>{ setStatusAndTheme(o, 'pastrim'); update(); });
-function update(){ calcTotals(o); saveOrder(o);
-  document.getElementById('oid').textContent = o.id;
-  document.getElementById('client').textContent = (o.client.name||'') + ' • ' + (o.client.phone||'');
-  document.getElementById('m2').textContent = fmt2(o.totals.m2);
-  document.getElementById('eur').textContent = fmt2(o.totals.eur);
-}
-window.msg = () => { calcTotals(o); saveOrder(o); openMessage(o, 'start', 'sms'); };
-window.setS = s => { setStatusAndTheme(o, s); };
-</script>
-<script>
-// show skip info banner if present
-window.addEventListener('DOMContentLoaded',()=>{
-  const el=document.getElementById('skipInfo'); if(!el) return; try{ const o = (typeof ensureOrderFromURL==='function')?ensureOrderFromURL():null; if(o && o.meta && o.meta.skip){ el.style.display='block'; el.textContent = 'SKIP nga: ' + (o.meta.skip_by||'unknown'); } }catch(e){}
-});
-</script>
+<!DOCTYPE html>
+<html lang="sq">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PASTRIMI</title>
+  <style>
+    :root{
+      --bg:#000; --ink:#fff; --muted:#b9c4da;
+      --panel:#0c0f16; --panel-br:#273143; --line:#2c3954;
+      --btn:#1e60ff; --btn-ink:#fff; --danger:#ef4444; --ok:#22c55e;
+      --warn:#f59e0b; --ghost:#0c1220;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;background:var(--bg);color:var(--ink);font-family:ui-rounded,system-ui,-apple-system,Segoe UI,Roboto,Arial}
+    .wrap{max-width:980px;margin:0 auto;padding:12px 16px 100px}
+    header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:8px 0 12px}
+    h1{font-size:clamp(30px,5vw,44px);margin:0;font-weight:1000}
+    .badge{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(180deg,rgba(59,130,246,.18),rgba(59,130,246,.08));border:1px solid rgba(59,130,246,.6);color:#dbe9ff;padding:8px 14px;border-radius:999px;font-weight:1000}
 
-<!-- injected by scale_65 -->
-<style id="global_scale_65">
-  /* 35% më e vogël (scale 0.65) – pa prek dizajnin, vetëm shrink */
-  html, body { height: auto !important; }
-  body {
-    /* transform: scale(0.65); */
-    transform-origin: top left;
-    /* width: calc(100% / 0.65); */
-  }
+    .toolbar{display:grid;grid-template-columns:1fr auto auto;gap:10px;margin:8px 0 14px}
+    .input{width:100%;min-height:54px;background:#070a12;border:2px solid var(--line);border-radius:14px;padding:12px 14px;font-size:1.1rem;font-weight:1000;color:var(--ink);outline:none}
+    .btn{border:0;border-radius:14px;padding:12px 16px;min-height:54px;font-weight:1000;font-size:1.05rem;cursor:pointer}
+    .btn.primary{background:var(--btn);color:var(--btn-ink)}
+    .btn.ghost{background:var(--ghost);color:#e6f0ff;border:2px solid #2b3956}
+    .btn.ok{background:var(--ok);color:#06210e}
+    .btn.warn{background:var(--warn);color:#1f1302}
+    .btn.danger{background:var(--danger);color:#fff}
 
-/* Footer should not block taps */
-.footer { pointer-events: none; }
-.footer .footwrap, .footer .btn, .footer .pill { pointer-events: auto; }
+    .filters{display:flex;gap:8px;flex-wrap:wrap}
+    .chip{border:2px solid #2b3956;background:#0a1220;color:#e6f0ff;border-radius:999px;padding:8px 12px;font-weight:1000;cursor:pointer;user-select:none}
+    .chip.active{background:#1e293b}
 
-</style>
+    .card{background:var(--panel);border:1px solid var(--panel-br);border-radius:16px;padding:12px;margin:10px 0;box-shadow:0 8px 28px rgba(0,0,0,.5)}
+    .row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
+    .title{display:flex;align-items:center;gap:10px;font-size:1.25rem;font-weight:1000;margin:0 0 6px}
+    .code{font-weight:1000;color:#a5d8ff}
+    .muted{color:var(--muted);font-weight:800}
+    .stat{display:flex;flex-wrap:wrap;gap:12px;color:#cfe3ff;font-weight:1000}
+    .stat b{color:#fff}
+    .actions{display:flex;flex-wrap:wrap;gap:8px}
+    a.btn{text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
 
-</head><body><div class="app">
-  <div class="card">
-    <div class="badge" id="oid"></div>
-    <div class="small" id="client"></div>
-    <div class="grid2" style="margin:10px 0">
-      <div class="card">M²: <b id="m2">0.00</b></div>
-      <div class="card">€: <b id="eur">0.00</b></div>
+    .empty{opacity:.8;border:2px dashed #2b3956;border-radius:16px;padding:18px;text-align:center;font-weight:900}
+    footer{position:fixed;left:0;right:0;bottom:0;background:rgba(5,7,12,.97);border-top:1px solid var(--panel-br)}
+    .footwrap{max-width:980px;margin:0 auto;padding:10px 16px;display:flex;justify-content:space-between;gap:10px;align-items:center}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>PASTRIMI</h1>
+      <span class="badge">Lista e porosive</span>
+    </header>
+
+    <div class="toolbar">
+      <input id="search" class="input" placeholder="Kërko: emër / telefon / kod (p.sh. X12)">
+      <div class="filters">
+        <span class="chip active" data-filter="pranim">PRANIM</span>
+        <span class="chip active" data-filter="pastrim">PASTRIM</span>
+      </div>
+      <button id="btnRefresh" class="btn ghost">⟳ Rifresko</button>
     </div>
-    <div class="grid2">
-      <a class="btn" href="javascript:setS('pastrim')">Ruaj statusin: PASTRIM</a>
-      <a class="btn" href="javascript:msg()">📩 Dërgo mesazh</a>
-    </div>
+
+    <div id="list"></div>
+
+    <div id="empty" class="empty" style="display:none">S’ka porosi për t’u shfaqur.</div>
   </div>
-  <a class="btn" href="./index.html">⇐ Home</a>
-</div></body></html>
+
+  <footer>
+    <div class="footwrap">
+      <a class="btn ghost" href="../">← Kthehu te Home</a>
+      <a class="btn primary" href="../pranimi/">+ PRANIM I RI</a>
+    </div>
+  </footer>
+
+  <script>
+  (function(){
+    const q = (s,b)=> (b||document).querySelector(s);
+    const qq = (s,b)=> Array.from((b||document).querySelectorAll(s));
+    const r2 = x => Math.round((x+Number.EPSILON)*100)/100;
+
+    const LIST = q('#list');
+    const EMPTY = q('#empty');
+
+    function readAllOrders(){
+      const out = [];
+      for(let i=0;i<localStorage.length;i++){
+        const k = localStorage.key(i);
+        if(!k || !k.startsWith('order_')) continue;
+        try{
+          const obj = JSON.parse(localStorage.getItem(k) || '{}');
+          if(obj && obj.id) out.push(obj);
+        }catch(e){}
+      }
+      out.sort((a,b)=> (b.ts||0) - (a.ts||0)); // më të rejat sipër
+      return out;
+    }
+
+    function piecesOf(order){
+      const t = Array.isArray(order?.tepiha) ? order.tepiha.length : 0;
+      const s = Array.isArray(order?.staza)  ? order.staza.length  : 0;
+      const stairs = (order?.shkallore?.qty||0) > 0 ? 1 : 0;
+      return t + s + stairs;
+    }
+
+    function m2Of(order){
+      const t = (order?.tepiha||[]).reduce((sum,r)=> sum + (Number(r.m2||0) * Number(r.qty||1)), 0);
+      const s = (order?.staza||[] ).reduce((sum,r)=> sum + (Number(r.m2||0) * Number(r.qty||1)), 0);
+      const sh = Number(order?.shkallore?.qty||0) * Number(order?.shkallore?.per||0);
+      return r2(t+s+sh);
+    }
+
+    function euroOf(order){
+      const m2 = m2Of(order);
+      const rate = Number(order?.pay?.rate||0);
+      return r2(m2 * rate);
+    }
+
+    function phoneDigits(order){
+      const raw = (order?.client?.phone||'').trim();
+      return raw.replace(/[^\d]/g,'');
+    }
+
+    function saveOrder(order){
+      try { localStorage.setItem('order_'+order.id, JSON.stringify(order)); }
+      catch(e){ alert('S’u ruajt porosia: '+(e?.message||e)); }
+    }
+
+    function buildMsg(order){
+      const name = order?.client?.name || 'Klient';
+      const pcs  = piecesOf(order);
+      const m2   = m2Of(order).toFixed(2);
+      const eur  = euroOf(order).toFixed(2);
+      return `Përshëndetje ${name}, procesi i pastrimit ka filluar.\nKeni ${pcs} copë = ${m2} m².\nTotali: ${eur} €.\nFaleminderit!`;
+    }
+
+    function renderCard(order){
+      const code = order?.client?.code ? ` (${order.client.code})` : '';
+      const name = order?.client?.name || '—';
+      const tel  = order?.client?.phone || '—';
+      const pcs  = piecesOf(order);
+      const m2   = m2Of(order).toFixed(2);
+      const eur  = euroOf(order).toFixed(2);
+      const st   = (order?.status||'').toUpperCase();
+
+      const div = document.createElement('div');
+      div.className = 'card';
+      div.innerHTML = `
+        <div class="title">
+          <span><span class="code">${name}${code}</span></span>
+          <span class="muted">${st}</span>
+        </div>
+        <div class="row">
+          <div class="stat">
+            <span><b>${pcs}</b> copë</span>
+            <span><b>${m2}</b> m²</span>
+            <span><b>${eur}</b> €</span>
+            <span class="muted">Tel: ${tel}</span>
+          </div>
+          <div class="actions">
+            <button class="btn warn"   data-act="start" data-id="${order.id}">Starto pastrimin</button>
+            <button class="btn ok"     data-act="ready" data-id="${order.id}">GATI</button>
+            <button class="btn ghost"  data-act="msg"   data-id="${order.id}">Mesazh</button>
+            <a class="btn primary"     data-act="call"  data-id="${order.id}" href="tel:${phoneDigits(order)}">Telefono</a>
+          </div>
+        </div>
+      `;
+      return div;
+    }
+
+    function render(){
+      const term = (q('#search')?.value||'').trim().toLowerCase();
+      const activeFilters = new Set( qq('.chip.active').map(x=>x.getAttribute('data-filter')) );
+
+      const orders = readAllOrders().filter(o=>{
+        const st = (o?.status||'').toLowerCase();
+        if(!activeFilters.has(st)) return false;
+        if(!term) return true;
+        const code = (o?.client?.code||'').toLowerCase();
+        const name = (o?.client?.name||'').toLowerCase();
+        const phone= (o?.client?.phone||'').toLowerCase();
+        return code.includes(term) || name.includes(term) || phone.includes(term);
+      });
+
+      LIST.innerHTML = '';
+      if(!orders.length){
+        EMPTY.style.display = 'block';
+        return;
+      }
+      EMPTY.style.display = 'none';
+
+      const frag = document.createDocumentFragment();
+      orders.forEach(o => frag.appendChild(renderCard(o)));
+      LIST.appendChild(frag);
+    }
+
+    function onClick(e){
+      const btn = e.target.closest('[data-act]');
+      if(!btn) return;
+      const id  = btn.getAttribute('data-id');
+      const act = btn.getAttribute('data-act');
+      if(!id || !act) return;
+
+      const raw = localStorage.getItem('order_'+id);
+      if(!raw) return alert('Porosia nuk u gjet.');
+      let order;
+      try{ order = JSON.parse(raw); }catch(e){ return alert('Porosia e korruptuar.'); }
+
+      if(act==='start'){
+        order.status = 'pastrim';
+        order.ts = Date.now();
+        saveOrder(order);
+        render();
+      } else if(act==='ready'){
+        order.status = 'gati';
+        order.ts = Date.now();
+        saveOrder(order);
+        // Çoje direkt te /gati/
+        window.location.href = '../gati/';
+      } else if(act==='msg'){
+        const msg = buildMsg(order);
+        const digits = phoneDigits(order);
+        const enc = encodeURIComponent(msg);
+        // Zgjedh: Viber / WhatsApp / SMS
+        const viber = `viber://forward?text=${enc}`;
+        const wa    = digits ? `https://wa.me/${digits}?text=${enc}` : `https://wa.me/?text=${enc}`;
+        const sms   = digits ? `sms:${digits}?body=${enc}` : `sms:?body=${enc}`;
+        // Mini-sheet
+        const ov=document.createElement('div'); ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.65);display:flex;align-items:flex-end;justify-content:center;z-index:99999';
+        const box=document.createElement('div'); box.style.cssText='background:#0c0f16;border:1px solid #273143;border-radius:14px 14px 0 0;width:100%;max-width:720px;padding:14px;';
+        const title=document.createElement('div'); title.textContent='Dërgo me:'; title.style.cssText='color:#eaf1ff;font-weight:1000;font-size:1.2rem;margin:4px 4px 10px'; box.appendChild(title);
+        function mkBtn(label, href){
+          const a=document.createElement('a'); a.textContent=label; a.href=href; a.target='_blank'; a.rel='noopener';
+          a.style.cssText='display:block;text-decoration:none;background:#1e60ff;color:#fff;padding:14px 16px;border-radius:12px;font-weight:1000;text-align:center;margin:8px 4px';
+          return a;
+        }
+        box.appendChild(mkBtn('Viber', viber));
+        box.appendChild(mkBtn('WhatsApp', wa));
+        box.appendChild(mkBtn('SMS', sms));
+        const cancel=document.createElement('button'); cancel.textContent='Anulo'; cancel.className='btn ghost'; cancel.style.cssText='width:100%;margin:8px 4px 0'; cancel.onclick=()=>ov.remove(); box.appendChild(cancel);
+        ov.appendChild(box); ov.addEventListener('click',ev=>{ if(ev.target===ov) ov.remove(); });
+        document.body.appendChild(ov);
+      }
+    }
+
+    // UI wiring
+    q('#btnRefresh')?.addEventListener('click', render);
+    q('#search')?.addEventListener('input', render);
+    document.addEventListener('click', e=>{
+      const chip = e.target.closest('.chip');
+      if(chip){
+        chip.classList.toggle('active');
+        render();
+      }
+      onClick(e);
+    });
+
+    render();
+  })();
+  </script>
+
+  <!-- Debug white-screen -->
+  <script>
+    window.addEventListener('error', function(e){
+      const pre = document.createElement('pre');
+      pre.style.cssText='white-space:pre-wrap;color:#fff;background:#111;padding:12px;border:1px solid #333';
+      pre.textContent = (e.message||'JS error') + '\n' + (e.filename||'') + ':' + (e.lineno||'');
+      document.body.innerHTML = '';
+      document.body.appendChild(pre);
+    });
+  </script>
+</body>
+</html>
