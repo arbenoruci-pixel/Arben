@@ -1,9 +1,12 @@
 
-/* assets/app.js — FIXED v2 (2025-09-20)
-   - Strong multi-field SEARCH: name (accent-insensitive), phone (digits), X-code (23/X23), multi-term tokens
-   - Stops GATI -> PASTRIMI bounce (monotonic status + last-write-wins by updatedAt)
-   - Auto-migrates old orders on load (adds updatedAt, bumps GATI freshness)
-   - Limit active orders per client (name + phone)
+/* assets/app.js — FIXED v3 (2025-09-20)
+   GOAL: Work even if other pages have old logic.
+   - Visible version banner so you know this file is loaded
+   - Strong multi-field SEARCH (name/phone/X) + auto-bind to common search inputs
+   - Monotonic status (no downgrade) + last-write-wins by updatedAt
+   - Defensive storage guard: intercept localStorage writes to orders_v1 and keep higher status
+   - Auto-migration on load (adds updatedAt, bumps old GATI)
+   - Limit active orders per client (name+phone)
 */
 
 /* =========================
@@ -14,6 +17,7 @@ const MAX_ACTIVE_ORDERS_PER_CLIENT = 1;
 const STATUS = { PRANIM: 'pranim', PASTRIM: 'pastrim', GATI: 'gati', DOREZUAR: 'dorezuar' };
 const ACTIVE_STATUSES = new Set([STATUS.PRANIM, STATUS.PASTRIM, STATUS.GATI]);
 const STATUS_RANK = { pranim:1, pastrim:2, gati:3, dorezuar:4 };
+const VERSION = 'assets/app.js v3 • 2025-09-20';
 
 /* =========================
    UTILS
@@ -26,7 +30,6 @@ function fold(s=''){
   try {
     return String(s).normalize('NFD').replace(/\p{Diacritic}/gu,'').toUpperCase().trim();
   } catch {
-    // Fallback if \p{Diacritic} unsupported
     return String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().trim();
   }
 }
@@ -39,24 +42,16 @@ function normalizeXCode(s=''){
 }
 
 /* =========================
-   STORAGE
+   STORAGE (with defensive guard)
    ========================= */
-function loadOrders(){
-  try{
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if(!raw) return [];
-    const arr = JSON.parse(raw);
-    return Array.isArray(arr) ? arr : [];
-  }catch{ return []; }
-}
-function saveOrders(list){ localStorage.setItem(STORAGE_KEY, JSON.stringify(list || [])); }
-function getOrderById(id){ return loadOrders().find(o => o.id === id); }
+function _read(){ try{ const raw=localStorage.getItem(STORAGE_KEY); return raw?JSON.parse(raw):[]; }catch{ return []; } }
+function loadOrders(){ const arr=_read(); return Array.isArray(arr)?arr:[]; }
+function _write(list){ localStorage.setItem(STORAGE_KEY, JSON.stringify(list || [])); }
 
 // Defensive save: last-write-wins + no status downgrade
 function saveOrder(order){
   const list = loadOrders();
   const i = list.findIndex(o => o.id === order.id);
-
   if(!order.updatedAt){ order.updatedAt = nowTs(); }
 
   if(i === -1){
@@ -76,8 +71,48 @@ function saveOrder(order){
     }
     list[i] = chosen;
   }
-  saveOrders(list);
+  _write(list);
 }
+
+/* Intercept any other code that tries to overwrite orders_v1 directly */
+(function installStorageGuard(){
+  const _origSet = localStorage.setItem.bind(localStorage);
+  localStorage.setItem = function(key, val){
+    if(key === STORAGE_KEY){
+      try {
+        const incoming = JSON.parse(val || '[]');
+        if(Array.isArray(incoming)){
+          const current = loadOrders();
+          // merge per id: last-write-wins + no downgrade
+          const byId = new Map();
+          const put = (x) => {
+            const prev = byId.get(x.id);
+            if(!prev){ byId.set(x.id, x); }
+            else{
+              const aTs = Number(prev.updatedAt||0);
+              const bTs = Number(x.updatedAt||0);
+              const cand = bTs >= aTs ? x : prev;
+              // guard
+              const a = STATUS_RANK[String(prev.status).toLowerCase()] || 0;
+              const b = STATUS_RANK[String(cand.status).toLowerCase()] || 0;
+              if(b < a){
+                cand.status = prev.status;
+                cand.updatedAt = Math.max(aTs, bTs, nowTs());
+              }
+              byId.set(x.id, cand);
+            }
+          };
+          for(const it of current) put(it);
+          for(const it of incoming) put(it);
+          const merged = Array.from(byId.values());
+          // write merged
+          return _origSet(STORAGE_KEY, JSON.stringify(merged));
+        }
+      } catch { /* fall through */ }
+    }
+    return _origSet(key, val);
+  };
+})();
 
 /* =========================
    AUTO-MIGRATION ON LOAD
@@ -95,7 +130,7 @@ function saveOrder(order){
       if(o.status === STATUS.GATI && o.updatedAt < now - 5000){ o.updatedAt = now; }
       if(JSON.stringify(o) !== before) changed=true;
     }
-    if(changed) saveOrders(list);
+    if(changed) _write(list);
   }catch{}
 })();
 
@@ -108,7 +143,7 @@ function mergeOrders(remoteList=[], localList=[]){
   const byId = new Map();
   const put = x => {
     const prev = byId.get(x.id);
-    if(!prev) byId.set(x.id, x);
+    if(!prev){ byId.set(x.id, x); }
     else {
       const a = Number(prev.updatedAt||0);
       const b = Number(x.updatedAt||0);
@@ -123,7 +158,7 @@ async function syncOrders(){
   const local = loadOrders();
   const remote = await fetchRemoteOrders();
   const merged = mergeOrders(remote, local);
-  saveOrders(merged);
+  _write(merged);
   await pushDirtyOrders();
   return merged;
 }
@@ -148,7 +183,7 @@ function nextXCodeNumber(){
   const nums = list.map(o => {
     const n = Number(normalizeXCode(o.code));
     return Number.isFinite(n) ? n : 0;
-    });
+  });
   const max = nums.length ? Math.max(...nums) : 0;
   return max + 1;
 }
@@ -197,12 +232,7 @@ function saveFormEdits(id, formValues={}){
 }
 
 /* =========================
-   STRONG MULTI-FIELD SEARCH
-   - Splits query into tokens by space
-   - Name: accent-insensitive contains ALL tokens (AND)
-   - Phone: any token with digits must be substring of phone (OR across tokens)
-   - X-code: token equals/starts with code number
-   - Overall match if ANY of {nameMatch, phoneMatch, xMatch} is true
+   STRONG MULTI-FIELD SEARCH + AUTO-BIND
    ========================= */
 function searchOrders(rawQuery=''){
   const q = String(rawQuery || '').trim();
@@ -212,46 +242,6 @@ function searchOrders(rawQuery=''){
   const out = [];
   const seen = new Set();
 
-  for(const o of loadOrders()){
-    const nameF = fold(o.client_name);
-    const phoneF = normalizePhone(o.client_phone);
-    const xF = normalizeXCode(o.code);
-
-    // NAME: require ALL text tokens (that aren’t pure digits) to be contained
-    const nameTokens = tokens.filter(t => !/^\d+$/.test(t));
-    const nameMatch = nameTokens.length
-      ? nameTokens.every(t => nameF.includes(fold(t)))
-      : false;
-
-    // PHONE: if any token has digits, match if any such token is substring
-    const phoneTokens = tokens.map(normalizePhone).filter(t => t.length>0);
-    const phoneMatch = phoneTokens.length
-      ? phoneTokens.some(t => phoneF.includes(t))
-      : false;
-
-    // X-CODE: match if any token equals or is prefix of x number (no 'X' needed)
-    const xTokens = tokens.map(normalizeXCode).filter(Boolean);
-    const xMatch = xTokens.length
-      ? xTokens.some(t => xF === t || xF.startsWith(t))
-      : false;
-
-    if(nameMatch || phoneMatch || xMatch){
-      if(!seen.has(o.id)){
-        seen.add(o.id);
-        out.push(o);
-      }
-    }
-  }
-
-  out.sort((a,b)=>Number(b.updatedAt||0) - Number(a.updatedAt||0));
-  return out;
-}
-
-// Debug helper to see what field matched
-function debugSearch(rawQuery=''){
-  const q = String(rawQuery || '').trim();
-  const tokens = q.split(/\s+/).filter(Boolean);
-  const rows = [];
   for(const o of loadOrders()){
     const nameF = fold(o.client_name);
     const phoneF = normalizePhone(o.client_phone);
@@ -267,14 +257,50 @@ function debugSearch(rawQuery=''){
     const xMatch = xTokens.length ? xTokens.some(t => xF === t || xF.startsWith(t)) : false;
 
     if(nameMatch || phoneMatch || xMatch){
-      rows.push({
-        id: o.id, code: o.code, client_name: o.client_name, client_phone: o.client_phone,
-        nameMatch, phoneMatch, xMatch, updatedAt: o.updatedAt
-      });
+      if(!seen.has(o.id)){
+        seen.add(o.id);
+        out.push(o);
+      }
     }
   }
-  return rows;
+  out.sort((a,b)=>Number(b.updatedAt||0)-Number(a.updatedAt||0));
+  return out;
 }
+
+function installSearch(selectorList){
+  const sels = Array.isArray(selectorList) ? selectorList : ['#search','input[type="search"]','input[name="search"]'];
+  const el = sels.map(s=>document.querySelector(s)).find(Boolean);
+  if(!el) return false;
+  el.addEventListener('input', ()=>{
+    const q = el.value || '';
+    const results = searchOrders(q);
+    if(typeof window.renderSearch === 'function'){ window.renderSearch(results); }
+    else { console.log('Search results:', results); }
+  }, { passive:true });
+  return true;
+}
+
+/* Try to auto-bind search to common inputs */
+document.addEventListener('DOMContentLoaded', ()=>{
+  installSearch(['#search','input[type="search"]','input[name="search"]','[data-search]']);
+  // Show a small version badge so you can SEE this file is loaded
+  try {
+    const b = document.createElement('div');
+    b.textContent = VERSION;
+    b.style.position='fixed';
+    b.style.bottom='6px';
+    b.style.right='8px';
+    b.style.padding='4px 6px';
+    b.style.fontSize='10px';
+    b.style.opacity='0.5';
+    b.style.background='black';
+    b.style.color='white';
+    b.style.zIndex='99999';
+    b.style.borderRadius='4px';
+    document.body.appendChild(b);
+    setTimeout(()=>{ b.remove(); }, 4000);
+  } catch {}
+});
 
 /* =========================
    LISTS by status
@@ -295,12 +321,6 @@ document.addEventListener('click', (e)=>{
   const dBtn = q('[data-action="mark-dorezuar"]');
   if(dBtn){ updateOrderStatus(dBtn.getAttribute('data-id'), STATUS.DOREZUAR); return; }
 });
-document.addEventListener('input', (e)=>{
-  if(e.target && e.target.id === 'search'){
-    const results = searchOrders(e.target.value);
-    if(typeof window.renderSearch === 'function'){ window.renderSearch(results); }
-  }
-});
 
 /* =========================
    EXPORTS
@@ -311,9 +331,9 @@ window.Tepiha = {
   // lists
   listPastrimi, listGati, listMarrjeSot,
   // search
-  searchOrders, debugSearch,
+  searchOrders, installSearch,
   // sync
   syncOrders,
   // utils
-  loadOrders, saveOrders, getOrderById,
+  loadOrders, getOrderById, saveOrder,
 };
