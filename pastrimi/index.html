@@ -6,85 +6,89 @@
 <title>PASTRIMI • Lista</title>
 <style>
 :root{
-  --bg:#0b1220; --bg2:#0a111c; --panel:#0f1a2a; --line:#1f2e46;
+  --bg:#0b1220; --panel:#0f1a2a; --line:#1f2e46;
   --ink:#eaf1ff; --muted:#9fb4d6;
-  --blue1:#1aa5d8; --blue2:#146b95;
-  --green:#19a25f; --red:#ef4444;
+  --blue1:#1aa5d8; --blue2:#146b95; --green:#19a25f; --red:#ef4444;
 }
 *{box-sizing:border-box}
-body{margin:0;background:linear-gradient(180deg,var(--bg2),var(--bg));color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;letter-spacing:.2px}
+body{margin:0;background:linear-gradient(180deg,#0a111c,#0b1220);color:var(--ink);
+     font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;letter-spacing:.2px}
 a{color:inherit;text-decoration:none}
-.app{max-width:980px;margin:0 auto;padding:14px}
+.wrap{max-width:980px;margin:0 auto;padding:12px}
 
 /* header */
-.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.brand{display:flex;align-items:center;gap:10px}
-.logo{width:40px;height:40px;border-radius:10px;background:linear-gradient(180deg,#254369,#15263c);border:1px solid #203651;display:flex;align-items:center;justify-content:center}
-h1{margin:0;font-size:18px;letter-spacing:.6px}
-.badge{background:linear-gradient(180deg,var(--blue1),var(--blue2));border:1px solid #1f6f97;color:#eaffff;padding:6px 10px;border-radius:999px;font-weight:1000}
+.header{display:flex;align-items:center;justify-content:space-between;margin:6px 0 10px}
+.title{font-weight:1000;font-size:18px;letter-spacing:.4px}
+.badge{background:linear-gradient(180deg,var(--blue1),var(--blue2));padding:4px 10px;border-radius:999px;font-weight:1000;font-size:12px;border:1px solid #1f6f97}
 
 /* list */
-.panel{background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid var(--line);border-radius:14px;padding:10px}
-.head{display:grid;grid-template-columns:70px 1fr 60px 70px 160px;gap:6px;font-weight:1000;font-size:13px;color:var(--muted);padding:6px 8px}
-.row{display:grid;grid-template-columns:70px 1fr 60px 70px 160px;gap:6px;align-items:center;padding:8px;border-bottom:1px solid #12233a;font-size:14px}
-.actions{display:flex;gap:6px;flex-wrap:wrap}
-.btn{display:inline-flex;align-items:center;justify-content:center;padding:8px 12px;border-radius:10px;border:1px solid transparent;font-weight:800;cursor:pointer;font-size:13px;color:#fff;text-decoration:none;text-align:center}
-.btn.msg{background:linear-gradient(180deg,var(--blue1),var(--blue2));border-color:#2aa7d8}
-.btn.done{background:var(--green);border-color:#157c46}
+.panel{background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid var(--line);border-radius:12px;padding:6px}
+.head,.row{
+  display:grid;
+  grid-template-columns: 54px minmax(80px,1fr) 68px 136px; /* X | Emri | m² | actions */
+  gap:6px; align-items:center;
+}
+.head{color:var(--muted);font-weight:900;font-size:12px;padding:4px 6px}
+.row{padding:6px;border-top:1px solid #12233a;font-size:13px;white-space:nowrap}
+.x{font-weight:900}
+.name{overflow:hidden;text-overflow:ellipsis}
+.m2{font-variant-numeric:tabular-nums;text-align:right}
+.actions{display:flex;gap:6px;justify-content:flex-end}
+
+/* compact buttons */
+.btn{border:1px solid #2aa7d8;border-radius:8px;background:linear-gradient(180deg,var(--blue1),var(--blue2));
+     color:#fff;font-weight:800;cursor:pointer;padding:5px 8px;font-size:12px;line-height:1}
+.btn.alt{background:var(--green);border-color:#157c46}
+.btn:active{transform:translateY(1px)}
 
 /* footer */
-.footer{position:fixed;left:0;right:0;bottom:0;background:rgba(10,17,28,.96);border-top:1px solid var(--line);backdrop-filter:blur(6px);z-index:10}
-.footwrap{max-width:980px;margin:0 auto;padding:12px 14px;display:flex;gap:10px;justify-content:space-between;align-items:center}
-a.navbtn,button.navbtn{display:inline-flex;align-items:center;justify-content:center;padding:12px 14px;border-radius:12px;border:1px solid #2aa7d8;background:linear-gradient(180deg,var(--blue1),var(--blue2));font-weight:1000;color:#fff;cursor:pointer}
+.footer{position:fixed;left:0;right:0;bottom:0;background:rgba(10,17,28,.96);
+        border-top:1px solid var(--line);backdrop-filter:blur(6px);z-index:10}
+.footwrap{max-width:980px;margin:0 auto;padding:10px;display:flex;gap:8px;justify-content:space-between}
+.navbtn{border:1px solid #2aa7d8;border-radius:10px;background:linear-gradient(180deg,var(--blue1),var(--blue2));
+        color:#fff;font-weight:900;padding:10px 12px;font-size:13px}
 
-/* bottom sheet */
+/* bottom sheet (long-press options) */
 .sheet-ov{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:flex-end;justify-content:center;z-index:9999}
-.sheet{width:100%;max-width:720px;background:#0c0f16;border:1px solid #273143;border-radius:14px 14px 0 0;padding:12px}
-.sheet h3{margin:6px 6px 10px;font-size:16px;letter-spacing:.4px}
-.sheet .opt{display:block;width:100%;text-align:center;text-decoration:none;margin:8px 0;padding:14px;border-radius:12px;font-weight:1000;color:#fff}
-.opt.viber{background:linear-gradient(180deg,#7e57c2,#5e3aa6);border:1px solid #5e3aa6}
-.opt.wa{background:linear-gradient(180deg,#25d366,#128c7e);border:1px solid #128c7e}
-.opt.sms{background:linear-gradient(180deg,#c78a2a,#8a5f19);border:1px solid #8a5f19}
-.opt.copy{background:#0e1730;border:1px solid #2b3956;color:#e6f0ff}
-.opt.cancel{background:#0c1220;border:1px solid #2b3956;color:#e6f0ff}
-.helper{white-space:pre-wrap;color:#9fb4d6;font-size:12px;margin:8px 6px 0}
+.sheet{width:100%;max-width:720px;background:#0c0f16;border:1px solid #273143;border-radius:12px 12px 0 0;padding:12px}
+.sheet h3{margin:4px 6px 8px;font-size:15px}
+.opt{display:block;text-align:center;margin:6px 0;padding:12px;border-radius:10px;font-weight:900;color:#fff}
+.opt.viber{background:#7e57c2;border:1px solid #5e3aa6}
+.opt.wa{background:#25d366;border:1px solid #128c7e}
+.opt.sms{background:#c78a2a;border:1px solid #8a5f19}
+.opt.copy{background:#0e1730;border:1px solid #2b3956}
+.opt.cancel{background:#0c1220;border:1px solid #2b3956}
+.helper{color:#9fb4d6;font-size:12px;margin:6px}
 </style>
 </head>
 <body>
-<div class="app">
+<div class="wrap">
   <div class="header">
-    <div class="brand">
-      <div class="logo">🧼</div>
-      <div><h1>PASTRIMI</h1><div class="muted">Lista e punëve</div></div>
-    </div>
+    <div class="title">PASTRIMI</div>
     <div class="badge" id="countBadge">0 aktive</div>
   </div>
 
   <div class="panel">
-    <div class="head">
-      <div>X nr</div><div>Emri</div><div>Copë</div><div>m²</div><div>Veprime</div>
-    </div>
+    <div class="head"><div>X nr</div><div>Emri</div><div style="text-align:right">m²</div><div style="text-align:right">Veprime</div></div>
     <div id="list">—</div>
   </div>
 </div>
 
-<!-- footer nav -->
 <div class="footer">
   <div class="footwrap">
-    <a class="navbtn" href="../">🏠 KTHEU NË FILLIM</a>
-    <button class="navbtn" onclick="location.reload()">🔄 Rifresko</button>
+    <a class="navbtn" href="../">KTHEU NË FILLIM</a>
+    <button class="navbtn" onclick="location.reload()">RIFRESKO</button>
   </div>
 </div>
 
-<!-- Bottom sheet -->
+<!-- Options sheet -->
 <div class="sheet-ov" id="sheetOv">
   <div class="sheet">
-    <h3>Zgjidh platformën:</h3>
+    <h3>Zgjidh platformën</h3>
     <a class="opt viber" id="optViber" target="_blank" rel="noopener">Viber</a>
     <a class="opt wa" id="optWA" target="_blank" rel="noopener">WhatsApp</a>
     <a class="opt sms" id="optSMS" target="_blank" rel="noopener">SMS</a>
     <a class="opt copy" id="optCopy">Kopjo tekstin</a>
-    <div class="helper">⟶ Shtyp e mbaj për opsione. Prekje e shpejtë hap Viber direkt.</div>
     <a class="opt cancel" id="optCancel">Anulo</a>
   </div>
 </div>
@@ -96,36 +100,27 @@ a.navbtn,button.navbtn{display:inline-flex;align-items:center;justify-content:ce
   const getOrder=id=>{try{return JSON.parse(localStorage.getItem(KEY(id))||'null')}catch(e){return null}};
   const r2=x=>Math.round((x+Number.EPSILON)*100)/100;
 
-  function piecesCount(o){ const t=(o.tepiha||[]).length, s=(o.staza||[]).length, stairs=(o.shkallore&&o.shkallore.qty>0)?1:0; return t+s+stairs; }
-  function m2Compute(o){
+  const padX = code => {
+    const m=/^X(\d+)$/i.exec(String(code||'')); if(!m) return code||'—';
+    const n=+m[1]; return n<10?`X0${n}`:`X${n}`;
+  };
+  const piecesCount = o => (o.tepiha?.length||0)+(o.staza?.length||0)+((o.shkallore?.qty>0)?1:0);
+  const m2Compute = o => {
     if(o?.pay?.m2>0) return r2(o.pay.m2);
     const sum=a=>(a||[]).reduce((s,x)=>s+(+x.m2||0)*(+x.qty||1),0);
     const st=r2((+o?.shkallore?.qty||0)*(+o?.shkallore?.per||0));
     return r2(sum(o?.tepiha)+sum(o?.staza)+st);
-  }
-  function euroCompute(o){ if(o?.pay?.euro>0) return r2(o.pay.euro); const rate=+o?.pay?.rate||2.5; return r2(m2Compute(o)*rate); }
-  const padX = code => { const m=/^X(\d+)$/.exec(String(code||'').toUpperCase()); if(!m) return code||'—'; const n=+m[1]; return n<10?`X0${n}`:`X${n}`; };
+  };
+  const euroCompute = o => (o?.pay?.euro>0? r2(o.pay.euro) : r2(m2Compute(o)*(+o?.pay?.rate||2.5)));
 
-  async function markGati(o){
-    const updated = {...o, status:'gati', ts:Date.now()};
-    localStorage.setItem(KEY(o.id), JSON.stringify(updated));
-  }
-
-  // ---------- message links
+  // --- build message & links
   function buildMessage(o){
     const name=o?.client?.name||'Klient';
     const x=padX(o?.client?.code||'');
     const pcs=piecesCount(o);
-    const m2=m2Compute(o);
-    const euro=euroCompute(o);
-    return (
-`Përshëndetje ${name}, porosia juaj (${x}) është GATI për marrje.
-Keni ${pcs} copë = ${m2.toFixed(2)} m².
-Totali: ${euro.toFixed(2)} €.
-Ju lutem ejani ta merrni sot deri në ora 21:00.
-Nuk kemi hapësirë për ruajtje afatgjatë.
-Nëse nuk ka njeri në dyqan, telefononi: +383 44 73 53 12
-Faleminderit!`);
+    const m2=m2Compute(o).toFixed(2);
+    const euro=euroCompute(o).toFixed(2);
+    return `Përshëndetje ${name}, porosia juaj (${x}) është GATI për marrje. Keni ${pcs} copë = ${m2} m². Totali: ${euro} €. Ju lutem ejani sot deri në ora 21:00. Nuk kemi hapësirë për ruajtje afatgjatë. Tel: +38344735312`;
   }
   function buildLinks(o){
     const body=encodeURIComponent(buildMessage(o));
@@ -138,7 +133,13 @@ Faleminderit!`);
     };
   }
 
-  // ---------- bottom sheet helpers
+  // --- mark GATI
+  function markGati(o){
+    const updated={...o,status:'gati',ts:Date.now()};
+    localStorage.setItem(KEY(o.id), JSON.stringify(updated));
+  }
+
+  // --- bottom sheet
   const sheetOv=document.getElementById('sheetOv');
   const optViber=document.getElementById('optViber');
   const optWA=document.getElementById('optWA');
@@ -148,29 +149,17 @@ Faleminderit!`);
   function openSheet(links){
     optViber.href=links.viber; optWA.href=links.wa; optSMS.href=links.sms;
     optCopy.onclick=(e)=>{e.preventDefault(); navigator.clipboard?.writeText(links.text).then(()=>alert('Teksti u kopjua.'));};
-    [optViber,optWA,optSMS].forEach(a=>a.onclick=()=>{closeSheet()});
-    optCancel.onclick=(e)=>{e.preventDefault(); closeSheet();};
+    [optViber,optWA,optSMS,optCancel].forEach(a=>a.onclick=()=>sheetOv.style.display='none');
     sheetOv.style.display='flex';
-    sheetOv.onclick=(e)=>{ if(e.target===sheetOv) closeSheet(); };
-  }
-  function closeSheet(){ sheetOv.style.display='none'; }
-
-  // ---------- try open viber (with fallback)
-  function openViberFirst(links){
-    // iOS/Safari: direct deep link navigation
-    window.location.href = links.viber;
-    // If Viber not installed, give quick fallback to WA after a short delay
-    setTimeout(()=>{ try{ window.open(links.wa,'_blank'); }catch{} }, 800);
+    sheetOv.onclick=(e)=>{ if(e.target===sheetOv) sheetOv.style.display='none'; };
   }
 
-  function makeMsgButton(btn, order){
+  // --- Dërgo behavior: tap=Viber, long-press=options
+  function wireSend(btn, order){
     const links=buildLinks(order);
     let timer=null, long=false;
-
-    // Long-press = options; short tap = Viber
-    const start=()=>{ long=false; timer=setTimeout(()=>{ long=true; openSheet(links); }, 600); };
-    const end=()=>{ clearTimeout(timer); if(!long){ openViberFirst(links); markGati(order).then(()=>btn.closest('.row').remove()); updateCount(); } };
-
+    const start=()=>{ long=false; timer=setTimeout(()=>{ long=true; openSheet(links); }, 550); };
+    const end=()=>{ clearTimeout(timer); if(!long){ window.location.href=links.viber; setTimeout(()=>{ try{ window.open(links.wa,'_blank'); }catch{} }, 800); markGati(order); btn.closest('.row')?.remove(); updateCount(); } };
     btn.addEventListener('touchstart', start, {passive:true});
     btn.addEventListener('touchend', end);
     btn.addEventListener('mousedown', start);
@@ -179,32 +168,24 @@ Faleminderit!`);
 
   function buildRow(o){
     const row=document.createElement('div'); row.className='row';
-    const pcs=piecesCount(o), m2=m2Compute(o);
+    const m2=m2Compute(o).toFixed(2);
     row.innerHTML=`
-      <div>${padX(o?.client?.code)}</div>
-      <div>${o?.client?.name||'(pa emër)'}</div>
-      <div>${pcs}</div>
-      <div>${m2.toFixed(2)}</div>
+      <div class="x">${padX(o?.client?.code)}</div>
+      <div class="name" title="${o?.client?.name||''}">${o?.client?.name||'(pa emër)'}</div>
+      <div class="m2">${m2} m²</div>
       <div class="actions">
-        <button class="btn msg">📩 Dërgo</button>
-        <button class="btn done">✅ Gati sot</button>
+        <button class="btn" data-act="msg">Dërgo</button>
+        <button class="btn alt" data-act="done">Gati</button>
       </div>`;
-
-    // wire buttons
-    makeMsgButton(row.querySelector('.msg'), o);
-    row.querySelector('.done').addEventListener('click', async ()=>{
-      await markGati(o);
-      row.remove(); updateCount();
-    });
-
+    wireSend(row.querySelector('[data-act="msg"]'), o);
+    row.querySelector('[data-act="done"]').addEventListener('click', ()=>{ markGati(o); row.remove(); updateCount(); });
     return row;
   }
 
   function updateCount(){
-    const list=document.getElementById('list');
-    const n=list.querySelectorAll('.row').length;
+    const n=document.querySelectorAll('#list .row').length;
     document.getElementById('countBadge').textContent=`${n} aktive`;
-    if(n===0) list.textContent='— S’ka punë aktive në PASTRIMI.';
+    if(n===0) document.getElementById('list').textContent='— S’ka punë aktive.';
   }
 
   function load(){
@@ -215,7 +196,7 @@ Faleminderit!`);
       if(String(o.status||'').toLowerCase()!=='pastrim') continue;
       list.appendChild(buildRow(o)); any=true;
     }
-    if(!any) list.textContent='— S’ka punë aktive në PASTRIMI.';
+    if(!any) list.textContent='— S’ka punë aktive.';
     updateCount();
   }
 
