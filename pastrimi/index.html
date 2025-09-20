@@ -1,287 +1,187 @@
 <!DOCTYPE html>
 <html lang="sq">
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>PASTRIMI</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <style>
-    :root{
-      --bg:#0a0f18; --ink:#ffffff; --muted:#a7b0c9;
-      --panel:#0f1626; --br:#2a3550; --ghost:#121a2b;
-      --primary:#1e60ff; --ok:#22c55e; --warn:#f59e0b; --danger:#ef4444;
-
-      /* kompaktësi +30% më i vogël */
-      --fs:12.5px;         /* font size bazë (ish 14–16) */
-      --pads:6px;          /* padding i butonave (ish 8–10) */
-      --rad:9px;           /* border radius (ish 10–12) */
-      --gap:6px;           /* hapësira ndër-komponente */
-      --cardpad:8px;       /* padding i kartës (ish 12–14) */
-    }
+    :root{ --bg:#000; --ink:#fff; --panel:#0c0f16; --br:#273143; --btn:#1e60ff; --muted:#b9c4da; --danger:#ef4444; --ok:#22c55e }
     *{box-sizing:border-box}
-    body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;font-size:var(--fs)}
-    h1{font-size:20px;margin:10px 12px 6px;font-weight:1000}
-
-    .topbar{display:flex;gap:var(--gap);flex-wrap:wrap;margin:0 12px 8px;align-items:center}
-    .btn{background:#1a2235;border:1px solid var(--br);padding:var(--pads) calc(var(--pads)+4px);border-radius:var(--rad);
-         color:#fff;font-weight:900;font-size:12px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;line-height:1}
-    .btn.primary{background:var(--primary)}
-    .btn.ghost{background:var(--ghost)}
-    .btn.ok{background:var(--ok);color:#06210e}
-    .btn.warn{background:var(--warn);color:#1f1302}
-    .btn.danger{background:var(--danger)}
-    .badge{background:#0d1424;border:1px solid var(--br);padding:var(--pads) 10px;border-radius:999px;font-weight:1000;color:#cfe6ff}
-
-    .orders{margin:0 12px 84px}
-    .empty{color:var(--muted);border:1px dashed var(--br);border-radius:var(--rad);padding:10px;text-align:center;font-weight:1000}
-
-    .order{background:var(--panel);border:1px solid var(--br);border-radius:var(--rad);padding:var(--cardpad);margin-bottom:8px}
-    .head{display:flex;justify-content:space-between;gap:8px;margin-bottom:4px}
-    .name{font-weight:1000;font-size:13px}
-    .code{color:#a5d8ff;font-weight:1000}
-    .muted{color:var(--muted);font-weight:900}
-    .stat{color:#d7e6ff;font-weight:900;display:flex;gap:10px;flex-wrap:wrap}
-    .actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
-
-    .footer{position:fixed;left:0;right:0;bottom:0;background:#0b0f18;border-top:1px solid var(--br)}
-    .footwrap{max-width:980px;margin:0 auto;padding:8px;display:flex;gap:8px}
-    .footwrap .btn{flex:1;justify-content:center}
-    .small-note{color:var(--muted);font-size:11px;margin:0 12px 6px}
+    html,body{margin:0;background:var(--bg);color:var(--ink);font-family:ui-rounded,system-ui,-apple-system,Segoe UI,Roboto,Arial}
+    .wrap{max-width:980px;margin:0 auto;padding:16px}
+    h1{font-size:clamp(34px,5.4vw,50px);margin:14px 6px 10px;font-weight:1000}
+    .bar{display:flex;gap:8px;flex-wrap:wrap;margin:8px 6px 16px}
+    .input{flex:1;min-width:200px;background:#070a12;border:2px solid #2c3954;border-radius:12px;padding:12px 14px;color:#fff;font-weight:900}
+    .btn{background:var(--btn);color:#fff;border:0;border-radius:12px;padding:12px 16px;font-weight:1000;cursor:pointer}
+    .btn.ghost{background:#0c1220;border:2px solid var(--br)}
+    .btn.ok{background:var(--ok)}
+    .btn.red{background:var(--danger)}
+    .list{display:flex;flex-direction:column;gap:10px}
+    .card{background:var(--panel);border:1px solid var(--br);border-radius:14px;padding:14px}
+    .top{display:flex;justify-content:space-between;align-items:center;font-weight:1000}
+    .small{opacity:.85;font-size:.95rem}
+    .row{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center}
+    .row2{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .status{padding:4px 8px;border-radius:8px;border:1px solid var(--br);font-weight:1000}
+    a.btnlink{display:inline-flex;align-items:center;gap:6px;background:#0c1220;border:1px solid var(--br);padding:10px 12px;border-radius:10px;color:#fff;text-decoration:none;font-weight:900}
   </style>
 </head>
 <body>
-  <h1>PASTRIMI</h1>
-  <div class="topbar">
-    <a class="btn" href="../">Këthehu te Home</a>
-    <a class="btn" href="../pranimi/">PRANIM</a>
-    <a class="btn" href="../pastrimi/">PASTRIM</a>
-    <span class="badge" id="summaryBadge">🧾 0 porosi • 0.00 m²</span>
-    <a class="btn" id="debugBtn">Lista e porosive</a>
-    <a class="btn ghost" id="refreshBtn">↻ Rifresko</a>
-  </div>
-  <div class="small-note" id="dataSourceNote">Burimi: localStorage</div>
-
-  <div class="orders" id="orders"></div>
-
-  <div class="footer">
-    <div class="footwrap">
-      <a class="btn" href="../">← Home</a>
-      <a class="btn primary" href="../pranimi/">+ PRANIM I RI</a>
+  <div class="wrap">
+    <h1>PASTRIMI</h1>
+    <div class="bar">
+      <input class="input" id="q" placeholder="Kërko: emër, kod X#, tel…">
+      <button class="btn" id="refresh">REFRESKO</button>
+      <a class="btnlink" href="../">🏠 KTHEU NË FILLIM</a>
+      <a class="btnlink" href="../pranimi/">➕ SHTO TË RE</a>
     </div>
+    <div class="list" id="orders">Duke u ngarkuar…</div>
   </div>
 
-  <!-- Supabase client (CDN) -->
-  <script src="https://unpkg.com/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
   <script>
-  (function(){
-    // ===== 1) SUPABASE (mban këto vlera që më dërgove) =====
-    const SUPABASE_URL  = "https://vnidjrxidvusulinozbn.supabase.co";
-    const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZuaWRqcnhpZHZ1c3VsaW5vemJuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc1MTk0NjAsImV4cCI6MjA3MzA5NTQ2MH0.hzGSFKU3sKuUKBUBsTE0rKIerj2uhG9pGS8_K9N7tpA";
-    // =======================================================
-
-    const LIST  = document.getElementById('orders');
-    const note  = document.getElementById('dataSourceNote');
-    const badge = document.getElementById('summaryBadge');
-
-    const q=(s,b)=> (b||document).querySelector(s);
-    const r2=x=>Math.round((x+Number.EPSILON)*100)/100;
-    const normStatus = s => String(s||'').trim().toLowerCase();
-
-    function readAllLocal(){
-      const out=[];
-      for(let i=0;i<localStorage.length;i++){
-        const k=localStorage.key(i);
-        if(k && k.startsWith('order_')){
-          try{ const o=JSON.parse(localStorage.getItem(k)||'{}'); if(o&&o.id) out.push(o); }catch(e){}
-        }
+    const CFG = {
+      supabase: {
+        url: "https://vnidjrxidvusulinozbn.supabase.co",
+        anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZuaWRqcnhpZHZ1c3VsaW5vemJuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc1MTk0NjAsImV4cCI6MjA3MzA5NTQ2MH0.hzGSFKU3sKuUKBUBsTE0rKIerj2uhG9pGS8_K9N7tpA",
+        bucket: "tepiha-photos"
       }
-      out.sort((a,b)=>(b.ts||0)-(a.ts||0));
-      return out;
+    };
+    const sb = supabase.createClient(CFG.supabase.url, CFG.supabase.anonKey);
+
+    async function listFiles(){
+      const { data: files, error } = await sb.storage
+        .from(CFG.supabase.bucket)
+        .list('orders', { limit: 1000, sortBy: { column: 'name', order: 'desc' } });
+      if(error){ throw error; }
+      return (files||[]).filter(f=>f.name.endsWith('.json'));
     }
 
-    async function readAllSupabase(){
-      if(!SUPABASE_URL || !SUPABASE_ANON || !window.supabase) return {rows:[], ok:false};
-      const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
-      try{
-        const { data, error } = await client
-          .from('orders')
-          .select('id, ts, status, client_name, client_phone, client_code, pay_m2, pay_rate, pay_euro, tepiha, staza, shkallore')
-          .in('status', ['pranim','pastrim'])
-          .order('ts', { ascending: false })
-          .limit(200);
-        if(error) throw error;
-        const mapped = (data||[]).map(r => ({
-          id: r.id,
-          ts: r.ts || Date.now(),
-          status: r.status || 'pranim',
-          client: { name: r.client_name||'', phone: r.client_phone||'', code: r.client_code||'' },
-          pay: { m2: Number(r.pay_m2||0), rate: Number(r.pay_rate||0), euro: Number(r.pay_euro||0) },
-          tepiha: r.tepiha || [],
-          staza:  r.staza  || [],
-          shkallore: r.shkallore || { qty:0, per:0 }
-        }));
-        return {rows:mapped, ok:true};
-      }catch(err){
-        console.warn('Supabase read failed:', err);
-        return {rows:[], ok:false};
-      }
+    async function publicUrl(path){
+      const { data } = sb.storage.from(CFG.supabase.bucket).getPublicUrl(path);
+      return data?.publicUrl || null;
     }
 
-    function pieces(o){
-      const t=(o?.tepiha||[]).length;
-      const s=(o?.staza||[]).length;
-      const stairs=(o?.shkallore?.qty||0)>0?1:0;
-      return t+s+stairs;
+    async function fetchOrderWithPath(name){
+      const path = `orders/${name}`;
+      const url = await publicUrl(path);
+      if(!url) return null;
+      const res = await fetch(url, { cache:'no-store' });
+      if(!res.ok) return null;
+      const json = await res.json();
+      // bashkangjit path-in që ta dimë çfarë të upsertojmë kur ndryshojmë statusin
+      json.__path = path;
+      return json;
     }
-    function m2(o){
-      if(o?.pay?.m2) return Number(o.pay.m2);
-      const t=(o?.tepiha||[]).reduce((s,r)=>s+(Number(r.m2||0)*Number(r.qty||1)),0);
-      const s=(o?.staza||[] ).reduce((s,r)=>s+(Number(r.m2||0)*Number(r.qty||1)),0);
-      const sh=Number(o?.shkallore?.qty||0)*Number(o?.shkallore?.per||0);
-      return r2(t+s+sh);
-    }
-    function eur(o){
-      if(o?.pay?.euro) return Number(o.pay.euro);
-      return r2(m2(o) * Number(o?.pay?.rate||0));
-    }
-    function digits(o){ return String(o?.client?.phone||'').replace(/[^\d]/g,''); }
-    function saveLocal(o){ try{ localStorage.setItem('order_'+o.id, JSON.stringify(o)); }catch(e){ alert('S’u ruajt: '+e); } }
 
-    function msgText(o){
+    function sanitizeDigits(s){ return (s||'').replace(/[^\d]/g,''); }
+
+    function msgGati(o){
       const name = o?.client?.name || 'Klient';
-      return `Përshëndetje ${name}, procesi i pastrimit ka filluar.\n`+
-             `Keni ${pieces(o)} copë = ${m2(o).toFixed(2)} m².\n`+
-             `Totali: ${eur(o).toFixed(2)} €.\nFaleminderit!`;
+      const code = o?.client?.code || '';
+      const euro = Number(o?.pay?.euro||0).toFixed(2);
+      return `Pershendetje ${name}. Porosia #${code} eshte GATI per marrje. Totali: ${euro} €. Faleminderit!`;
     }
-    function actionSheetForMessage(o){
-      const txt = encodeURIComponent(msgText(o));
-      const d   = digits(o);
-      const links = [
-        {label:'Viber',    href:`viber://forward?text=${txt}`},
-        {label:'WhatsApp', href: d ? `https://wa.me/${d}?text=${txt}` : `https://wa.me/?text=${txt}`},
-        {label:'SMS',      href: d ? `sms:${d}?body=${txt}` : `sms:?body=${txt}`},
-      ];
-      const ov=document.createElement('div');
-      ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.65);display:flex;align-items:flex-end;justify-content:center;z-index:99999';
-      const box=document.createElement('div');
-      box.style.cssText='background:#0d1320;border:1px solid #2a3550;border-radius:12px 12px 0 0;width:100%;max-width:760px;padding:12px';
-      const h=document.createElement('div'); h.textContent='Dërgo me:'; h.style.cssText='font-weight:1000;margin:0 4px 8px';
-      box.appendChild(h);
-      links.forEach(l=>{
-        const a=document.createElement('a');
-        a.href=l.href; a.target='_blank'; a.rel='noopener';
-        a.textContent=l.label;
-        a.style.cssText='display:block;background:#1e60ff;color:#fff;text-decoration:none;padding:12px;border-radius:10px;font-weight:900;margin:6px 4px;text-align:center';
-        box.appendChild(a);
+
+    function contactLinks(o, text){
+      const phone = sanitizeDigits(o?.client?.phone||'');
+      const enc = encodeURIComponent(text);
+      const viber = `viber://forward?text=${enc}`;
+      const wa = phone ? `https://wa.me/${phone}?text=${enc}` : `https://wa.me/?text=${enc}`;
+      const sms = phone ? `sms:${phone}?body=${enc}` : `sms:?body=${enc}`;
+      return { viber, wa, sms };
+    }
+
+    async function upsertOrder(o){
+      // heqen fushat e brendshme
+      const copy = JSON.parse(JSON.stringify(o));
+      delete copy.__path;
+      const blob = new Blob([JSON.stringify(copy)], { type: 'application/json' });
+      const { error } = await sb.storage
+        .from(CFG.supabase.bucket)
+        .upload(o.__path, blob, { upsert:true, contentType:'application/json' });
+      if(error) throw error;
+    }
+
+    function render(orders){
+      const root = document.getElementById('orders');
+      root.innerHTML = '';
+      if(!orders.length){ root.textContent = 'S’ka porosi të sinkronizuara.'; return; }
+
+      const term = (document.getElementById('q')?.value||'').toLowerCase().trim();
+      const filtered = orders.filter(o=>{
+        if(!term) return true;
+        const name = (o?.client?.name||'').toLowerCase();
+        const code = (o?.client?.code||'').toLowerCase();
+        const phone= (o?.client?.phone||'').toLowerCase();
+        return name.includes(term)||code.includes(term)||phone.includes(term);
       });
-      const cancel=document.createElement('button');
-      cancel.textContent='Anulo'; cancel.className='btn ghost';
-      cancel.style.cssText='width:100%;margin:6px 4px 0';
-      cancel.onclick=()=>ov.remove();
-      box.appendChild(cancel);
-      ov.appendChild(box);
-      ov.addEventListener('click',ev=>{ if(ev.target===ov) ov.remove(); });
-      document.body.appendChild(ov);
-    }
 
-    function render(list){
-      LIST.innerHTML='';
-      // === përditëso badge (numri + m² total) ===
-      const totalM2 = r2(list.reduce((s,o)=>s+m2(o),0));
-      badge.textContent = `🧾 ${list.length} porosi • ${totalM2.toFixed(2)} m²`;
+      filtered.sort((a,b)=> (b?.ts||0) - (a?.ts||0));
 
-      if(!list.length){
-        LIST.innerHTML = '<div class="empty">S’ka porosi për t’u shfaqur.</div>';
-        return;
-      }
-      const frag=document.createDocumentFragment();
-      list.forEach(o=>{
-        const st = normStatus(o?.status) || 'pranim';
-        const card=document.createElement('div'); card.className='order';
-        card.innerHTML = `
-          <div class="head">
-            <div class="name">${o?.client?.name||'—'} <span class="code">${o?.client?.code||''}</span></div>
-            <div class="muted">${st.toUpperCase()}</div>
+      if(!filtered.length){ root.textContent = 'Asgjë nuk përputhet me kërkimin.'; return; }
+
+      for(const o of filtered){
+        const div = document.createElement('div');
+        div.className = 'card';
+        const m2 = (o?.pay?.m2 ?? 0);
+        const euro = (o?.pay?.euro ?? 0);
+        const st = (o?.status||'pranim').toUpperCase();
+
+        const msg = msgGati(o);
+        const links = contactLinks(o, msg);
+
+        div.innerHTML = `
+          <div class="row">
+            <div class="top">
+              <div><b>#${o?.client?.code || '-'}</b> — ${o?.client?.name || 'Pa emër'}</div>
+              <div class="status">${st}</div>
+            </div>
+            <div class="small">M²: ${m2} &nbsp;|&nbsp; €: ${Number(euro).toFixed(2)}</div>
+            <div class="small">${o?.client?.phone||''}</div>
           </div>
-          <div class="stat">
-            <span><b>${pieces(o)}</b> copë</span>
-            <span><b>${m2(o).toFixed(2)}</b> m²</span>
-            <span><b>${eur(o).toFixed(2)}</b> €</span>
-            <span class="muted">Tel: ${o?.client?.phone||'—'}</span>
-          </div>
-          <div class="actions">
-            <button class="btn warn"  data-act="start" data-id="${o.id}">Starto pastrimin</button>
-            <button class="btn ok"    data-act="ready" data-id="${o.id}">Kalo GATI</button>
-            <button class="btn ghost" data-act="msg"   data-id="${o.id}">Mesazh</button>
-            <a class="btn primary"    data-act="call"  data-id="${o.id}" href="tel:${digits(o)}">Telefono</a>
+          <div class="row2">
+            <button class="btn ok act-gati">BËJE GATI</button>
+            <a class="btn ghost" target="_blank" rel="noopener" href="${links.viber}">DËRGO — Viber</a>
+            <a class="btn ghost" target="_blank" rel="noopener" href="${links.wa}">DËRGO — WhatsApp</a>
+            <a class="btn ghost" target="_blank" rel="noopener" href="${links.sms}">DËRGO — SMS</a>
+            <a class="btn ghost" href="${await publicUrl(o.__path)}" target="_blank" rel="noopener">SHKARKO JSON</a>
           </div>
         `;
-        frag.appendChild(card);
-      });
-      LIST.appendChild(frag);
-    }
 
-    function mergeById(primary, secondary){
-      const map = new Map();
-      primary.forEach(o=>map.set(o.id, o));
-      secondary.forEach(o=>{ if(!map.has(o.id)) map.set(o.id, o); });
-      return Array.from(map.values()).sort((a,b)=>(b.ts||0)-(a.ts||0));
+        // Wire "BËJE GATI"
+        div.querySelector('.act-gati').addEventListener('click', async ()=>{
+          try{
+            const old = div.querySelector('.status').textContent;
+            div.querySelector('.status').textContent = 'GATI';
+            o.status = 'gati';
+            await upsertOrder(o);
+          }catch(err){
+            alert('S’u përditësua: ' + (err?.message||err));
+          }
+        });
+
+        root.appendChild(div);
+      }
     }
 
     async function load(){
-      const localAll = readAllLocal();
-      const local = localAll.filter(o=>{
-        const s = normStatus(o?.status);
-        return s === '' || s === 'pranim' || s === 'pastrim';
-      });
-      let finalList = local;
-      note.textContent = 'Burimi: localStorage';
-
-      const {rows:remote, ok} = await readAllSupabase();
-      if(ok && remote.length){
-        finalList = mergeById(remote, local);
-        note.textContent = 'Burimi: Supabase + localStorage';
-      }
-      render(finalList);
-    }
-
-    function handleClick(e){
-      const el = e.target.closest('[data-act]');
-      if(!el) return;
-      const id  = el.getAttribute('data-id');
-      const act = el.getAttribute('data-act');
-      const raw = localStorage.getItem('order_'+id);
-      if(!raw){ return alert('Porosia nuk u gjet në këtë pajisje (localStorage).'); }
-      let o; try{ o=JSON.parse(raw); }catch(_){ return alert('Porosia e korruptuar.'); }
-
-      if(act==='start'){
-        o.status='pastrim'; o.ts=Date.now(); saveLocal(o); load();
-      } else if(act==='ready'){
-        o.status='gati'; o.ts=Date.now(); saveLocal(o);
-        window.location.href = '../gati/';
-      } else if(act==='msg'){
-        actionSheetForMessage(o);
-      }
-    }
-
-    document.getElementById('refreshBtn').addEventListener('click', load);
-    document.addEventListener('click', handleClick);
-
-    document.getElementById('debugBtn').addEventListener('click', ()=>{
-      const orders=[];
-      for(let i=0;i<localStorage.length;i++){
-        const k=localStorage.key(i);
-        if(k && k.startsWith('order_')){
-          try{ orders.push(JSON.parse(localStorage.getItem(k)||'{}')); }catch(e){}
+      try{
+        const files = await listFiles();
+        const orders = [];
+        for(const f of files){
+          const o = await fetchOrderWithPath(f.name);
+          if(o) orders.push(o);
         }
+        render(orders);
+      }catch(err){
+        document.getElementById('orders').textContent = 'Gabim gjatë ngarkimit: ' + (err?.message||err);
       }
-      alert(
-        (orders.length? 'U gjetën '+orders.length+' porosi:\n\n':'S’u gjet asnjë.')
-        + orders.map(o=>`${o.id} | status=${o.status} | ${o?.client?.name||''}`).join('\n')
-      );
-    });
+    }
 
-    load();
-  })();
+    document.getElementById('refresh').addEventListener('click', load);
+    document.getElementById('q').addEventListener('input', load);
+    document.addEventListener('DOMContentLoaded', load);
   </script>
 </body>
 </html>
