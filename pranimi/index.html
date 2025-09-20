@@ -2,7 +2,7 @@
 <html lang="sq">
 <head>
   <meta charset="utf-8" />
-  <!-- 30% më e vogël për telefon -->
+  <!-- 30% më e vogël për telefon (pa transform) -->
   <meta name="viewport" content="width=device-width, initial-scale=0.7, maximum-scale=0.7, user-scalable=no" />
   <title>PRANIMI</title>
   <style>
@@ -42,7 +42,7 @@
     .chips{ display:flex; gap:10px; overflow-x:auto; -webkit-overflow-scrolling:touch; padding:6px 0 10px }
     .chip{ flex:0 0 auto; border:1px solid rgba(120,150,255,.35); background: linear-gradient(180deg, rgba(16,24,56,.88), rgba(10,16,40,.88)); color:#e9f2ff; border-radius:12px; padding:10px 14px; font-weight:900 }
     .list{ display:flex; flex-direction:column; gap:10px; margin-top:8px }
-    .piece-row{ display:grid; grid-template-columns: 80px 1fr 120px; gap:8px; align-items:center }
+    .piece-row{ display:grid; grid-template-columns: 110px 1fr 120px; gap:8px; align-items:center } /* 110 për kodin */
     .piece-id{ background: linear-gradient(180deg, rgba(18,26,60,.9), rgba(10,18,38,.9)); border:1px solid var(--panel-border); border-radius:12px; padding:12px 14px; text-align:center; font-weight:900; letter-spacing:.08em }
 
     .btnbar{ display:flex; gap:10px; flex-wrap:wrap; margin-top:8px }
@@ -168,59 +168,60 @@
     </div>
   </div>
 
-  <!-- ===== SCRIPT KOMPAT + FOTO + KODI KLIENTIT ===== -->
+  <!-- ============ SCRIPTET ============ -->
   <script>
   (function(){
-    /* utilitare */
+    /* ===== util ===== */
     function q(s,b){ return (b||document).querySelector(s); }
     function qq(s,b){ return Array.prototype.slice.call((b||document).querySelectorAll(s)); }
     function r2(x){ return Math.round((x + Number.EPSILON) * 100)/100; }
     function uid(){ return 'r'+Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
 
-    /* ================= CLIENT CODE (permanent) ================= */
-    function loadMap(key){ try{ return JSON.parse(localStorage.getItem(key)||'{}'); }catch(e){ return {}; } }
-    function saveMap(key,obj){ try{ localStorage.setItem(key, JSON.stringify(obj)); }catch(e){} }
-    function normPhone(v){ return String(v||'').replace(/[^\d\+]/g, '').trim(); }
+    /* ===== orderId ===== */
+    var hid = q('#orderId');
+    if(!hid.value){ hid.value = 'ord_'+Date.now(); }
+    var OID = hid.value;
+
+    /* ===== client code: generate once on PRANIMI open, show in badge ===== */
+    function loadMap(k){ try{ return JSON.parse(localStorage.getItem(k)||'{}'); }catch(e){ return {}; } }
+    function saveMap(k,o){ try{ localStorage.setItem(k, JSON.stringify(o)); }catch(e){} }
     function nextCode(){
-      var n = parseInt(localStorage.getItem('client_code_counter') || '0', 10) || 0;
+      var n = parseInt(localStorage.getItem('client_code_counter')||'0',10)||0;
       n += 1; localStorage.setItem('client_code_counter', String(n));
-      return 'X' + n; // no leading zeros, X prefix
+      return 'X'+n; /* pa zero para */
     }
-    function getOrCreateClientCode(){
+    function setBadge(code){
+      var el = q('#ticketCode'); if(el){ el.textContent = code ? ('KODI: '+code) : 'KODI: ——'; }
+    }
+    var metaKey = 'order_meta_'+OID;
+    var meta = loadMap(metaKey);
+    if(!meta.code){
+      meta.code = nextCode();       // krijo TANI kur hapet PRANIMI
+      saveMap(metaKey, meta);
+    }
+    setBadge(meta.code);
+
+    // kur plotëson telefon/emër, lidhe këtë code me klientin për herën tjetër
+    function normPhone(v){ return String(v||'').replace(/[^\d\+]/g,'').trim(); }
+    function bindClientIdentity(){
       var phone = normPhone(q('#phone') && q('#phone').value);
       var name  = (q('#name') && q('#name').value || '').trim();
-      var byPhone = loadMap('client_code_by_phone');
-      var byName  = loadMap('client_code_by_name');
-      var code = '';
-      if (phone) {
-        code = byPhone[phone];
-        if (!code) {
-          if (name && byName[name]) { code = byName[name]; delete byName[name]; saveMap('client_code_by_name', byName); }
-          else { code = nextCode(); }
-          byPhone[phone] = code; saveMap('client_code_by_phone', byPhone);
-        }
-      } else if (name) {
-        code = byName[name];
-        if (!code) { code = nextCode(); byName[name] = code; saveMap('client_code_by_name', byName); }
-      } else {
-        code = '';
+      if(!meta.code) return;
+      if(phone){
+        var byPhone = loadMap('client_code_by_phone');
+        if(!byPhone[phone]){ byPhone[phone] = meta.code; saveMap('client_code_by_phone', byPhone); }
+      }else if(name.length>=3){
+        var byName = loadMap('client_code_by_name');
+        if(!byName[name]){ byName[name] = meta.code; saveMap('client_code_by_name', byName); }
       }
-      return code;
     }
-    function displayClientCode(code){
-      var el = q('#ticketCode'); if (!el) return;
-      el.textContent = code ? ('KODI: ' + code) : 'KODI: ——';
-    }
-    window.__getClientCode = getOrCreateClientCode;
-    window.__displayClientCode = displayClientCode;
     ['#phone','#name'].forEach(function(sel){
       var el = q(sel); if(!el) return;
-      function upd(){ displayClientCode(getOrCreateClientCode()); }
-      el.addEventListener('input', upd); el.addEventListener('blur', upd);
+      el.addEventListener('blur', bindClientIdentity);
     });
-    displayClientCode(getOrCreateClientCode());
+    window.__getClientCode = function(){ var m=loadMap(metaKey); return m.code||''; };
 
-    /* ================= FOTO helpers ================= */
+    /* ===== photos helpers ===== */
     function savePhotoFromFile(key, file, ok, err){
       try{
         var rd = new FileReader();
@@ -245,17 +246,31 @@
     }
     window.openPreview = openPreview;
 
-    /* ================= ROWS (Tepiha/Staza) ================= */
+    /* ===== CHIPS (event delegation) ===== */
+    (function(){
+      function handleChip(section, evt){
+        var chip = evt.target.closest && evt.target.closest('.chip');
+        if(!chip) return;
+        var txt = (chip.textContent||'').trim();
+        var num = parseFloat(txt.replace(/[^\d\.]/g,''));
+        if (!isNaN(num)) { addRow(section, num); }
+        else { addRow(section, null); }
+      }
+      var tepiha = q('#chips-tepiha');
+      var staza  = q('#chips-staza');
+      if (tepiha && !tepiha.__wired){ tepiha.addEventListener('click', function(e){ handleChip('tepiha', e); }); tepiha.__wired = true; }
+      if (staza  && !staza.__wired){  staza.addEventListener('click',  function(e){ handleChip('staza',  e); }); staza.__wired  = true; }
+    })();
+
+    /* ===== rows (tepiha/staza) ===== */
     function listFor(section){ return q('#list-'+section); }
     window.addRow = function(section, value){
       var list = listFor(section); if(!list) return;
       var row = document.createElement('div'); row.className='piece-row';
 
       var idCell = document.createElement('div'); idCell.className='piece-id';
-      var idx = qq('.piece-row', list).length + 1;
-      // Show same client code on each piece (for stamping)
-      var ccode = (window.__getClientCode ? window.__getClientCode() : 'X');
-      idCell.textContent = ccode || 'X' + idx;
+      var ccode = window.__getClientCode ? window.__getClientCode() : 'X';
+      idCell.textContent = ccode || 'X';
 
       var mWrap = document.createElement('div');
       mWrap.style.display='flex'; mWrap.style.gap='6px'; mWrap.style.alignItems='center';
@@ -270,7 +285,7 @@
       var thumb = document.createElement('img'); thumb.className='thumb';
 
       var rid = uid();
-      var pKey = 'photo_'+section+'_'+(q('#orderId').value || 'ord')+'_'+rid;
+      var pKey = 'photo_'+section+'_'+OID+'_'+rid;
       row.setAttribute('data-photo-key', pKey);
 
       var prev = getPhoto(pKey);
@@ -314,7 +329,7 @@
       return total;
     }
 
-    /* ================= STAIRS + TOTALS ================= */
+    /* ===== stairs + totals ===== */
     function computeStairs(){
       var qtyEl = q('#stairsQty'), perEl = q('#stairsPer');
       var qty = parseFloat((qtyEl && qtyEl.value)||'0')||0;
@@ -352,13 +367,11 @@
       el.addEventListener(sel==='#paidUpfront' ? 'change' : 'input', computeTotals);
     });
 
-    /* ================= CLIENT PHOTO (per order) ================= */
+    /* ===== client photo (per order) ===== */
     (function(){
       var inp = q('#clientPhotoInput');
       var thumb = q('#clientThumb');
-      var oid = q('#orderId');
-      if(!oid.value){ oid.value = 'ord_'+Date.now(); }
-      var key = 'photo_client_'+oid.value;
+      var key = 'photo_client_'+OID;
       var saved = getPhoto(key);
       if(saved && thumb){ thumb.src = saved; thumb.style.display='inline-block'; thumb.style.cursor='pointer'; }
       if(thumb){ thumb.addEventListener('click', function(){ var d=getPhoto(key); if(d) openPreview(d); }); }
@@ -372,14 +385,13 @@
       }
     })();
 
-    /* ================= SHKALLORE PHOTO (one) ================= */
+    /* ===== stairs photo (one) ===== */
     (function(){
       var wrap = q('#stairsCamWrap');
       var inp = q('#stairsPhotoInput');
       if(wrap){
         wrap.style.display='flex'; wrap.style.gap='10px';
-        var oid = q('#orderId').value || 'ord';
-        var saved = getPhoto('photo_shkallore_'+oid);
+        var saved = getPhoto('photo_shkallore_'+OID);
         if(saved){
           var t = document.createElement('img'); t.className='thumb'; t.style.display='inline-block'; t.src = saved;
           t.addEventListener('click', function(){ openPreview(saved); });
@@ -389,15 +401,14 @@
       if(inp){
         inp.addEventListener('change', function(ev){
           var f = ev.target.files && ev.target.files[0]; if(!f) return;
-          var oid = q('#orderId').value || 'ord';
-          savePhotoFromFile('photo_shkallore_'+oid, f, function(data){ openPreview(data); });
+          savePhotoFromFile('photo_shkallore_'+OID, f, function(data){ openPreview(data); });
         });
       }
     })();
 
-    /* ================= SAVE DRAFT ================= */
+    /* ===== save draft ===== */
     var LIST_KEY='order_list_v1'; function KEY(id){ return 'order_'+id; }
-    function getId(){ var hid=q('#orderId'); if(hid && hid.value) return hid.value; var id='ord_'+Date.now(); if(hid) hid.value=id; return id; }
+    function getId(){ return OID; }
     function readRows(listId){
       var list=q('#list-'+listId); if(!list) return [];
       return qq('.piece-row', list).map(function(row){
@@ -450,22 +461,19 @@
     }
     var btnSave=q('#btnSaveDraft'); if(btnSave){ btnSave.addEventListener('click', function(e){ e.preventDefault(); saveDraft(); }); }
 
-    /* START */
+    /* start */
     computeTotals();
   })();
   </script>
 
-  <!-- (opsionale) nëse e ke këtë file: -->
-  <!-- <script src="../assets/restore_min.js"></script> -->
-
   <!-- ===== DEBUG OVERLAY (kundër faqes së bardhë) ===== -->
   <script>
-  window.addEventListener('error', function(e){
-    document.body.innerHTML =
-      '<pre style="white-space:pre-wrap;color:#fff;background:#000;padding:12px">' +
-      (e.message||'JS error') + '\n' + (e.filename||'') + ':' + (e.lineno||'') +
-      '</pre>';
-  });
+    window.addEventListener('error', function(e){
+      document.body.innerHTML =
+        '<pre style="white-space:pre-wrap;color:#fff;background:#000;padding:12px">' +
+        (e.message||'JS error') + '\n' + (e.filename||'') + ':' + (e.lineno||'') +
+        '</pre>';
+    });
   </script>
 </body>
 </html>
