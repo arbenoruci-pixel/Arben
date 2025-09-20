@@ -1,17 +1,16 @@
 
-/* assets/app.js — FIXED (2025-09-20)
+/* assets/app.js — FIXED v2 (2025-09-20)
+   - Strong multi-field SEARCH: name (accent-insensitive), phone (digits), X-code (23/X23), multi-term tokens
    - Stops GATI -> PASTRIMI bounce (monotonic status + last-write-wins by updatedAt)
    - Auto-migrates old orders on load (adds updatedAt, bumps GATI freshness)
-   - Search by name / phone / X-code
    - Limit active orders per client (name + phone)
-   - Drop-in: no UI/design changes required
 */
 
 /* =========================
    CONFIG
    ========================= */
 const STORAGE_KEY = 'orders_v1';
-const MAX_ACTIVE_ORDERS_PER_CLIENT = 1; // how many active orders allowed per client (name+phone)
+const MAX_ACTIVE_ORDERS_PER_CLIENT = 1;
 const STATUS = { PRANIM: 'pranim', PASTRIM: 'pastrim', GATI: 'gati', DOREZUAR: 'dorezuar' };
 const ACTIVE_STATUSES = new Set([STATUS.PRANIM, STATUS.PASTRIM, STATUS.GATI]);
 const STATUS_RANK = { pranim:1, pastrim:2, gati:3, dorezuar:4 };
@@ -20,9 +19,18 @@ const STATUS_RANK = { pranim:1, pastrim:2, gati:3, dorezuar:4 };
    UTILS
    ========================= */
 const nowTs = () => Date.now();
-function uid() { return 'ord_' + Math.random().toString(36).slice(2,10) + nowTs().toString(36); }
+function uid(){ return 'ord_' + Math.random().toString(36).slice(2,10) + nowTs().toString(36); }
+
+// Accent-insensitive folding
+function fold(s=''){
+  try {
+    return String(s).normalize('NFD').replace(/\p{Diacritic}/gu,'').toUpperCase().trim();
+  } catch {
+    // Fallback if \p{Diacritic} unsupported
+    return String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().trim();
+  }
+}
 function normalizePhone(s=''){ return String(s).replace(/\D/g,''); }
-function normalizeName(s=''){ return String(s).trim().toUpperCase(); }
 function normalizeXCode(s=''){
   const str = String(s).trim().toUpperCase();
   const n = str.replace(/^X/, '');
@@ -34,12 +42,12 @@ function normalizeXCode(s=''){
    STORAGE
    ========================= */
 function loadOrders(){
-  try {
+  try{
     const raw = localStorage.getItem(STORAGE_KEY);
     if(!raw) return [];
     const arr = JSON.parse(raw);
     return Array.isArray(arr) ? arr : [];
-  } catch { return []; }
+  }catch{ return []; }
 }
 function saveOrders(list){ localStorage.setItem(STORAGE_KEY, JSON.stringify(list || [])); }
 function getOrderById(id){ return loadOrders().find(o => o.id === id); }
@@ -49,7 +57,6 @@ function saveOrder(order){
   const list = loadOrders();
   const i = list.findIndex(o => o.id === order.id);
 
-  // ensure updatedAt
   if(!order.updatedAt){ order.updatedAt = nowTs(); }
 
   if(i === -1){
@@ -58,14 +65,12 @@ function saveOrder(order){
     const prev = list[i];
     const prevTs = Number(prev.updatedAt || 0);
     const nextTs = Number(order.updatedAt || 0);
-
-    // last-write-wins
     const chosen = nextTs >= prevTs ? order : prev;
 
-    // hard guard: never downgrade status
+    // never downgrade status
     const a = STATUS_RANK[String(prev.status).toLowerCase()] || 0;
     const b = STATUS_RANK[String(chosen.status).toLowerCase()] || 0;
-    if (b < a) {
+    if(b < a){
       chosen.status = prev.status;
       chosen.updatedAt = Math.max(prevTs, nextTs, nowTs());
     }
@@ -75,49 +80,36 @@ function saveOrder(order){
 }
 
 /* =========================
-   ONE-TIME AUTO-MIGRATION ON LOAD
-   (adds updatedAt; bumps old GATI to fresh timestamps)
+   AUTO-MIGRATION ON LOAD
    ========================= */
 (function migrateOrdersOnLoad(){
   try{
     const list = loadOrders();
     if(!list.length) return;
-    let changed = false;
+    let changed=false;
     const now = nowTs();
-
     for(const o of list){
       const before = JSON.stringify(o);
-
-      // normalize status
       if(o.status){ o.status = String(o.status).toLowerCase(); }
-
-      // ensure updatedAt
-      if(!o.updatedAt){
-        o.updatedAt = o.ts ? Number(o.ts) : now;
-      }
-
-      // if already GATI but with very old updatedAt, bump to now
-      if(o.status === STATUS.GATI && o.updatedAt < now - 5000){
-        o.updatedAt = now;
-      }
-
-      if(JSON.stringify(o) !== before) changed = true;
+      if(!o.updatedAt){ o.updatedAt = o.ts ? Number(o.ts) : now; }
+      if(o.status === STATUS.GATI && o.updatedAt < now - 5000){ o.updatedAt = now; }
+      if(JSON.stringify(o) !== before) changed=true;
     }
     if(changed) saveOrders(list);
-  }catch(e){ /* ignore */ }
+  }catch{}
 })();
 
 /* =========================
-   SYNC (stubs) — replace with real cloud calls if used
+   SYNC STUBS
    ========================= */
 async function fetchRemoteOrders(){ return []; }
-async function pushDirtyOrders(){ /* no-op */ }
+async function pushDirtyOrders(){}
 function mergeOrders(remoteList=[], localList=[]){
   const byId = new Map();
   const put = x => {
     const prev = byId.get(x.id);
-    if(!prev){ byId.set(x.id, x); }
-    else{
+    if(!prev) byId.set(x.id, x);
+    else {
       const a = Number(prev.updatedAt||0);
       const b = Number(x.updatedAt||0);
       byId.set(x.id, b > a ? x : prev);
@@ -139,19 +131,16 @@ async function syncOrders(){
 /* =========================
    ORDER LOGIC
    ========================= */
-function clientKeyFrom(name, phone){ return normalizeName(name) + '|' + normalizePhone(phone); }
+function clientKeyFrom(name, phone){ return fold(name) + '|' + normalizePhone(phone); }
 function countActiveOrdersForClient(name, phone){
   const key = clientKeyFrom(name, phone);
-  return loadOrders().filter(o => {
-    const ok = clientKeyFrom(o.client_name, o.client_phone) === key;
-    return ok && ACTIVE_STATUSES.has(o.status);
-  }).length;
+  return loadOrders().filter(o => clientKeyFrom(o.client_name, o.client_phone) === key && ACTIVE_STATUSES.has(o.status)).length;
 }
 function ensureClientLimitOrThrow(name, phone){
-  if(!name || !phone) return; // allow if your flow collects later
-  const activeCount = countActiveOrdersForClient(name, phone);
-  if(activeCount >= MAX_ACTIVE_ORDERS_PER_CLIENT){
-    throw new Error(`Ky klient ka tashmë ${activeCount} porosi aktive. Lejohen deri në ${MAX_ACTIVE_ORDERS_PER_CLIENT}.`);
+  if(!name || !phone) return;
+  const active = countActiveOrdersForClient(name, phone);
+  if(active >= MAX_ACTIVE_ORDERS_PER_CLIENT){
+    throw new Error(`Ky klient ka tashmë ${active} porosi aktive. Lejohen deri në ${MAX_ACTIVE_ORDERS_PER_CLIENT}.`);
   }
 }
 function nextXCodeNumber(){
@@ -159,22 +148,17 @@ function nextXCodeNumber(){
   const nums = list.map(o => {
     const n = Number(normalizeXCode(o.code));
     return Number.isFinite(n) ? n : 0;
-  });
+    });
   const max = nums.length ? Math.max(...nums) : 0;
   return max + 1;
 }
-
 function createOrder({ client_name, client_phone, client_code, pay_rate=0, pay_m2=0, pieces=[], notes='' }){
   ensureClientLimitOrThrow(client_name, client_phone);
-
   const id = uid();
-  const codeNum = nextXCodeNumber();
-  const code = 'X' + String(codeNum).padStart(3,'0');
-
+  const code = 'X' + String(nextXCodeNumber()).padStart(3,'0');
   const order = {
-    id,
-    code,
-    status: STATUS.PRUNIM, // typo guard (will fix below)
+    id, code,
+    status: STATUS.PRANIM,
     ts: nowTs(),
     updatedAt: nowTs(),
     client_name: client_name || '',
@@ -182,21 +166,17 @@ function createOrder({ client_name, client_phone, client_code, pay_rate=0, pay_m
     client_code: client_code || '',
     pay_rate: Number(pay_rate || 0),
     pay_m2: Number(pay_m2 || 0),
-    pay_euro: Number((Number(pay_rate || 0) * Number(pay_m2 || 0)).toFixed(2)),
+    pay_euro: Number((Number(pay_rate||0)*Number(pay_m2||0)).toFixed(2)),
     pieces: Array.isArray(pieces) ? pieces : [],
     notes: notes || '',
     flags: { readyToday: false, noShow: false },
   };
-
-  // small typo fix in case: ensure valid status
-  if(order.status !== STATUS.PRANIM) order.status = STATUS.PRANIM;
-
   saveOrder(order);
   return order;
 }
 
 /* =========================
-   STATUS CHANGES (stable)
+   STATUS CHANGES
    ========================= */
 function updateOrderStatus(id, newStatus){
   const o = getOrderById(id);
@@ -217,22 +197,43 @@ function saveFormEdits(id, formValues={}){
 }
 
 /* =========================
-   SEARCH — name / phone / X-code
+   STRONG MULTI-FIELD SEARCH
+   - Splits query into tokens by space
+   - Name: accent-insensitive contains ALL tokens (AND)
+   - Phone: any token with digits must be substring of phone (OR across tokens)
+   - X-code: token equals/starts with code number
+   - Overall match if ANY of {nameMatch, phoneMatch, xMatch} is true
    ========================= */
 function searchOrders(rawQuery=''){
-  const q = String(rawQuery).trim();
+  const q = String(rawQuery || '').trim();
   if(!q) return [];
-  const qUpper = q.toUpperCase();
-  const qDigits = normalizePhone(q);
-  const qX = normalizeXCode(q);
+  const tokens = q.split(/\s+/).filter(Boolean);
 
   const out = [];
   const seen = new Set();
 
   for(const o of loadOrders()){
-    const nameMatch = normalizeName(o.client_name).includes(qUpper);
-    const phoneMatch = qDigits.length ? normalizePhone(o.client_phone).includes(qDigits) : false;
-    const xMatch = normalizeXCode(o.code) === qX || normalizeXCode(o.code).startsWith(qX);
+    const nameF = fold(o.client_name);
+    const phoneF = normalizePhone(o.client_phone);
+    const xF = normalizeXCode(o.code);
+
+    // NAME: require ALL text tokens (that aren’t pure digits) to be contained
+    const nameTokens = tokens.filter(t => !/^\d+$/.test(t));
+    const nameMatch = nameTokens.length
+      ? nameTokens.every(t => nameF.includes(fold(t)))
+      : false;
+
+    // PHONE: if any token has digits, match if any such token is substring
+    const phoneTokens = tokens.map(normalizePhone).filter(t => t.length>0);
+    const phoneMatch = phoneTokens.length
+      ? phoneTokens.some(t => phoneF.includes(t))
+      : false;
+
+    // X-CODE: match if any token equals or is prefix of x number (no 'X' needed)
+    const xTokens = tokens.map(normalizeXCode).filter(Boolean);
+    const xMatch = xTokens.length
+      ? xTokens.some(t => xF === t || xF.startsWith(t))
+      : false;
 
     if(nameMatch || phoneMatch || xMatch){
       if(!seen.has(o.id)){
@@ -241,8 +242,38 @@ function searchOrders(rawQuery=''){
       }
     }
   }
-  out.sort((a,b)=>Number(b.updatedAt||0)-Number(a.updatedAt||0));
+
+  out.sort((a,b)=>Number(b.updatedAt||0) - Number(a.updatedAt||0));
   return out;
+}
+
+// Debug helper to see what field matched
+function debugSearch(rawQuery=''){
+  const q = String(rawQuery || '').trim();
+  const tokens = q.split(/\s+/).filter(Boolean);
+  const rows = [];
+  for(const o of loadOrders()){
+    const nameF = fold(o.client_name);
+    const phoneF = normalizePhone(o.client_phone);
+    const xF = normalizeXCode(o.code);
+
+    const nameTokens = tokens.filter(t => !/^\d+$/.test(t));
+    const nameMatch = nameTokens.length ? nameTokens.every(t => nameF.includes(fold(t))) : false;
+
+    const phoneTokens = tokens.map(normalizePhone).filter(t => t.length>0);
+    const phoneMatch = phoneTokens.length ? phoneTokens.some(t => phoneF.includes(t)) : false;
+
+    const xTokens = tokens.map(normalizeXCode).filter(Boolean);
+    const xMatch = xTokens.length ? xTokens.some(t => xF === t || xF.startsWith(t)) : false;
+
+    if(nameMatch || phoneMatch || xMatch){
+      rows.push({
+        id: o.id, code: o.code, client_name: o.client_name, client_phone: o.client_phone,
+        nameMatch, phoneMatch, xMatch, updatedAt: o.updatedAt
+      });
+    }
+  }
+  return rows;
 }
 
 /* =========================
@@ -256,22 +287,17 @@ function listMarrjeSot(){ return loadOrders().filter(o => o.status === STATUS.GA
    UI HOOKS (optional)
    ========================= */
 document.addEventListener('click', (e)=>{
-  const toAction = sel => e.target.closest(sel);
-
-  const gBtn = toAction('[data-action="mark-gati"]');
+  const q = sel => e.target.closest(sel);
+  const gBtn = q('[data-action="mark-gati"]');
   if(gBtn){ updateOrderStatus(gBtn.getAttribute('data-id'), STATUS.GATI); return; }
-
-  const pBtn = toAction('[data-action="mark-pastrim"]');
+  const pBtn = q('[data-action="mark-pastrim"]');
   if(pBtn){ updateOrderStatus(pBtn.getAttribute('data-id'), STATUS.PASTRIM); return; }
-
-  const dBtn = toAction('[data-action="mark-dorezuar"]');
+  const dBtn = q('[data-action="mark-dorezuar"]');
   if(dBtn){ updateOrderStatus(dBtn.getAttribute('data-id'), STATUS.DOREZUAR); return; }
 });
-
 document.addEventListener('input', (e)=>{
   if(e.target && e.target.id === 'search'){
-    const q = e.target.value;
-    const results = searchOrders(q);
+    const results = searchOrders(e.target.value);
     if(typeof window.renderSearch === 'function'){ window.renderSearch(results); }
   }
 });
@@ -281,23 +307,13 @@ document.addEventListener('input', (e)=>{
    ========================= */
 window.Tepiha = {
   // CRUD / status
-  createOrder,
-  saveFormEdits,
-  updateOrderStatus,
-
+  createOrder, saveFormEdits, updateOrderStatus,
   // lists
-  listPastrimi,
-  listGati,
-  listMarrjeSot,
-
+  listPastrimi, listGati, listMarrjeSot,
   // search
-  searchOrders,
-
+  searchOrders, debugSearch,
   // sync
   syncOrders,
-
   // utils
-  loadOrders,
-  saveOrders,
-  getOrderById,
+  loadOrders, saveOrders, getOrderById,
 };
