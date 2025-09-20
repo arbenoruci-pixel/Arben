@@ -3,33 +3,33 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>PRANIMI (Easy)</title>
+  <title>PRANIMI (Dark + Supabase)</title>
   <style>
     :root{
-      /* Soft light, high-contrast */
-      --bg:#eef2f7;
-      --panel:#ffffff;
-      --panel-br:#cfd7e6;
-      --ink:#0d1b2a;          /* main text */
-      --muted:#4a5a73;
-      --line:#b9c5d9;
+      /* PURE DARK: black canvas, white text */
+      --bg:#000000;
+      --panel:#0d0f14;
+      --panel-br:#202633;
+      --ink:#ffffff;
+      --muted:#a8b3c7;
+      --line:#253045;
 
-      --chip-bg:#e8eef9;
-      --chip-br:#b6c7e7;
-      --chip-ink:#0a2c6b;
-      --chip-bg-hover:#dae6fb;
+      --chip-bg:#141b26;
+      --chip-br:#2c3a55;
+      --chip-ink:#cfe2ff;
+      --chip-bg-hover:#1a2434;
 
-      --btn:#1155ff;
+      --btn:#1e60ff;
       --btn-ink:#ffffff;
-      --btn-ghost:#f1f5ff;
-      --btn-ghost-br:#c9d6f2;
+      --btn-ghost:#0f1420;
+      --btn-ghost-br:#2b3956;
 
-      --accent:#10b981;       /* green badge */
-      --accent-ink:#064e3b;
+      --accent:#22c55e; /* badge green */
+      --accent-ink:#062e17;
 
       --danger:#ef4444;
 
-      --shadow: 0 8px 28px rgba(16,24,40,.08);
+      --shadow: 0 10px 35px rgba(0,0,0,.55);
     }
     *{box-sizing:border-box}
     html,body{
@@ -40,17 +40,17 @@
     .wrap{ max-width: 980px; margin: 0 auto; padding: 0 16px 140px; }
 
     h1{
-      font-size: clamp(34px, 5.2vw, 48px);
-      margin: 20px 6px 6px; font-weight: 900; letter-spacing:.01em;
+      font-size: clamp(34px, 5.4vw, 50px);
+      margin: 20px 6px 6px; font-weight: 1000; letter-spacing:.01em;
       display:flex; align-items:center; gap:12px;
     }
     .badge{
       display:inline-flex; align-items:center; gap:10px;
-      background: linear-gradient(180deg, rgba(16,185,129,.18), rgba(16,185,129,.10));
-      border:1px solid rgba(16,185,129,.45);
-      color:var(--accent-ink);
+      background: linear-gradient(180deg, rgba(34,197,94,.22), rgba(34,197,94,.10));
+      border:1px solid rgba(34,197,94,.55);
+      color:#c6ffd9;
       padding:10px 16px; border-radius: 999px;
-      font-weight: 900; font-size: 18px; letter-spacing:.04em;
+      font-weight: 1000; font-size: 18px; letter-spacing:.04em;
     }
 
     .card{
@@ -59,63 +59,63 @@
     }
     .title{
       display:flex; align-items:center; justify-content:space-between;
-      font-size: clamp(20px, 2.6vw, 26px); font-weight: 900; margin-bottom: 12px;
+      font-size: clamp(20px, 2.6vw, 28px); font-weight: 1000; margin-bottom: 12px;
     }
-    label{ font-size:14px; color:var(--muted); font-weight:800; letter-spacing:.04em }
+    label{ font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.04em }
     .row{ display:grid; grid-template-columns: 1fr 1fr; gap:14px }
     @media (max-width:720px){ .row{ grid-template-columns:1fr } }
 
     .input{
       width:100%;
-      background:#fff; border:2px solid var(--line);
+      background:#05070c; border:2px solid var(--line);
       border-radius:14px; padding:16px 18px;
-      font-size:20px; font-weight:800; color:var(--ink);
+      font-size:22px; font-weight:1000; color:var(--ink);
       outline:none;
     }
-    .input:focus{ border-color:#94b0ff; box-shadow:0 0 0 3px rgba(17,85,255,.15); }
+    .input:focus{ border-color:#6aa1ff; box-shadow:0 0 0 3px rgba(30,96,255,.25); }
 
     .chips{ display:flex; flex-wrap:wrap; gap:12px; padding:6px 0 }
     .chip{
       flex:0 0 auto; border:2px solid var(--chip-br);
       background:var(--chip-bg); color:var(--chip-ink);
-      border-radius:999px; padding:12px 18px; font-weight:900; font-size:18px;
-      min-height:48px;
+      border-radius:999px; padding:12px 18px; font-weight:1000; font-size:20px;
+      min-height:52px;
     }
     .chip:active,.chip:hover{ background:var(--chip-bg-hover); }
 
     .list{ display:flex; flex-direction:column; gap:12px; margin-top:8px }
-    .piece-row{ display:grid; grid-template-columns: 120px 1fr 140px; gap:12px; align-items:center }
+    .piece-row{ display:grid; grid-template-columns: 130px 1fr 150px; gap:12px; align-items:center }
     .piece-id{
-      background:#e9f9f1; border:2px solid rgba(16,185,129,.45);
-      color:#075e40; border-radius:12px; padding:16px 14px; text-align:center;
-      font-weight:900; font-size:20px;
+      background:#062413; border:2px solid rgba(34,197,94,.55);
+      color:#a6ffbe; border-radius:12px; padding:16px 14px; text-align:center;
+      font-weight:1000; font-size:22px;
     }
 
     .mwrap{ display:flex; align-items:center; gap:10px }
 
     .btnbar{ display:flex; gap:12px; flex-wrap:wrap; margin-top:8px }
     .btn{
-      border:0; border-radius:14px; padding:16px 20px; min-height:52px;
-      font-weight:900; font-size:18px; letter-spacing:.02em; cursor:pointer;
+      border:0; border-radius:14px; padding:16px 22px; min-height:56px;
+      font-weight:1000; font-size:20px; letter-spacing:.02em; cursor:pointer;
       background:var(--btn); color:var(--btn-ink);
     }
     .btn.red{ background:var(--danger); }
-    .btn.ghost{ background:var(--btn-ghost); color:#0f2a5c; border:2px solid var(--btn-ghost-br); }
+    .btn.ghost{ background:var(--btn-ghost); color:#cfe2ff; border:2px solid var(--btn-ghost-br); }
 
     .tot{
       display:flex; justify-content:space-between; align-items:center;
-      background:#f7fafc; border:1px solid var(--panel-br);
+      background:#0b111d; border:1px solid var(--panel-br);
       border-radius:12px; padding:12px 14px; margin-top:10px;
-      font-size:20px; font-weight:900;
+      font-size:22px; font-weight:1000;
     }
-    .pill{ background:#f7fafc; border:1px solid var(--panel-br);
-      border-radius:12px; padding:12px 14px; font-weight:900; font-size:20px }
+    .pill{ background:#0b111d; border:1px solid var(--panel-br);
+      border-radius:12px; padding:12px 14px; font-weight:1000; font-size:22px }
 
     /* Footer – large touch area */
     body{ padding-bottom: 140px }
     .footer{
       position:fixed; left:0; right:0; bottom:0; z-index:10;
-      background:rgba(255,255,255,.96); border-top:1px solid var(--panel-br); backdrop-filter:blur(6px);
+      background:rgba(5,7,12,.96); border-top:1px solid var(--panel-br); backdrop-filter:blur(6px);
     }
     .footwrap{
       max-width:980px; margin:0 auto; padding:12px 16px;
@@ -125,14 +125,16 @@
     /* Camera button & thumbnails */
     .cam-btn{
       display:inline-flex; align-items:center; justify-content:center;
-      width:52px; height:52px; min-width:52px;
+      width:56px; height:56px; min-width:56px;
       border:2px solid var(--btn-ghost-br); border-radius:12px;
-      background:var(--btn-ghost); cursor:pointer; font-size:22px; user-select:none;
+      background:#0a1220; cursor:pointer; font-size:26px; user-select:none; color:#cfe2ff;
     }
     .thumb{
-      width:52px; height:52px; border-radius:12px; object-fit:cover; display:none;
+      width:56px; height:56px; border-radius:12px; object-fit:cover; display:none;
       border:2px solid var(--btn-ghost-br); cursor:pointer;
     }
+
+    a.btn{text-decoration:none; display:inline-flex; align-items:center; justify-content:center}
   </style>
 </head>
 <body>
@@ -159,7 +161,7 @@
         </div>
         <div>
           <label>TELEFONI*</label>
-          <div class="row" style="grid-template-columns:140px 1fr">
+          <div class="row" style="grid-template-columns:160px 1fr">
             <input class="input" id="phonePrefix" value="+383" readonly>
             <input class="input" id="phone" inputmode="numeric" placeholder="44177778">
           </div>
@@ -217,8 +219,8 @@
         <div><label>€ / m²</label><input class="input" id="rate" inputmode="decimal" value="2.50"></div>
         <div>
           <label>PAGUAR NË FILLIM (CASH)</label><br>
-          <label style="display:flex;align-items:center;gap:12px; font-size:18px; font-weight:900">
-            <input type="checkbox" id="paidUpfront" style="width:26px;height:26px"> <span>Aktivo futjen e shumës</span>
+          <label style="display:flex;align-items:center;gap:12px; font-size:20px; font-weight:1000">
+            <input type="checkbox" id="paidUpfront" style="width:28px;height:28px"> <span>Aktivo futjen e shumës</span>
           </label>
         </div>
       </div>
@@ -245,20 +247,41 @@
     </div>
   </div>
 
-  <!-- ================== SCRIPTET ================== -->
+  <!-- ===== Supabase client (optional) ===== -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+
   <script>
   (function(){
+    /* ------------ CONFIGURO KËTU PËR SUPABASE ------------- */
+    const CFG = {
+      supabase: {
+        url: "",                          // p.sh. "https://abcd.supabase.co"
+        anonKey: "",                      // Anon public key
+        bucket: "tepiha-photos"           // krijoje në Storage (public)
+      }
+    };
+    /* ------------------------------------------------------ */
+
+    function hasSupabase(){
+      return typeof window.supabase !== 'undefined'
+             && CFG.supabase.url && CFG.supabase.url.startsWith('http')
+             && CFG.supabase.anonKey;
+    }
+    let sb = null;
+    if (hasSupabase()){
+      sb = supabase.createClient(CFG.supabase.url, CFG.supabase.anonKey);
+    }
+
     /* ===== helpers ===== */
     function q(s,b){ return (b||document).querySelector(s); }
     function qq(s,b){ return Array.prototype.slice.call((b||document).querySelectorAll(s)); }
     function r2(x){ return Math.round((x + Number.EPSILON) * 100)/100; }
     function uid(){ return 'r'+Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
 
-    /* ===== orderId ===== */
+    /* ===== orderId & code ===== */
     var hid = q('#orderId'); if(!hid.value) hid.value = 'ord_'+Date.now();
     var OID = hid.value;
 
-    /* ===== client code (create once at open) ===== */
     function loadMap(k){ try{ return JSON.parse(localStorage.getItem(k)||'{}'); }catch(e){ return {}; } }
     function saveMap(k,o){ try{ localStorage.setItem(k, JSON.stringify(o)); }catch(e){} }
     function nextCode(){
@@ -267,7 +290,6 @@
       return 'X'+n;
     }
     function setBadge(code){ var el=q('#ticketCode'); if(el) el.textContent = code?('KODI: '+code):'KODI: ——'; }
-
     var metaKey = 'order_meta_'+OID;
     var meta = loadMap(metaKey);
     if(!meta.code){ meta.code = nextCode(); saveMap(metaKey, meta); }
@@ -286,48 +308,57 @@
     ['#phone','#name'].forEach(function(sel){ var el=q(sel); if(el) el.addEventListener('blur', bindClientIdentity); });
     window.__getClientCode = function(){ var m=loadMap(metaKey); return m.code||''; };
 
-    /* ===== photo utils (compress + safe click + preview) ===== */
-    function fileToCompressedDataURL(file, maxW=1280, maxH=1280, quality=0.75){
-      return new Promise((resolve, reject)=>{
-        try{
-          const img = new Image();
-          img.onload = ()=>{
-            let {width, height} = img;
-            const r = Math.min(1, maxW/width, maxH/height);
-            width = Math.round(width*r); height = Math.round(height*r);
-            const c = document.createElement('canvas'); c.width=width; c.height=height;
-            c.getContext('2d').drawImage(img,0,0,width,height);
-            resolve(c.toDataURL('image/jpeg', quality));
-          };
-          img.onerror = reject;
-          const fr = new FileReader();
-          fr.onload = ()=>{ img.src = fr.result; };
-          fr.onerror = reject;
-          fr.readAsDataURL(file);
-        }catch(e){ reject(e); }
-      });
+    /* ===== PHOTO UTILS ===== */
+    async function fileToCompressedBlob(file, maxW=1280, maxH=1280, quality=0.75){
+      const img = new Image();
+      const data = await new Promise((res, rej)=>{ const fr = new FileReader(); fr.onload=()=>res(fr.result); fr.onerror=rej; fr.readAsDataURL(file); });
+      await new Promise(r=>{ img.onload=r; img.src=data; });
+
+      let {width, height} = img;
+      const r = Math.min(1, maxW/width, maxH/height);
+      width = Math.round(width*r); height = Math.round(height*r);
+      const c = document.createElement('canvas'); c.width=width; c.height=height;
+      c.getContext('2d').drawImage(img,0,0,width,height);
+      return await new Promise(res=>c.toBlob(res, 'image/jpeg', quality));
     }
-    function savePhotoFromFile(key, file, ok, err){
-      fileToCompressedDataURL(file)
-        .then(data=>{
-          try{ localStorage.setItem(key, data); ok&&ok(data); }
-          catch(e){ alert('S’u ruajt fotoja (hapësira lokale u mbush)'); err&&err(e); }
-        })
-        .catch(e=>{ alert('S’u ruajt fotoja (kompresimi dështoi)'); err&&err(e); });
-    }
-    function getPhoto(key){ try{ return localStorage.getItem(key); }catch(e){ return null; } }
-    function openPreview(dataURL){
+    function openPreview(url){
       var ov=document.createElement('div');
-      ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;z-index:99999';
-      var img=document.createElement('img'); img.src=dataURL; img.style.cssText='max-width:96%;max-height:92%;border-radius:10px;box-shadow:0 10px 40px rgba(0,0,0,.6)';
+      ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:99999';
+      var img=document.createElement('img'); img.src=url; img.style.cssText='max-width:96%;max-height:92%;border-radius:10px;box-shadow:0 10px 40px rgba(0,0,0,.6)';
       ov.appendChild(img); ov.addEventListener('click', ()=>ov.remove()); document.body.appendChild(ov);
     }
+    async function savePhoto(key, file){
+      try{
+        if (sb){ // upload to Supabase
+          const blob = await fileToCompressedBlob(file);
+          const path = `${OID}/${key}_${Date.now()}.jpg`;
+          const { error } = await sb.storage.from(CFG.supabase.bucket).upload(path, blob, { upsert:false, contentType:'image/jpeg' });
+          if (error) throw error;
+          const { data } = sb.storage.from(CFG.supabase.bucket).getPublicUrl(path);
+          localStorage.setItem(key+'_url', data.publicUrl);
+          return data.publicUrl;
+        } else {
+          // fallback: dataURL in localStorage
+          const blob = await fileToCompressedBlob(file);
+          const arrBuf = await blob.arrayBuffer();
+          const base64 = btoa(String.fromCharCode(...new Uint8Array(arrBuf)));
+          const url = 'data:image/jpeg;base64,' + base64;
+          localStorage.setItem(key+'_url', url);
+          return url;
+        }
+      }catch(e){
+        alert('S’u ruajt fotoja');
+        throw e;
+      }
+    }
+    function getPhotoUrl(key){ return localStorage.getItem(key+'_url'); }
+
     document.addEventListener('click', function(e){
       const btn = e.target.closest('.cam-btn'); if(!btn) return;
       const inp = btn.querySelector('input[type=file]'); if(inp){ try{ inp.click(); }catch(_){} }
     }, {capture:true});
 
-    /* ===== CHIPS (delegim) ===== */
+    /* ===== CHIPS ===== */
     (function(){
       function handleChip(section, evt){
         var chip = evt.target.closest && evt.target.closest('.chip'); if(!chip) return;
@@ -358,17 +389,20 @@
       var thumb=document.createElement('img'); thumb.className='thumb';
 
       var rid=uid(); var pKey='photo_'+section+'_'+OID+'_'+rid; row.setAttribute('data-photo-key', pKey);
-      var prev=getPhoto(pKey); if(prev){ thumb.src=prev; thumb.style.display='inline-block'; cam.style.display='none'; }
+      var prev=getPhotoUrl(pKey); if(prev){ thumb.src=prev; thumb.style.display='inline-block'; cam.style.display='none'; }
 
       mWrap.appendChild(m2); mWrap.appendChild(cam); mWrap.appendChild(thumb);
 
       var qty=document.createElement('input'); qty.className='input piece-qty'; qty.placeholder='copë'; qty.setAttribute('inputmode','numeric'); qty.value='1';
 
-      file.addEventListener('change', function(ev){
+      file.addEventListener('change', async function(ev){
         var f=ev.target.files && ev.target.files[0]; if(!f) return;
-        savePhotoFromFile(pKey, f, function(data){ thumb.src=data; thumb.style.display='inline-block'; cam.style.display='none'; }, function(){});
+        try{
+          const url = await savePhoto(pKey, f);
+          thumb.src=url; thumb.style.display='inline-block'; cam.style.display='none';
+        }catch(e){}
       });
-      thumb.addEventListener('click', function(){ var d=getPhoto(pKey); if(d) openPreview(d); });
+      thumb.addEventListener('click', function(){ var url=getPhotoUrl(pKey); if(url) openPreview(url); });
 
       m2.addEventListener('input', computeTotals);
       qty.addEventListener('input', computeTotals);
@@ -421,25 +455,21 @@
       var el=q(sel); if(!el) return; el.addEventListener(sel==='#paidUpfront'?'change':'input', computeTotals);
     });
 
-    /* ===== client photo (per order) ===== */
+    /* ===== client + stairs photo ===== */
     (function(){
-      var inp=q('#clientPhotoInput'), thumb=q('#clientThumb'), key='photo_client_'+OID, saved=getPhoto(key);
-      if(saved && thumb){ thumb.src=saved; thumb.style.display='inline-block'; thumb.addEventListener('click',()=>openPreview(saved)); }
-      if(inp){ inp.addEventListener('change', function(e){ var f=e.target.files&&e.target.files[0]; if(!f) return;
-        savePhotoFromFile(key, f, function(data){ if(thumb){ thumb.src=data; thumb.style.display='inline-block'; }});
+      var key='photo_client_'+OID, inp=q('#clientPhotoInput'), th=q('#clientThumb'), saved=getPhotoUrl(key);
+      if(saved && th){ th.src=saved; th.style.display='inline-block'; th.addEventListener('click',()=>openPreview(saved)); }
+      if(inp){ inp.addEventListener('change', async (e)=>{ var f=e.target.files&&e.target.files[0]; if(!f) return;
+        try{ const url=await savePhoto(key, f); if(th){ th.src=url; th.style.display='inline-block'; } }catch(e){}
       });}
-    })();
-
-    /* ===== stairs photo (one) ===== */
-    (function(){
-      var wrap=q('#stairsCamWrap'), inp=q('#stairsPhotoInput');
+      var sinp=q('#stairsPhotoInput'), wrap=q('#stairsCamWrap');
       if(wrap){
-        var saved=getPhoto('photo_shkallore_'+OID);
-        if(saved){ var t=document.createElement('img'); t.className='thumb'; t.style.display='inline-block'; t.src=saved; t.addEventListener('click',()=>openPreview(saved)); wrap.appendChild(t); }
+        var sSaved=getPhotoUrl('photo_shkallore_'+OID);
+        if(sSaved){ var t=document.createElement('img'); t.className='thumb'; t.style.display='inline-block'; t.src=sSaved; t.addEventListener('click',()=>openPreview(sSaved)); wrap.appendChild(t); }
       }
-      if(inp){ inp.addEventListener('change', function(ev){ var f=ev.target.files&&ev.target.files[0]; if(!f) return;
-        savePhotoFromFile('photo_shkallore_'+OID, f, function(data){ openPreview(data); });
-      });}
+      if(sinp){ sinp.addEventListener('change', async (e)=>{ var f=e.target.files&&e.target.files[0]; if(!f) return;
+        try{ const url=await savePhoto('photo_shkallore_'+OID, f); openPreview(url); }catch(e){} });
+      }
     })();
 
     /* ===== save draft ===== */
@@ -492,11 +522,11 @@
   })();
   </script>
 
-  <!-- DEBUG kundër faqes së bardhë -->
+  <!-- DEBUG kundër “faqes së bardhë” -->
   <script>
     window.addEventListener('error', function(e){
       document.body.innerHTML =
-        '<pre style="white-space:pre-wrap;color:#111;background:#fff;padding:12px;border:1px solid #eee">' +
+        '<pre style="white-space:pre-wrap;color:#fff;background:#111;padding:12px;border:1px solid #333">' +
         (e.message||'JS error') + '\n' + (e.filename||'') + ':' + (e.lineno||'') +
         '</pre>';
     });
