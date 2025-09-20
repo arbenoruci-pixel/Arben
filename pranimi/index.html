@@ -2,110 +2,141 @@
 <html lang="sq">
 <head>
   <meta charset="utf-8" />
-  <!-- 30% më e vogël, si më parë -->
-  <meta name="viewport" content="width=device-width, initial-scale=0.7, maximum-scale=0.7, user-scalable=no" />
-  <title>PRANIMI (Light)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PRANIMI (Easy)</title>
   <style>
     :root{
-      /* LIGHT THEME */
-      --bg:#f4f7fb;         /* sfond i hapur blu-gri */
-      --fg:#111826;         /* tekst primar */
-      --muted:#5b6b8b;      /* tekst i zbehur */
-      --panel:#ffffff;      /* karta */
-      --panel-br:#d8e1f1;   /* border i kartës */
-      --line:#c7d3ea;       /* vijat */
-      --chip:#f2f6ff;       /* chip bg */
-      --chip-br:#c9d6f2;
-      --chip-text:#0f2a5c;
-      --chip-hover:#e7efff;
-      --btn:#0f63ff;        /* blu butonash */
-      --btn-text:#ffffff;
-      --btn-ghost:#eef3ff;
+      /* Soft light, high-contrast */
+      --bg:#eef2f7;
+      --panel:#ffffff;
+      --panel-br:#cfd7e6;
+      --ink:#0d1b2a;          /* main text */
+      --muted:#4a5a73;
+      --line:#b9c5d9;
+
+      --chip-bg:#e8eef9;
+      --chip-br:#b6c7e7;
+      --chip-ink:#0a2c6b;
+      --chip-bg-hover:#dae6fb;
+
+      --btn:#1155ff;
+      --btn-ink:#ffffff;
+      --btn-ghost:#f1f5ff;
       --btn-ghost-br:#c9d6f2;
-      --accent:#12b76a;     /* jeshile kodi */
-      --accent-ink:#084c2e;
-      --pill:#f7fafc;
+
+      --accent:#10b981;       /* green badge */
+      --accent-ink:#064e3b;
+
+      --danger:#ef4444;
 
       --shadow: 0 8px 28px rgba(16,24,40,.08);
     }
-
     *{box-sizing:border-box}
-    html,body{ margin:0; background:var(--bg); color:var(--fg);
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial; }
+    html,body{
+      margin:0; background:var(--bg); color:var(--ink);
+      font-family: ui-rounded, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      line-height:1.25;
+    }
+    .wrap{ max-width: 980px; margin: 0 auto; padding: 0 16px 140px; }
 
-    .wrap{ max-width: 980px; margin: 0 auto; padding: 0 16px 120px; }
-    h1{ font-size: clamp(30px, 4.4vw, 44px); margin: 22px 10px 8px; letter-spacing:.02em;
-        display:flex; align-items:center; gap:12px; }
-    .badge{ display:inline-flex; align-items:center; gap:10px;
-      color: var(--accent-ink); font-weight: 900; letter-spacing:.08em; font-size: 16px;
-      border:1px solid rgba(18,183,106,.35);
-      padding:8px 14px; border-radius: 999px;
-      background: linear-gradient(180deg, rgba(18,183,106,.12), rgba(18,183,106,.08)); }
+    h1{
+      font-size: clamp(34px, 5.2vw, 48px);
+      margin: 20px 6px 6px; font-weight: 900; letter-spacing:.01em;
+      display:flex; align-items:center; gap:12px;
+    }
+    .badge{
+      display:inline-flex; align-items:center; gap:10px;
+      background: linear-gradient(180deg, rgba(16,185,129,.18), rgba(16,185,129,.10));
+      border:1px solid rgba(16,185,129,.45);
+      color:var(--accent-ink);
+      padding:10px 16px; border-radius: 999px;
+      font-weight: 900; font-size: 18px; letter-spacing:.04em;
+    }
 
     .card{
-      background: var(--panel); border:1px solid var(--panel-br);
-      border-radius: 16px; padding: 16px; margin: 16px 0; box-shadow: var(--shadow);
+      background:var(--panel); border:1px solid var(--panel-br);
+      border-radius:18px; padding:18px; margin:16px 0; box-shadow:var(--shadow);
     }
-    .title{ display:flex; align-items:center; justify-content:space-between;
-      font-size: clamp(18px, 2.2vw, 22px); font-weight: 900; letter-spacing:.02em; margin-bottom: 12px }
-    label{ font-size:12px; color:var(--muted); letter-spacing:.08em }
-    .row{ display:grid; grid-template-columns: 1fr 1fr; gap:12px }
-    @media (max-width:640px){ .row{ grid-template-columns:1fr } }
+    .title{
+      display:flex; align-items:center; justify-content:space-between;
+      font-size: clamp(20px, 2.6vw, 26px); font-weight: 900; margin-bottom: 12px;
+    }
+    label{ font-size:14px; color:var(--muted); font-weight:800; letter-spacing:.04em }
+    .row{ display:grid; grid-template-columns: 1fr 1fr; gap:14px }
+    @media (max-width:720px){ .row{ grid-template-columns:1fr } }
 
     .input{
-      background: #fff; border:1px solid var(--line);
-      border-radius: 12px; padding: 14px 16px; color:var(--fg); font-size: 16px; outline: none;
+      width:100%;
+      background:#fff; border:2px solid var(--line);
+      border-radius:14px; padding:16px 18px;
+      font-size:20px; font-weight:800; color:var(--ink);
+      outline:none;
     }
-    .chips{ display:flex; flex-wrap:wrap; gap:10px; padding:6px 0 6px }
+    .input:focus{ border-color:#94b0ff; box-shadow:0 0 0 3px rgba(17,85,255,.15); }
+
+    .chips{ display:flex; flex-wrap:wrap; gap:12px; padding:6px 0 }
     .chip{
-      flex:0 0 auto; border:1px solid var(--chip-br);
-      background: var(--chip); color:var(--chip-text);
-      border-radius: 999px; padding:10px 14px; font-weight:900;
+      flex:0 0 auto; border:2px solid var(--chip-br);
+      background:var(--chip-bg); color:var(--chip-ink);
+      border-radius:999px; padding:12px 18px; font-weight:900; font-size:18px;
+      min-height:48px;
     }
-    .chip:active, .chip:hover{ background: var(--chip-hover); }
+    .chip:active,.chip:hover{ background:var(--chip-bg-hover); }
 
-    .list{ display:flex; flex-direction:column; gap:10px; margin-top:8px }
-    .piece-row{ display:grid; grid-template-columns: 110px 1fr 120px; gap:8px; align-items:center }
+    .list{ display:flex; flex-direction:column; gap:12px; margin-top:8px }
+    .piece-row{ display:grid; grid-template-columns: 120px 1fr 140px; gap:12px; align-items:center }
     .piece-id{
-      background: #f0fff6; border:1px solid rgba(18,183,106,.35);
-      color:#075a37; border-radius: 12px; padding: 12px 14px; text-align:center;
-      font-weight: 900; letter-spacing:.06em;
+      background:#e9f9f1; border:2px solid rgba(16,185,129,.45);
+      color:#075e40; border-radius:12px; padding:16px 14px; text-align:center;
+      font-weight:900; font-size:20px;
     }
 
-    .btnbar{ display:flex; gap:10px; flex-wrap:wrap; margin-top:8px }
+    .mwrap{ display:flex; align-items:center; gap:10px }
+
+    .btnbar{ display:flex; gap:12px; flex-wrap:wrap; margin-top:8px }
     .btn{
-      background: var(--btn); color:var(--btn-text); border:0; border-radius:12px;
-      padding:12px 16px; font-weight:900; letter-spacing:.04em;
+      border:0; border-radius:14px; padding:16px 20px; min-height:52px;
+      font-weight:900; font-size:18px; letter-spacing:.02em; cursor:pointer;
+      background:var(--btn); color:var(--btn-ink);
     }
-    .btn.red{ background:#ef4444; }
-    .btn.ghost{ background:var(--btn-ghost); color:#0f2a5c; border:1px solid var(--btn-ghost-br); }
+    .btn.red{ background:var(--danger); }
+    .btn.ghost{ background:var(--btn-ghost); color:#0f2a5c; border:2px solid var(--btn-ghost-br); }
 
-    .tot{ display:flex; justify-content:space-between; align-items:center;
-      background: var(--pill); border:1px solid var(--panel-br);
-      border-radius: 12px; padding: 10px 12px; margin-top: 10px }
-    .pill{ background: var(--pill); border:1px solid var(--panel-br);
-      border-radius: 12px; padding: 10px 12px }
+    .tot{
+      display:flex; justify-content:space-between; align-items:center;
+      background:#f7fafc; border:1px solid var(--panel-br);
+      border-radius:12px; padding:12px 14px; margin-top:10px;
+      font-size:20px; font-weight:900;
+    }
+    .pill{ background:#f7fafc; border:1px solid var(--panel-br);
+      border-radius:12px; padding:12px 14px; font-weight:900; font-size:20px }
 
-    /* footer i fiksuar */
-    body{ padding-bottom: 110px }
-    .footer{ position: fixed; min-height: 72px; left:0; right:0; bottom:0; z-index: 10;
-      background: rgba(255,255,255,.92); border-top:1px solid var(--panel-br); backdrop-filter: blur(6px); }
-    .footwrap{ max-width: 980px; margin: 0 auto; padding: 8px 16px;
-      display:grid; grid-template-columns: 1fr auto auto; gap:10px; align-items:center }
+    /* Footer – large touch area */
+    body{ padding-bottom: 140px }
+    .footer{
+      position:fixed; left:0; right:0; bottom:0; z-index:10;
+      background:rgba(255,255,255,.96); border-top:1px solid var(--panel-br); backdrop-filter:blur(6px);
+    }
+    .footwrap{
+      max-width:980px; margin:0 auto; padding:12px 16px;
+      display:grid; grid-template-columns:1fr auto auto; gap:12px; align-items:center;
+    }
 
-    /* kamera/thumbnail */
-    .cam-btn{ display:inline-flex; align-items:center; justify-content:center;
-      width:44px; height:44px; border:1px solid var(--btn-ghost-br); border-radius:10px;
-      background:var(--btn-ghost); cursor:pointer; font-size:18px; user-select:none }
-    .thumb{ width:44px; height:44px; border-radius:10px; object-fit:cover; display:none;
-      border:1px solid var(--btn-ghost-br) }
+    /* Camera button & thumbnails */
+    .cam-btn{
+      display:inline-flex; align-items:center; justify-content:center;
+      width:52px; height:52px; min-width:52px;
+      border:2px solid var(--btn-ghost-br); border-radius:12px;
+      background:var(--btn-ghost); cursor:pointer; font-size:22px; user-select:none;
+    }
+    .thumb{
+      width:52px; height:52px; border-radius:12px; object-fit:cover; display:none;
+      border:2px solid var(--btn-ghost-br); cursor:pointer;
+    }
   </style>
 </head>
 <body>
-  <h1>
-    PRANIMI
-    <span class="badge" id="ticketCode">KODI: ——</span>
-  </h1>
+  <h1>PRANIMI <span class="badge" id="ticketCode">KODI: ——</span></h1>
 
   <input type="hidden" id="orderId" value="">
   <div class="wrap">
@@ -119,16 +150,16 @@
       <div class="row">
         <div>
           <label>EMRI &amp; MBIEMRI*</label>
-          <div style="display:flex;align-items:center;gap:8px;">
+          <div style="display:flex;align-items:center;gap:12px;">
             <input class="input" id="name" placeholder="p.sh. Arben R.">
-            <label title="Foto klientit" class="cam-btn">📷
+            <label class="cam-btn" title="Foto klientit">📷
               <input type="file" accept="image/*" capture="environment" id="clientPhotoInput" style="display:none">
             </label>
           </div>
         </div>
         <div>
           <label>TELEFONI*</label>
-          <div class="row" style="grid-template-columns:110px 1fr">
+          <div class="row" style="grid-template-columns:140px 1fr">
             <input class="input" id="phonePrefix" value="+383" readonly>
             <input class="input" id="phone" inputmode="numeric" placeholder="44177778">
           </div>
@@ -186,8 +217,8 @@
         <div><label>€ / m²</label><input class="input" id="rate" inputmode="decimal" value="2.50"></div>
         <div>
           <label>PAGUAR NË FILLIM (CASH)</label><br>
-          <label style="display:flex;align-items:center;gap:10px">
-            <input type="checkbox" id="paidUpfront"><span>Aktivo për të futur shumën e dhënë</span>
+          <label style="display:flex;align-items:center;gap:12px; font-size:18px; font-weight:900">
+            <input type="checkbox" id="paidUpfront" style="width:26px;height:26px"> <span>Aktivo futjen e shumës</span>
           </label>
         </div>
       </div>
@@ -255,8 +286,8 @@
     ['#phone','#name'].forEach(function(sel){ var el=q(sel); if(el) el.addEventListener('blur', bindClientIdentity); });
     window.__getClientCode = function(){ var m=loadMap(metaKey); return m.code||''; };
 
-    /* ===== photo utils (compress + safe click) ===== */
-    function fileToCompressedDataURL(file, maxW=1024, maxH=1024, quality=0.72){
+    /* ===== photo utils (compress + safe click + preview) ===== */
+    function fileToCompressedDataURL(file, maxW=1280, maxH=1280, quality=0.75){
       return new Promise((resolve, reject)=>{
         try{
           const img = new Image();
@@ -277,7 +308,7 @@
       });
     }
     function savePhotoFromFile(key, file, ok, err){
-      fileToCompressedDataURL(file, 1024, 1024, 0.72)
+      fileToCompressedDataURL(file)
         .then(data=>{
           try{ localStorage.setItem(key, data); ok&&ok(data); }
           catch(e){ alert('S’u ruajt fotoja (hapësira lokale u mbush)'); err&&err(e); }
@@ -286,9 +317,9 @@
     }
     function getPhoto(key){ try{ return localStorage.getItem(key); }catch(e){ return null; } }
     function openPreview(dataURL){
-      var ov = document.createElement('div');
+      var ov=document.createElement('div');
       ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;z-index:99999';
-      var img = document.createElement('img'); img.src=dataURL; img.style.cssText='max-width:96%;max-height:92%;border-radius:10px;box-shadow:0 10px 40px rgba(0,0,0,.6)';
+      var img=document.createElement('img'); img.src=dataURL; img.style.cssText='max-width:96%;max-height:92%;border-radius:10px;box-shadow:0 10px 40px rgba(0,0,0,.6)';
       ov.appendChild(img); ov.addEventListener('click', ()=>ov.remove()); document.body.appendChild(ov);
     }
     document.addEventListener('click', function(e){
@@ -296,7 +327,7 @@
       const inp = btn.querySelector('input[type=file]'); if(inp){ try{ inp.click(); }catch(_){} }
     }, {capture:true});
 
-    /* ===== CHIPS (event delegation) ===== */
+    /* ===== CHIPS (delegim) ===== */
     (function(){
       function handleChip(section, evt){
         var chip = evt.target.closest && evt.target.closest('.chip'); if(!chip) return;
@@ -317,7 +348,7 @@
       var idCell=document.createElement('div'); idCell.className='piece-id';
       idCell.textContent = (window.__getClientCode?window.__getClientCode():'X') || 'X';
 
-      var mWrap=document.createElement('div'); mWrap.style.display='flex'; mWrap.style.gap='8px'; mWrap.style.alignItems='center';
+      var mWrap=document.createElement('div'); mWrap.className='mwrap';
       var m2=document.createElement('input'); m2.className='input piece-input'; m2.placeholder='m²'; m2.setAttribute('inputmode','decimal'); if(value!=null) m2.value=value;
 
       var cam=document.createElement('label'); cam.className='cam-btn'; cam.textContent='📷';
@@ -393,9 +424,9 @@
     /* ===== client photo (per order) ===== */
     (function(){
       var inp=q('#clientPhotoInput'), thumb=q('#clientThumb'), key='photo_client_'+OID, saved=getPhoto(key);
-      if(saved && thumb){ thumb.src=saved; thumb.style.display='inline-block'; thumb.style.cursor='pointer'; thumb.addEventListener('click',()=>openPreview(saved)); }
+      if(saved && thumb){ thumb.src=saved; thumb.style.display='inline-block'; thumb.addEventListener('click',()=>openPreview(saved)); }
       if(inp){ inp.addEventListener('change', function(e){ var f=e.target.files&&e.target.files[0]; if(!f) return;
-        savePhotoFromFile(key, f, function(data){ if(thumb){ thumb.src=data; thumb.style.display='inline-block'; thumb.style.cursor='pointer'; }});
+        savePhotoFromFile(key, f, function(data){ if(thumb){ thumb.src=data; thumb.style.display='inline-block'; }});
       });}
     })();
 
