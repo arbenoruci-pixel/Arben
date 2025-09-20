@@ -1,187 +1,298 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="sq">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>PASTRIMI</title>
-  <style>
-    :root{ --bg:#000; --ink:#fff; --panel:#0c0f16; --br:#273143; --btn:#1e60ff; --muted:#b9c4da; --danger:#ef4444; --ok:#22c55e }
-    *{box-sizing:border-box}
-    html,body{margin:0;background:var(--bg);color:var(--ink);font-family:ui-rounded,system-ui,-apple-system,Segoe UI,Roboto,Arial}
-    .wrap{max-width:980px;margin:0 auto;padding:16px}
-    h1{font-size:clamp(34px,5.4vw,50px);margin:14px 6px 10px;font-weight:1000}
-    .bar{display:flex;gap:8px;flex-wrap:wrap;margin:8px 6px 16px}
-    .input{flex:1;min-width:200px;background:#070a12;border:2px solid #2c3954;border-radius:12px;padding:12px 14px;color:#fff;font-weight:900}
-    .btn{background:var(--btn);color:#fff;border:0;border-radius:12px;padding:12px 16px;font-weight:1000;cursor:pointer}
-    .btn.ghost{background:#0c1220;border:2px solid var(--br)}
-    .btn.ok{background:var(--ok)}
-    .btn.red{background:var(--danger)}
-    .list{display:flex;flex-direction:column;gap:10px}
-    .card{background:var(--panel);border:1px solid var(--br);border-radius:14px;padding:14px}
-    .top{display:flex;justify-content:space-between;align-items:center;font-weight:1000}
-    .small{opacity:.85;font-size:.95rem}
-    .row{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center}
-    .row2{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-    .status{padding:4px 8px;border-radius:8px;border:1px solid var(--br);font-weight:1000}
-    a.btnlink{display:inline-flex;align-items:center;gap:6px;background:#0c1220;border:1px solid var(--br);padding:10px 12px;border-radius:10px;color:#fff;text-decoration:none;font-weight:900}
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PASTRIMI • Lista</title>
+<style>
+:root{
+  --bg:#0b1220; --bg2:#0a111c; --panel:#0f1a2a; --line:#1f2e46;
+  --ink:#eaf1ff; --muted:#9fb4d6;
+  --blue1:#1aa5d8; --blue2:#146b95;
+  --green1:#19a25f; --green2:#0e6d3d;
+  --amber1:#c78a2a; --amber2:#8a5f19;
+  --red1:#ff5a5a; --red2:#8b2a2a;
+}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(180deg,var(--bg2),var(--bg));color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;letter-spacing:.2px}
+a{color:inherit;text-decoration:none}
+.app{max-width:980px;margin:0 auto;padding:14px}
+
+/* header */
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.brand{display:flex;align-items:center;gap:10px}
+.logo{width:40px;height:40px;border-radius:10px;background:linear-gradient(180deg,#254369,#15263c);border:1px solid #203651;display:flex;align-items:center;justify-content:center}
+h1{margin:0;font-size:18px;letter-spacing:.6px}
+.badge{background:linear-gradient(180deg,var(--blue1),var(--blue2));border:1px solid #1f6f97;color:#eaffff;padding:6px 10px;border-radius:999px;font-weight:1000}
+
+.panel{background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid var(--line);border-radius:14px;padding:10px}
+
+/* table-like list */
+.list{display:flex;flex-direction:column}
+.row{display:grid;grid-template-columns:88px 1fr 80px 90px 220px;gap:8px;align-items:center;padding:10px;border-bottom:1px solid #12233a}
+.head{font-size:12px;color:var(--muted);text-transform:uppercase;font-weight:900;letter-spacing:.6px}
+.cell{font-weight:900}
+.xcode{font-variant-numeric:tabular-nums}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 12px;border-radius:10px;border:1px solid #2aa7d8;font-weight:1000;cursor:pointer}
+.btn.msg{background:linear-gradient(180deg,var(--blue1),var(--blue2))}
+.btn.done{background:linear-gradient(180deg,var(--green1),var(--green2));border-color:#1b7a4f}
+
+/* aging color bars (left border) */
+.item{position:relative;border-left:4px solid transparent}
+.item.blue{border-left-color:#2398d2;background:rgba(35,152,210,.06)}
+.item.amber{border-left-color:#c78a2a;background:rgba(199,138,42,.06)}
+.item.red{border-left-color:#ff5a5a;background:rgba(255,90,90,.06)}
+
+/* footer */
+.footer{position:fixed;left:0;right:0;bottom:0;background:rgba(10,17,28,.96);border-top:1px solid var(--line);backdrop-filter:blur(6px);z-index:10}
+.footwrap{max-width:980px;margin:0 auto;padding:12px 14px;display:flex;gap:10px;justify-content:space-between;align-items:center}
+a.navbtn{display:inline-flex;align-items:center;justify-content:center;padding:12px 14px;border-radius:12px;border:1px solid #2aa7d8;background:linear-gradient(180deg,var(--blue1),var(--blue2));font-weight:1000}
+
+/* bottom sheet */
+.sheet-ov{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:flex-end;justify-content:center;z-index:9999}
+.sheet{width:100%;max-width:720px;background:#0c0f16;border:1px solid #273143;border-radius:14px 14px 0 0;padding:12px}
+.sheet h3{margin:6px 6px 10px;font-size:16px;letter-spacing:.4px}
+.sheet .opt{display:block;width:100%;text-align:center;text-decoration:none;margin:8px 0;padding:14px;border-radius:12px;font-weight:1000}
+.opt.viber{background:linear-gradient(180deg,#7e57c2,#5e3aa6);border:1px solid #5e3aa6;color:#fff}
+.opt.viber2{background:linear-gradient(180deg,#6d5fb0,#4b468d);border:1px solid #4b468d;color:#fff}
+.opt.wa{background:linear-gradient(180deg,#25d366,#128c7e);border:1px solid #128c7e;color:#fff}
+.opt.sms{background:linear-gradient(180deg,#c78a2a,#8a5f19);border:1px solid #8a5f19;color:#fff}
+.opt.cancel{background:#0c1220;border:1px solid #2b3956;color:#e6f0ff}
+.helper{white-space:pre-wrap;color:#9fb4d6;font-size:12px;margin:8px 6px 0}
+</style>
 </head>
 <body>
-  <div class="wrap">
-    <h1>PASTRIMI</h1>
-    <div class="bar">
-      <input class="input" id="q" placeholder="Kërko: emër, kod X#, tel…">
-      <button class="btn" id="refresh">REFRESKO</button>
-      <a class="btnlink" href="../">🏠 KTHEU NË FILLIM</a>
-      <a class="btnlink" href="../pranimi/">➕ SHTO TË RE</a>
+<div class="app">
+  <div class="header">
+    <div class="brand">
+      <div class="logo">🧼</div>
+      <div><h1>PASTRIMI</h1><div class="muted">Lista e punëve</div></div>
     </div>
-    <div class="list" id="orders">Duke u ngarkuar…</div>
+    <div class="badge" id="countBadge">0 aktive</div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-  <script>
-    const CFG = {
-      supabase: {
-        url: "https://vnidjrxidvusulinozbn.supabase.co",
-        anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZuaWRqcnhpZHZ1c3VsaW5vemJuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc1MTk0NjAsImV4cCI6MjA3MzA5NTQ2MH0.hzGSFKU3sKuUKBUBsTE0rKIerj2uhG9pGS8_K9N7tpA",
-        bucket: "tepiha-photos"
-      }
-    };
-    const sb = supabase.createClient(CFG.supabase.url, CFG.supabase.anonKey);
+  <div class="panel">
+    <div class="row head">
+      <div>X nr</div><div>Emri</div><div>Copë</div><div>m²</div><div>Veprime</div>
+    </div>
+    <div class="list" id="list">—</div>
+  </div>
+</div>
 
-    async function listFiles(){
-      const { data: files, error } = await sb.storage
-        .from(CFG.supabase.bucket)
-        .list('orders', { limit: 1000, sortBy: { column: 'name', order: 'desc' } });
-      if(error){ throw error; }
-      return (files||[]).filter(f=>f.name.endsWith('.json'));
+<!-- footer nav -->
+<div class="footer">
+  <div class="footwrap">
+    <a class="navbtn" href="../">🏠 KTHEU NË FILLIM</a>
+    <a class="navbtn" href="./">🔄 Rifresko</a>
+  </div>
+</div>
+
+<!-- Bottom sheet (reused for each row) -->
+<div class="sheet-ov" id="sheetOv" role="dialog" aria-modal="true">
+  <div class="sheet" id="sheetBox">
+    <h3>Zgjidh platformën për mesazhin:</h3>
+    <a class="opt viber" id="optViberFwd" href="#" target="_blank" rel="noopener">VIBER (rekomanduar)</a>
+    <a class="opt viber2" id="optViberChat" href="#" target="_blank" rel="noopener" style="display:none">VIBER te kontakti</a>
+    <a class="opt wa" id="optWA" href="#" target="_blank" rel="noopener">WhatsApp</a>
+    <a class="opt sms" id="optSMS" href="#" target="_blank" rel="noopener">SMS</a>
+    <div class="helper">Pas hapjes së mesazhit, porosia shënohet “GATI”.</div>
+    <a class="opt cancel" id="optCancel" href="#">Anulo</a>
+  </div>
+</div>
+
+<!-- Supabase (same config used in PRANIMI) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+const CFG = {
+  supabase: {
+    url: "https://vnidjrxidvusulinozbn.supabase.co",
+    anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZuaWRqcnhpZHZ1c3VsaW5vemJuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc1MTk0NjAsImV4cCI6MjA3MzA5NTQ2MH0.hzGSFKU3sKuUKBUBsTE0rKIerj2uhG9pGS8_K9N7tpA",
+    bucket: "tepiha-photos"
+  },
+  syncOrders: true
+};
+window.sb = (typeof supabase!=='undefined' && CFG.supabase.url && CFG.supabase.anonKey)
+  ? supabase.createClient(CFG.supabase.url, CFG.supabase.anonKey)
+  : null;
+</script>
+
+<script>
+(function(){
+  const LIST_KEY='order_list_v1'; const KEY=id=>'order_'+id;
+
+  const getIndex=()=>{try{return JSON.parse(localStorage.getItem(LIST_KEY)||'[]')}catch(e){return []}};
+  const getOrder=id=>{try{return JSON.parse(localStorage.getItem(KEY(id))||'null')}catch(e){return null}};
+  const r2=x=>Math.round((x+Number.EPSILON)*100)/100;
+
+  function piecesCount(o){
+    if(!o) return 0;
+    const t=(o.tepiha||[]).length, s=(o.staza||[]).length, stairs=(o.shkallore&&o.shkallore.qty>0)?1:0;
+    return t+s+stairs;
+  }
+  function m2Compute(o){
+    if(o && o.pay && typeof o.pay.m2==='number' && o.pay.m2>0) return r2(o.pay.m2);
+    const sum = (arr)=> (arr||[]).reduce((a,x)=> a + (Number(x.m2)||0)*(Number(x.qty||1)||1), 0);
+    const t=sum(o?.tepiha), s=sum(o?.staza), st=r2((Number(o?.shkallore?.qty)||0)*(Number(o?.shkallore?.per)||0));
+    return r2(t+s+st);
+  }
+  function euroCompute(o){
+    if(o?.pay?.euro>0) return r2(o.pay.euro);
+    const rate = Number(o?.pay?.rate)||2.5;
+    return r2(m2Compute(o)*rate);
+  }
+
+  // aging color: 0 days=blue, 1 day=amber, 2+ days=red
+  function agingClass(ts){
+    try{
+      const now=new Date();
+      const d0=new Date(ts||Date.now());
+      const daysDiff = Math.floor(
+        (new Date(now.getFullYear(),now.getMonth(),now.getDate()) -
+         new Date(d0.getFullYear(),d0.getMonth(),d0.getDate()))/86400000
+      );
+      if(daysDiff<=0) return 'blue';
+      if(daysDiff===1) return 'amber';
+      return 'red';
+    }catch(e){return 'blue'}
+  }
+
+  function padX(code){
+    if(!code) return '';
+    const m = /^X(\d+)$/.exec(String(code).toUpperCase());
+    if(!m) return code;
+    const n = parseInt(m[1],10);
+    return (n<10? 'X0'+n : 'X'+n);
+  }
+
+  function todayCutoffText(){ return 'sot deri në ora 21:00'; }
+
+  async function markGati(o){
+    const updated = Object.assign({}, o, { status:'gati', ts:Date.now() });
+    localStorage.setItem(KEY(o.id), JSON.stringify(updated));
+    if(CFG.syncOrders && window.sb){
+      const path = `orders/${o.id}.json`;
+      const blob = new Blob([JSON.stringify(updated)], {type:'application/json'});
+      await sb.storage.from(CFG.supabase.bucket)
+        .upload(path, blob, { upsert:true, contentType:'application/json' });
+    }
+  }
+
+  // ----- Bottom sheet helpers
+  const sheetOv = document.getElementById('sheetOv');
+  const optViberFwd = document.getElementById('optViberFwd');
+  const optViberChat = document.getElementById('optViberChat');
+  const optWA = document.getElementById('optWA');
+  const optSMS = document.getElementById('optSMS');
+  const optCancel = document.getElementById('optCancel');
+
+  function openSheet(links, after){
+    // links: { viberFwd, viberChat?, wa, sms }
+    optViberFwd.href = links.viberFwd;
+    if(links.viberChat){ optViberChat.href = links.viberChat; optViberChat.style.display='block'; }
+    else { optViberChat.style.display='none'; }
+    optWA.href = links.wa;
+    optSMS.href = links.sms;
+
+    function wire(el){ 
+      el.onclick = (e)=>{ e.preventDefault(); window.open(el.href,'_blank'); closeSheet(); after&&after(); };
+    }
+    [optViberFwd,optViberChat,optWA,optSMS].forEach(el=> el.style.display!=='none' && wire(el));
+    optCancel.onclick = (e)=>{ e.preventDefault(); closeSheet(); };
+
+    sheetOv.style.display='flex';
+    sheetOv.onclick = (e)=>{ if(e.target===sheetOv) closeSheet(); };
+  }
+  function closeSheet(){ sheetOv.style.display='none'; }
+
+  function buildRow(o){
+    const xcode = padX(o?.client?.code||'');
+    const name = (o?.client?.name||'(pa emër)');
+    const pcs = piecesCount(o);
+    const m2 = m2Compute(o);
+    const euro = euroCompute(o);
+    const cls = agingClass(o?.ts);
+    const id = o?.id;
+
+    const row = document.createElement('div');
+    row.className = `row item ${cls}`;
+    row.innerHTML = `
+      <div class="cell xcode">${xcode || '—'}</div>
+      <div class="cell name"><a href="./?id=${encodeURIComponent(id)}">${name}</a></div>
+      <div class="cell p">${pcs}</div>
+      <div class="cell m2">${m2.toFixed(2)}</div>
+      <div class="actions">
+        <button class="btn msg">📩 Dërgo mesazh</button>
+        <button class="btn done">✅ GATI SOT</button>
+      </div>
+    `;
+
+    function messageBody(){
+      return (
+        `Përshëndetje ${name}, porosia juaj (${xcode}) është GATI për marrje.\n`+
+        `Keni ${pcs} copë = ${m2.toFixed(2)} m².\n`+
+        `Totali: ${euro.toFixed(2)} €.\n`+
+        `Ju lutem ejani ta merrni ${todayCutoffText()}. `+
+        `Nuk kemi hapësirë për ruajtje afatgjatë.\n`+
+        `Nëse nuk ka njeri në dyqan, telefononi: +383 44 73 53 12\n`+
+        `Faleminderit!`
+      );
     }
 
-    async function publicUrl(path){
-      const { data } = sb.storage.from(CFG.supabase.bucket).getPublicUrl(path);
-      return data?.publicUrl || null;
+    function buildLinks(){
+      const body = encodeURIComponent(messageBody());
+      const phoneDigits = String(o?.client?.phone||'').replace(/[^\d]/g,'');
+      const viberFwd = `viber://forward?text=${body}`;
+      const wa = phoneDigits ? `https://wa.me/${phoneDigits}?text=${body}` : `https://wa.me/?text=${body}`;
+      const sms = phoneDigits ? `sms:${phoneDigits}?body=${body}` : `sms:?body=${body}`;
+      const links = { viberFwd, wa, sms };
+      // Optional: Viber direct chat if we have number (no text prefill supported by Viber deep link)
+      if(phoneDigits){ links.viberChat = `viber://chat?number=%2B${phoneDigits}`; }
+      return links;
     }
 
-    async function fetchOrderWithPath(name){
-      const path = `orders/${name}`;
-      const url = await publicUrl(path);
-      if(!url) return null;
-      const res = await fetch(url, { cache:'no-store' });
-      if(!res.ok) return null;
-      const json = await res.json();
-      // bashkangjit path-in që ta dimë çfarë të upsertojmë kur ndryshojmë statusin
-      json.__path = path;
-      return json;
-    }
+    function finishRow(){ row.remove(); updateCount(); }
 
-    function sanitizeDigits(s){ return (s||'').replace(/[^\d]/g,''); }
-
-    function msgGati(o){
-      const name = o?.client?.name || 'Klient';
-      const code = o?.client?.code || '';
-      const euro = Number(o?.pay?.euro||0).toFixed(2);
-      return `Pershendetje ${name}. Porosia #${code} eshte GATI per marrje. Totali: ${euro} €. Faleminderit!`;
-    }
-
-    function contactLinks(o, text){
-      const phone = sanitizeDigits(o?.client?.phone||'');
-      const enc = encodeURIComponent(text);
-      const viber = `viber://forward?text=${enc}`;
-      const wa = phone ? `https://wa.me/${phone}?text=${enc}` : `https://wa.me/?text=${enc}`;
-      const sms = phone ? `sms:${phone}?body=${enc}` : `sms:?body=${enc}`;
-      return { viber, wa, sms };
-    }
-
-    async function upsertOrder(o){
-      // heqen fushat e brendshme
-      const copy = JSON.parse(JSON.stringify(o));
-      delete copy.__path;
-      const blob = new Blob([JSON.stringify(copy)], { type: 'application/json' });
-      const { error } = await sb.storage
-        .from(CFG.supabase.bucket)
-        .upload(o.__path, blob, { upsert:true, contentType:'application/json' });
-      if(error) throw error;
-    }
-
-    function render(orders){
-      const root = document.getElementById('orders');
-      root.innerHTML = '';
-      if(!orders.length){ root.textContent = 'S’ka porosi të sinkronizuara.'; return; }
-
-      const term = (document.getElementById('q')?.value||'').toLowerCase().trim();
-      const filtered = orders.filter(o=>{
-        if(!term) return true;
-        const name = (o?.client?.name||'').toLowerCase();
-        const code = (o?.client?.code||'').toLowerCase();
-        const phone= (o?.client?.phone||'').toLowerCase();
-        return name.includes(term)||code.includes(term)||phone.includes(term);
+    // 📩 Dërgo mesazh → show sheet (Viber first). After click: mark gati & remove
+    row.querySelector('.msg')?.addEventListener('click', ()=>{
+      openSheet(buildLinks(), async ()=>{
+        try{ await markGati(o); finishRow(); }catch(e){ alert('Mesazhi u hap, por ruajtja si GATI dështoi. Provo përsëri.'); }
       });
+    });
 
-      filtered.sort((a,b)=> (b?.ts||0) - (a?.ts||0));
+    // ✅ GATI SOT → only mark gati
+    row.querySelector('.done')?.addEventListener('click', async ()=>{
+      try{ await markGati(o); finishRow(); }catch(e){ alert('S’u ruajt si GATI. Provo përsëri.'); }
+    });
 
-      if(!filtered.length){ root.textContent = 'Asgjë nuk përputhet me kërkimin.'; return; }
+    return row;
+  }
 
-      for(const o of filtered){
-        const div = document.createElement('div');
-        div.className = 'card';
-        const m2 = (o?.pay?.m2 ?? 0);
-        const euro = (o?.pay?.euro ?? 0);
-        const st = (o?.status||'pranim').toUpperCase();
+  function updateCount(){
+    const list = document.getElementById('list');
+    const n = list.querySelectorAll('.item').length;
+    document.getElementById('countBadge').textContent = `${n} aktive`;
+    if(n===0){ list.textContent='— S’ka punë aktive në PASTRIMI.'; }
+  }
 
-        const msg = msgGati(o);
-        const links = contactLinks(o, msg);
-
-        div.innerHTML = `
-          <div class="row">
-            <div class="top">
-              <div><b>#${o?.client?.code || '-'}</b> — ${o?.client?.name || 'Pa emër'}</div>
-              <div class="status">${st}</div>
-            </div>
-            <div class="small">M²: ${m2} &nbsp;|&nbsp; €: ${Number(euro).toFixed(2)}</div>
-            <div class="small">${o?.client?.phone||''}</div>
-          </div>
-          <div class="row2">
-            <button class="btn ok act-gati">BËJE GATI</button>
-            <a class="btn ghost" target="_blank" rel="noopener" href="${links.viber}">DËRGO — Viber</a>
-            <a class="btn ghost" target="_blank" rel="noopener" href="${links.wa}">DËRGO — WhatsApp</a>
-            <a class="btn ghost" target="_blank" rel="noopener" href="${links.sms}">DËRGO — SMS</a>
-            <a class="btn ghost" href="${await publicUrl(o.__path)}" target="_blank" rel="noopener">SHKARKO JSON</a>
-          </div>
-        `;
-
-        // Wire "BËJE GATI"
-        div.querySelector('.act-gati').addEventListener('click', async ()=>{
-          try{
-            const old = div.querySelector('.status').textContent;
-            div.querySelector('.status').textContent = 'GATI';
-            o.status = 'gati';
-            await upsertOrder(o);
-          }catch(err){
-            alert('S’u përditësua: ' + (err?.message||err));
-          }
-        });
-
-        root.appendChild(div);
-      }
+  function load(){
+    const listEl = document.getElementById('list');
+    listEl.innerHTML = '';
+    const idx = getIndex();
+    let any=false;
+    for(const row of idx){
+      const o = getOrder(row.id);
+      if(!o) continue;
+      if(String(o.status||'').toLowerCase()!=='pastrim') continue;
+      listEl.appendChild(buildRow(o));
+      any=true;
     }
+    if(!any){ listEl.textContent='— S’ka punë aktive në PASTRIMI.'; }
+    updateCount();
+  }
 
-    async function load(){
-      try{
-        const files = await listFiles();
-        const orders = [];
-        for(const f of files){
-          const o = await fetchOrderWithPath(f.name);
-          if(o) orders.push(o);
-        }
-        render(orders);
-      }catch(err){
-        document.getElementById('orders').textContent = 'Gabim gjatë ngarkimit: ' + (err?.message||err);
-      }
-    }
-
-    document.getElementById('refresh').addEventListener('click', load);
-    document.getElementById('q').addEventListener('input', load);
-    document.addEventListener('DOMContentLoaded', load);
-  </script>
+  load();
+})();
+</script>
 </body>
 </html>
