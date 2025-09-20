@@ -20,6 +20,7 @@
     .chips{ display:flex; gap:10px; overflow-x:auto; -webkit-overflow-scrolling:touch; padding:6px 0 10px }
     .chip{ flex:0 0 auto; border:1px solid rgba(120,150,255,.35); background: linear-gradient(180deg, rgba(16,24,56,.88), rgba(10,16,40,.88)); color:#e9f2ff; border-radius:12px; padding:10px 14px; font-weight:900 }
     .list{ display:flex; flex-direction:column; gap:10px; margin-top:8px }
+    /* keep 3 columns; put camera inside the qty cell */
     .piece-row{ display:grid; grid-template-columns: 80px 1fr 120px; gap:8px; align-items:center }
     .piece-id{ background: linear-gradient(180deg, rgba(18,26,60,.9), rgba(10,18,38,.9)); border:1px solid var(--panel-border); border-radius:12px; padding:12px 14px; text-align:center; font-weight:900; letter-spacing:.08em }
     .btnbar{ display:flex; gap:10px; flex-wrap:wrap; margin-top:8px }
@@ -27,6 +28,13 @@
     .btn.red{ border-color: rgba(255,90,172,.45); background: linear-gradient(180deg, rgba(64,10,26,.9), rgba(48,8,20,.9)) }
     .tot{ display:flex; justify-content:space-between; align-items:center; background: rgba(18,22,46,.55); border:1px solid var(--panel-border); border-radius:12px; padding:10px 12px; margin-top:10px }
     .pill{ background: rgba(18,22,46,.55); border:1px solid var(--panel-border); border-radius:12px; padding:10px 12px }
+
+    /* camera inside qty cell */
+    .qtywrap{ display:flex; gap:6px; align-items:center }
+    .qtywrap .input{ flex:1 }
+    .cam-btn{ display:inline-flex; align-items:center; justify-content:center; width:44px; height:44px; border:1px solid var(--panel-border); border-radius:10px; background:linear-gradient(180deg, rgba(24,34,78,.9), rgba(16,26,56,.9)); font-size:18px; cursor:pointer }
+    .cam-btn input{ display:none }
+
     /* Footer fixed, safe for taps */
     body{ padding-bottom: 110px }
     .footer{ position: fixed; min-height: 72px; left:0; right:0; bottom:0; z-index: 10; backdrop-filter: blur(6px); background: linear-gradient(180deg, rgba(6,8,18,.1), rgba(6,8,18,.65)); padding-top: 6px; pointer-events: none }
@@ -50,9 +58,8 @@
           <label>EMRI &amp; MBIEMRI*</label>
           <div style="display:flex;align-items:center;gap:6px;">
             <input class="input" id="name" placeholder="p.sh. Arben R.">
-            <label title="Foto klientit" style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:8px;border:1px solid var(--panel-border);background:linear-gradient(180deg,rgba(24,34,78,.9),rgba(16,26,56,.9));cursor:pointer">
-              <span style="font-size:13px">📷</span>
-              <input type="file" accept="image/*" capture="environment" id="clientPhotoInput" style="display:none">
+            <label title="Foto klientit" id="clientCam" class="cam-btn">📷
+              <input type="file" accept="image/*" capture="environment" id="clientPhotoInput">
             </label>
           </div>
         </div>
@@ -95,6 +102,9 @@
         <div><label>Sasia (numri i hapave)</label><input class="input" id="stairsQty" inputmode="numeric" placeholder="p.sh. 20"></div>
         <div><label>M² për hap</label><input class="input" id="stairsPer" inputmode="decimal" value="0.3"></div>
       </div>
+      <div class="btnbar" id="stairsCamWrap"><label class="cam-btn">📷
+        <input type="file" accept="image/*" capture="environment" id="stairsPhotoInput">
+      </label></div>
       <div class="tot"><span>M² shkallore:</span><b id="stairsM2">0.00 m²</b></div>
     </section>
 
@@ -109,20 +119,11 @@
         </div>
       </div>
       <div class="row">
-        <div>
-          <label>KLIENTI DHA (€)</label>
-          <input class="input" id="clientPaid" inputmode="decimal" placeholder="p.sh. 50" disabled>
-        </div>
-        <div>
-          <label>BORXHI (€)</label>
-          <input class="input" id="debt" readonly>
-        </div>
+        <div><label>KLIENTI DHA (€)</label><input class="input" id="clientPaid" inputmode="decimal" placeholder="p.sh. 50" disabled></div>
+        <div><label>BORXHI (€)</label><input class="input" id="debt" readonly></div>
       </div>
       <div class="row">
-        <div>
-          <label>KTHE (€)</label>
-          <input class="input" id="change" readonly>
-        </div>
+        <div><label>KTHE (€)</label><input class="input" id="change" readonly></div>
         <div class="pill"><b>Total (€):</b> <span id="euroTotal">0.00</span></div>
       </div>
       <div class="row">
@@ -147,18 +148,69 @@
       function qq(s,b){ return Array.from((b||document).querySelectorAll(s)); }
       function r2(x){ return Math.round((x + Number.EPSILON) * 100)/100; }
 
+      // ======== PHOTO HELPERS ========
+      function savePhoto(key, file){
+        return new Promise((res, rej)=>{
+          const rd = new FileReader();
+          rd.onload = ()=>{ try{ localStorage.setItem(key, rd.result); res(true); }catch(e){ rej(e); } };
+          rd.onerror = rej;
+          rd.readAsDataURL(file);
+        });
+      }
+      function restorePhoto(key){ try{ return localStorage.getItem(key); }catch(e){ return null; } }
+
+      // Client photo
+      (function(){
+        const inp = q('#clientPhotoInput');
+        const thumb = q('#clientThumb');
+        const saved = restorePhoto('photo_client');
+        if(saved && thumb){ thumb.src = saved; thumb.style.display='inline-block'; }
+        if(inp){
+          inp.addEventListener('change', async ev=>{
+            const f = ev.target.files && ev.target.files[0]; if(!f) return;
+            try{
+              await savePhoto('photo_client', f);
+              if(thumb){ thumb.src = restorePhoto('photo_client'); thumb.style.display='inline-block'; }
+            }catch(e){}
+          });
+        }
+      })();
+
+      // ======== ROWS / TOTALS ========
       function listFor(section){ return q('#list-'+section); }
 
       window.addRow = function(section, value){
         const list = listFor(section); if(!list) return;
         const row = document.createElement('div'); row.className = 'piece-row';
+
         const id = document.createElement('div'); id.className = 'piece-id';
         const idx = qq('.piece-row', list).length + 1; id.textContent = '#' + String(idx).padStart(2,'0');
+
         const inp = document.createElement('input'); inp.className = 'input piece-input'; inp.placeholder='m²'; inp.inputMode='decimal';
         if (value != null) inp.value = value;
+
+        // qty + camera container
+        const qtywrap = document.createElement('div'); qtywrap.className = 'qtywrap';
         const qty = document.createElement('input'); qty.className = 'input piece-qty'; qty.placeholder='copë'; qty.inputMode='numeric'; qty.value='1';
-        inp.addEventListener('input', computeTotals); qty.addEventListener('input', computeTotals);
-        row.appendChild(id); row.appendChild(inp); row.appendChild(qty); list.appendChild(row);
+        const cam = document.createElement('label'); cam.className='cam-btn'; cam.textContent='📷';
+        const file = document.createElement('input'); file.type='file'; file.accept='image/*'; file.capture='environment';
+        cam.appendChild(file);
+        qtywrap.appendChild(qty); qtywrap.appendChild(cam);
+
+        inp.addEventListener('input', computeTotals);
+        qty.addEventListener('input', computeTotals);
+
+        // save per-row photo
+        file.addEventListener('change', async ev=>{
+          const f = ev.target.files && ev.target.files[0]; if(!f) return;
+          // derive index at save time (after any adds/removes)
+          const index = qq('.piece-row', list).indexOf(row); // 0-based
+          const key = 'photo_' + section + '_' + index;
+          try{ await savePhoto(key, f); cam.title = 'Foto u ruajt'; }catch(e){ cam.title = 'S’u ruajt'; }
+        });
+
+        row.appendChild(id); row.appendChild(inp); row.appendChild(qtywrap);
+        list.appendChild(row);
         computeTotals();
       };
 
@@ -214,7 +266,7 @@
         const changeEl=q('#change'); if(changeEl) changeEl.value = change.toFixed(2);
       };
 
-      // Wire inputs/chips
+      // Inputs/chips
       ['#stairsQty','#stairsPer','#rate','#paidUpfront','#clientPaid'].forEach(sel=>{
         const el = q(sel); if(!el) return;
         el.addEventListener(sel==='#paidUpfront' ? 'change' : 'input', computeTotals);
@@ -230,14 +282,26 @@
       }
       wireChips('chips-tepiha','tepiha'); wireChips('chips-staza','staza');
 
-      // Draft save (includes change & debt)
+      // Shkallore single photo
+      (function(){
+        const inp = q('#stairsPhotoInput');
+        if(inp){
+          inp.addEventListener('change', async ev=>{
+            const f = ev.target.files && ev.target.files[0]; if(!f) return;
+            try{ await savePhoto('photo_shkallore', f); q('#stairsCamWrap').title='Foto u ruajt'; }catch(e){ q('#stairsCamWrap').title='S’u ruajt'; }
+          });
+        }
+      })();
+
+      // Draft save
       const LIST_KEY='order_list_v1'; const KEY=id=>`order_${id}`;
       function getId(){ const hid=q('#orderId'); if(hid.value) return hid.value; const id='ord_'+Date.now(); hid.value=id; return id; }
       function readRows(listId){
         const list=q('#list-'+listId); if(!list) return [];
-        return qq('.piece-row', list).map(row=>({
+        return qq('.piece-row', list).map((row, i)=>({
           m2: parseFloat(row.querySelector('.piece-input')?.value||'0')||0,
-          qty: parseFloat(row.querySelector('.piece-qty')?.value||'1')||1
+          qty: parseFloat(row.querySelector('.piece-qty')?.value||'1')||1,
+          photoKey: `photo_${listId}_${i}`  // so next page can load if needed
         }));
       }
       function totals(){
@@ -263,10 +327,10 @@
         const phone=`${q('#phonePrefix')?.value||''}${(q('#phone')?.value||'').trim()}`;
         const data={
           id, ts:Date.now(),
-          client:{name, phone},
+          client:{name, phone, photoKey:'photo_client'},
           tepiha: readRows('tepiha'),
           staza: readRows('staza'),
-          shkallore:{ qty: parseFloat(q('#stairsQty')?.value||'0')||0, per: parseFloat(q('#stairsPer')?.value||'0.3')||0 },
+          shkallore:{ qty: parseFloat(q('#stairsQty')?.value||'0')||0, per: parseFloat(q('#stairsPer')?.value||'0.3')||0, photoKey:'photo_shkallore' },
           pay: totals(),
           status:'pranim',
         };
