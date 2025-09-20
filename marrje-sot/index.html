@@ -1,44 +1,74 @@
-<!doctype html><html><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=0.7, maximum-scale=0.7, user-scalable=no">
-<title>MARRJE SOT</title>
-<link rel="stylesheet" href="/assets/styles.css">
-<script type="module">
-import {ensureOrderFromURL, calcTotals, saveOrder, fmt2, openMessage, setStatusAndTheme} from '/assets/app.js';
-const o = ensureOrderFromURL();
-window.addEventListener('DOMContentLoaded', ()=>{ setStatusAndTheme(o, 'marrje'); update(); });
-function update(){ calcTotals(o); saveOrder(o);
-  document.getElementById('oid').textContent = o.id;
-  document.getElementById('client').textContent = (o.client.name||'') + ' • ' + (o.client.phone||'');
-  document.getElementById('m2').textContent = fmt2(o.totals.m2);
-  document.getElementById('eur').textContent = fmt2(o.totals.eur);
-}
-window.msg = () => { calcTotals(o); saveOrder(o); openMessage(o, 'start', 'sms'); };
-window.setS = s => { setStatusAndTheme(o, s); };
-</script>
-
-<!-- injected by scale_65 -->
-<style id="global_scale_65">
-  /* 35% më e vogël (scale 0.65) – pa prek dizajnin, vetëm shrink */
-  html, body { height: auto !important; }
-  body {
-    transform: scale(0.65);
-    transform-origin: top left;
-    width: calc(100% / 0.65);
-  }
-</style>
-
-</head><body><div class="app">
-  <div class="card">
-    <div class="badge" id="oid"></div>
-    <div class="small" id="client"></div>
-    <div class="grid2" style="margin:10px 0">
-      <div class="card">M²: <b id="m2">0.00</b></div>
-      <div class="card">€: <b id="eur">0.00</b></div>
-    </div>
-    <div class="grid2">
-      <a class="btn" href="javascript:setS('marrje')">Ruaj statusin: MARRJE</a>
-      <a class="btn" href="javascript:msg()">📩 Dërgo mesazh</a>
+<!DOCTYPE html>
+<html lang="sq">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MARRJE SOT</title>
+  <style>
+    body{margin:0;background:#0b1220;color:#fff;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial}
+    .wrap{max-width:960px;margin:0 auto;padding:16px}
+    h1{font-size:28px;margin:0 0 16px;font-weight:1000}
+    table{width:100%;border-collapse:collapse;margin-top:12px}
+    th,td{padding:12px 8px;border-bottom:1px solid #223}
+    th{text-align:left;color:#9fb4d6}
+    .btn{padding:8px 12px;border-radius:8px;text-decoration:none;color:#fff;font-weight:700}
+    .msg{background:#1e60ff}
+    .done{background:#19a25f}
+    .footbar{margin-top:20px;display:flex;gap:12px}
+    .footbar a{flex:1;text-align:center;padding:14px;border-radius:10px;text-decoration:none;font-weight:1000}
+    .home{background:#333;color:#fff}
+    .refresh{background:#1aa5d8}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>📦 MARRJE SOT</h1>
+    <table id="list">
+      <thead>
+        <tr><th>KODI</th><th>KLIENTI</th><th>m²</th><th>€</th><th>VEPRIME</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <div class="footbar">
+      <a href="../index.html" class="home">🏠 KTHEU</a>
+      <a href="" onclick="location.reload();return false;" class="refresh">🔄 RIFRESKO</a>
     </div>
   </div>
-  <a class="btn" href="../">⇐ Home</a>
-</div></body></html>
+
+<script>
+(function(){
+  const LIST_KEY="order_list_v1"; const KEY=id=>`order_${id}`;
+  const idx = JSON.parse(localStorage.getItem(LIST_KEY)||"[]");
+  const tbody=document.querySelector('#list tbody');
+  tbody.innerHTML="";
+
+  function row(o){
+    const euro=(o.pay&&o.pay.euro)||0;
+    const m2=(o.pay&&o.pay.m2)||0;
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td>${o.client?.code||''}</td>
+      <td>${o.client?.name||'(pa emër)'}</td>
+      <td>${m2}</td>
+      <td>${euro.toFixed(2)}</td>
+      <td>
+        <a href="viber://forward?text=Përshëndetje ${encodeURIComponent(o.client?.name||'')}%0APorositë tuaja janë gati.%0ATotali: ${euro} €." class="btn msg">MESAZH</a>
+        <a href="#" class="btn done">✅ DORËZUAR</a>
+      </td>`;
+    tr.querySelector('.done').addEventListener('click',()=>{
+      localStorage.removeItem(KEY(o.id));
+      tr.remove();
+    });
+    return tr;
+  }
+
+  for(const rowMeta of idx){
+    const o=JSON.parse(localStorage.getItem(KEY(rowMeta.id))||"null");
+    if(o && o.status==="gati"){ // show only ready for pickup
+      tbody.appendChild(row(o));
+    }
+  }
+})();
+</script>
+</body>
+</html>
