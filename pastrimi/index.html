@@ -6,8 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <style>
     :root{
-      --bg:#05070d; --ink:#fff; --muted:#a7b0c9;
-      --panel:#0d1320; --br:#2a3550; --ghost:#121a2b;
+      --bg:#0a0f18; --ink:#ffffff; --muted:#a7b0c9;
+      --panel:#0f1626; --br:#2a3550; --ghost:#121a2b;
       --primary:#1e60ff; --ok:#22c55e; --warn:#f59e0b; --danger:#ef4444;
     }
     *{box-sizing:border-box}
@@ -24,7 +24,7 @@
     .btn.danger{background:var(--danger)}
     .topbar .badge{cursor:pointer}
 
-    .orders{margin:0 12px 90px}
+    .orders{margin:0 12px 96px}
     .empty{color:var(--muted);border:1px dashed var(--br);border-radius:10px;padding:10px;text-align:center;font-weight:900}
 
     .order{background:var(--panel);border:1px solid var(--br);border-radius:10px;padding:8px;margin-bottom:8px;font-size:13px}
@@ -38,6 +38,7 @@
     .footer{position:fixed;left:0;right:0;bottom:0;background:#0b0f18;border-top:1px solid var(--br)}
     .footwrap{max-width:980px;margin:0 auto;padding:10px;display:flex;gap:8px}
     .footwrap .btn{flex:1;justify-content:center}
+    .small-note{color:var(--muted);font-size:11px;margin:0 12px 6px}
   </style>
 </head>
 <body>
@@ -49,6 +50,7 @@
     <a class="btn badge" id="debugBtn">Lista e porosive</a>
     <a class="btn ghost" id="refreshBtn">↻ Rifresko</a>
   </div>
+  <div class="small-note" id="dataSourceNote">Burimi: localStorage</div>
 
   <div class="orders" id="orders"></div>
 
@@ -59,14 +61,22 @@
     </div>
   </div>
 
+  <!-- Supabase client (CDN) -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <script>
   (function(){
+    // ===== 1) KONFIG SUPABASE (shkruaj këtu kredencialet e tua) =====
+    const SUPABASE_URL = "https://vnidjrxidvusulinozbn.supabase.co";
+    const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZuaWRqcnhpZHZ1c3VsaW5vemJuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc1MTk0NjAsImV4cCI6MjA3MzA5NTQ2MH0.hzGSFKU3sKuUKBUBsTE0rKIerj2uhG9pGS8_K9N7tpA";
+    // ===============================================================
+
     const LIST  = document.getElementById('orders');
+    const note  = document.getElementById('dataSourceNote');
 
     const q=(s,b)=> (b||document).querySelector(s);
     const r2=x=>Math.round((x+Number.EPSILON)*100)/100;
 
-    function readAll(){
+    function readAllLocal(){
       const out=[];
       for(let i=0;i<localStorage.length;i++){
         const k=localStorage.key(i);
@@ -78,6 +88,38 @@
       return out;
     }
 
+    async function readAllSupabase(){
+      if(!SUPABASE_URL || !SUPABASE_ANON || !window.supabase) return {rows:[], ok:false, err:'no-config'};
+      const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+      try{
+        const { data, error } = await client
+          .from('orders')
+          .select('id, ts, status, client_name, client_phone, client_code, pay_m2, pay_rate, pay_euro, tepiha, staza, shkallore')
+          .in('status', ['pranim','pastrim'])
+          .order('ts', { ascending: false })
+          .limit(200);
+
+        if(error) throw error;
+
+        // Mapo në formatin lokal
+        const mapped = (data||[]).map(r => ({
+          id: r.id,
+          ts: r.ts || Date.now(),
+          status: r.status || 'pranim',
+          client: { name: r.client_name||'', phone: r.client_phone||'', code: r.client_code||'' },
+          pay: { m2: Number(r.pay_m2||0), rate: Number(r.pay_rate||0), euro: Number(r.pay_euro||0) },
+          tepiha: r.tepiha || [],
+          staza:  r.staza  || [],
+          shkallore: r.shkallore || { qty:0, per:0 }
+        }));
+        return {rows:mapped, ok:true};
+      }catch(err){
+        console.warn('Supabase read failed:', err);
+        return {rows:[], ok:false, err:String(err)};
+      }
+    }
+
     function pieces(o){
       const t=(o?.tepiha||[]).length;
       const s=(o?.staza||[]).length;
@@ -85,14 +127,18 @@
       return t+s+stairs;
     }
     function m2(o){
+      if(o?.pay?.m2) return Number(o.pay.m2); // nëse vjen gati nga DB
       const t=(o?.tepiha||[]).reduce((s,r)=>s+(Number(r.m2||0)*Number(r.qty||1)),0);
       const s=(o?.staza||[] ).reduce((s,r)=>s+(Number(r.m2||0)*Number(r.qty||1)),0);
       const sh=Number(o?.shkallore?.qty||0)*Number(o?.shkallore?.per||0);
       return r2(t+s+sh);
     }
-    function eur(o){ return r2(m2(o) * Number(o?.pay?.rate||0)); }
+    function eur(o){
+      if(o?.pay?.euro) return Number(o.pay.euro);
+      return r2(m2(o) * Number(o?.pay?.rate||0));
+    }
     function digits(o){ return String(o?.client?.phone||'').replace(/[^\d]/g,''); }
-    function save(o){ try{ localStorage.setItem('order_'+o.id, JSON.stringify(o)); }catch(e){ alert('S’u ruajt: '+e); } }
+    function saveLocal(o){ try{ localStorage.setItem('order_'+o.id, JSON.stringify(o)); }catch(e){ alert('S’u ruajt: '+e); } }
 
     function msgText(o){
       const name = o?.client?.name || 'Klient';
@@ -132,15 +178,14 @@
       document.body.appendChild(ov);
     }
 
-    function render(){
-      const rows = readAll().filter(o=>['pranim','pastrim'].includes((o?.status||'').toLowerCase()));
+    function render(list){
       LIST.innerHTML='';
-      if(!rows.length){
+      if(!list.length){
         LIST.innerHTML = '<div class="empty">S’ka porosi për t’u shfaqur.</div>';
         return;
       }
       const frag=document.createDocumentFragment();
-      rows.forEach(o=>{
+      list.forEach(o=>{
         const card=document.createElement('div'); card.className='order';
         card.innerHTML = `
           <div class="head">
@@ -165,32 +210,56 @@
       LIST.appendChild(frag);
     }
 
+    function mergeById(primary, secondary){
+      // primary fiton (p.sh. supabase) – secondary (local) mbush boshllëqet
+      const map = new Map();
+      primary.forEach(o=>map.set(o.id, o));
+      secondary.forEach(o=>{
+        if(!map.has(o.id)) map.set(o.id, o);
+      });
+      return Array.from(map.values()).sort((a,b)=>(b.ts||0)-(a.ts||0));
+    }
+
+    async function load(){
+      // 1) local
+      const local = readAllLocal().filter(o=>['pranim','pastrim'].includes((o?.status||'').toLowerCase()));
+      let finalList = local;
+      note.textContent = 'Burimi: localStorage';
+
+      // 2) supabase (opsional)
+      const {rows:remote, ok} = await readAllSupabase();
+      if(ok && remote.length){
+        finalList = mergeById(remote, local);
+        note.textContent = 'Burimi: Supabase + localStorage';
+      }
+
+      render(finalList);
+    }
+
     function handleClick(e){
       const el = e.target.closest('[data-act]');
       if(!el) return;
       const id  = el.getAttribute('data-id');
       const act = el.getAttribute('data-act');
       const raw = localStorage.getItem('order_'+id);
-      if(!raw) return alert('Porosia nuk u gjet.');
+      // Veprimet poshtë prekin **localStorage** – për Supabase sink do e bëjmë në një hap tjetër.
+      if(!raw){ return alert('Porosia nuk u gjet në këtë pajisje (localStorage).'); }
       let o; try{ o=JSON.parse(raw); }catch(_){ return alert('Porosia e korruptuar.'); }
 
       if(act==='start'){
-        o.status='pastrim'; o.ts=Date.now(); save(o); render();
+        o.status='pastrim'; o.ts=Date.now(); saveLocal(o); load();
       } else if(act==='ready'){
-        o.status='gati'; o.ts=Date.now(); save(o);
-        // Shko te GATI (opsionale)
+        o.status='gati'; o.ts=Date.now(); saveLocal(o);
         window.location.href = '../gati/';
       } else if(act==='msg'){
         actionSheetForMessage(o);
       }
-      // 'call' është <a href="tel:..."> – s’ka nevojë për JS
     }
 
-    // UI
-    document.getElementById('refreshBtn').addEventListener('click', render);
+    document.getElementById('refreshBtn').addEventListener('click', load);
     document.addEventListener('click', handleClick);
 
-    // Debug: “Lista e porosive”
+    // Debug
     document.getElementById('debugBtn').addEventListener('click', ()=>{
       const orders=[];
       for(let i=0;i<localStorage.length;i++){
@@ -205,7 +274,7 @@
       );
     });
 
-    render();
+    load();
   })();
   </script>
 </body>
