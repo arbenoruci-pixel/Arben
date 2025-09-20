@@ -1,0 +1,55 @@
+<!doctype html><html><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=0.7, maximum-scale=0.7, user-scalable=no">
+<title>PASTRIMI</title>
+<link rel="stylesheet" href="./assets/styles.css.html">
+<script type="module">
+import {ensureOrderFromURL, calcTotals, saveOrder, fmt2, openMessage, setStatusAndTheme} from '/assets/app.js';
+const o = ensureOrderFromURL();
+window.addEventListener('DOMContentLoaded', ()=>{ setStatusAndTheme(o, 'pastrim'); update(); });
+function update(){ calcTotals(o); saveOrder(o);
+  document.getElementById('oid').textContent = o.id;
+  document.getElementById('client').textContent = (o.client.name||'') + ' • ' + (o.client.phone||'');
+  document.getElementById('m2').textContent = fmt2(o.totals.m2);
+  document.getElementById('eur').textContent = fmt2(o.totals.eur);
+}
+window.msg = () => { calcTotals(o); saveOrder(o); openMessage(o, 'start', 'sms'); };
+window.setS = s => { setStatusAndTheme(o, s); };
+</script>
+<script>
+// show skip info banner if present
+window.addEventListener('DOMContentLoaded',()=>{
+  const el=document.getElementById('skipInfo'); if(!el) return; try{ const o = (typeof ensureOrderFromURL==='function')?ensureOrderFromURL():null; if(o && o.meta && o.meta.skip){ el.style.display='block'; el.textContent = 'SKIP nga: ' + (o.meta.skip_by||'unknown'); } }catch(e){}
+});
+</script>
+
+<!-- injected by scale_65 -->
+<style id="global_scale_65">
+  /* 35% më e vogël (scale 0.65) – pa prek dizajnin, vetëm shrink */
+  html, body { height: auto !important; }
+  body {
+    /* transform: scale(0.65); */
+    transform-origin: top left;
+    /* width: calc(100% / 0.65); */
+  }
+
+/* Footer should not block taps */
+.footer { pointer-events: none; }
+.footer .footwrap, .footer .btn, .footer .pill { pointer-events: auto; }
+
+</style>
+
+</head><body><div class="app">
+  <div class="card">
+    <div class="badge" id="oid"></div>
+    <div class="small" id="client"></div>
+    <div class="grid2" style="margin:10px 0">
+      <div class="card">M²: <b id="m2">0.00</b></div>
+      <div class="card">€: <b id="eur">0.00</b></div>
+    </div>
+    <div class="grid2">
+      <a class="btn" href="javascript:setS('pastrim')">Ruaj statusin: PASTRIM</a>
+      <a class="btn" href="javascript:msg()">📩 Dërgo mesazh</a>
+    </div>
+  </div>
+  <a class="btn" href="./index.html">⇐ Home</a>
+</div></body></html>

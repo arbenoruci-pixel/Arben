@@ -1,0 +1,92 @@
+<!doctype html><html lang="sq"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=0.7, maximum-scale=0.7, user-scalable=no">
+<title>KOMPANIA JONI • HOME</title>
+<style>
+:root{
+  --bg:#0b1220; --bg2:#0a111c;
+  --panel:#0f1a2a; --panel2:#101a27;
+  --line:#1f2e46; --text:#eaf1ff; --muted:#9fb4d6;
+  --pill:#12263e; --pillBlue1:#1aa5d8; --pillBlue2:#146b95;
+  --green:#0e7a3a; --green2:#0a5e2d;
+}
+*{box-sizing:border-box} body{margin:0;background:radial-gradient(1200px 600px at 10% -10%, rgba(26,165,216,.12), transparent 50%), linear-gradient(180deg,var(--bg),var(--bg2)); color:var(--text); font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial}
+.app{max-width:860px;margin:0 auto;padding:16px}
+.panel{background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02)); border:1px solid var(--line); border-radius:18px; padding:16px; box-shadow:0 0 0 1px rgba(255,255,255,.04) inset}
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.badge{background:linear-gradient(180deg,#1d8a52,#13643b); border:1px solid #3bbd7e; color:#e8ffef; padding:6px 12px; border-radius:999px; font-weight:900}
+h1{margin:4px 0 0; font-size:24px; letter-spacing:.6px; text-align:center}
+.sub{color:var(--muted); font-size:12px; text-align:center; margin:6px 0 12px}
+.pills{display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-top:8px}
+.pill{display:inline-flex; align-items:center; justify-content:center; height:52px; padding:0 22px; border-radius:999px; text-decoration:none; color:var(--text); font-weight:900; border:1px solid var(--line); background:linear-gradient(180deg,#1c2f46,#111a2b)}
+.pill.primary{background:linear-gradient(180deg, var(--pillBlue1), var(--pillBlue2)); border-color:#2aa7d8}
+.section{margin-top:14px}
+.sec-title{font-weight:900; letter-spacing:.5px; margin:0 2px 10px}
+.btnBig{display:flex; align-items:center; justify-content:center; height:56px; border-radius:16px; text-decoration:none; font-weight:900; color:var(--text); border:1px solid var(--line); background:linear-gradient(180deg, var(--pillBlue1), var(--pillBlue2))}
+.searchRow{display:grid; grid-template-columns:1fr 120px; gap:10px; margin-top:10px}
+.input{width:100%; padding:12px; border-radius:12px; border:1px solid var(--line); background:#0f1826; color:var(--text); font-weight:800}
+.btn{display:flex; align-items:center; justify-content:center; border-radius:12px; border:1px solid var(--line); background:linear-gradient(180deg,#1c2f46,#111a2b); color:var(--text); text-decoration:none; font-weight:900}
+.btn h{display:block; font-weight:900}
+.transportBtn{display:flex; align-items:center; justify-content:center; height:56px; border-radius:16px; text-decoration:none; font-weight:900; color:var(--text); border:1px solid var(--line); background:linear-gradient(180deg,#2a3446,#1a2436)}
+/* Footer tap fix */
+.footer { pointer-events: none; }
+.footer .footwrap, .footer .btn, .footer .pill { pointer-events: auto; }
+</style>
+
+<!-- injected by scale_65 -->
+<style id="global_scale_65">
+  /* 35% më e vogël (scale 0.65) – pa prek dizajnin, vetëm shrink */
+  html, body { height: auto !important; }
+  body {
+    /* */ */
+    transform-origin: top left;
+    /* */ */
+  }
+/* Footer tap fix */
+.footer { pointer-events: none; }
+.footer .footwrap, .footer .btn, .footer .pill { pointer-events: auto; }
+</style>
+
+</head><body>
+<div class="app">
+  <div class="panel">
+    <div class="header">
+      <div></div>
+      <div class="badge">€ ARKA</div>
+    </div>
+    <h1>KOMPANIA JONI</h1>
+    <div class="sub">PËR PASTRIMIN E TEPIHAVE</div>
+    <div class="pills">
+      <a class="pill primary" href="./pranimi/">PRANIMI</a>
+      <a class="pill" href="./pastrimi/">PASTRIMI</a>
+      <a class="pill" href="./gati/">GATI</a>
+      <a class="pill" href="./transporti/">TRANSPORTI</a>
+      <a class="pill" href="./marrje-sot/">MARRJE SOT</a>
+    </div>
+  </div>
+
+  <div class="panel section">
+    <div class="sec-title">KLIENTË — SHTO & KËRKO SHPEJT</div>
+    <a class="btnBig" href="./pranimi/">＋ SHTO KLIENT TË RI</a>
+    <div class="searchRow">
+      <input class="input" placeholder="KËRKO KLIENTIN (EMËR / TELEFON)">
+      <a class="btn" href="./pastrimi/">KËRKO</a>
+    </div>
+  </div>
+
+  
+  <div class="panel section">
+    <div class="sec-title">PRANIMI — I RI</div>
+    <a class="btnBig" href="./pranimi/">➕  KLIENT I RI (PRANIMI)</a>
+    <div class="muted" style="margin-top:6px">Hap pranimin për klient të ri dhe fut copat/m².</div>
+  </div>
+
+  <div class="panel section">
+    <div class="sec-title">TRANSPORT — KËRKO</div>
+    <a class="transportBtn" href="./transporti/">🚚  KLIENT TRANSPORTI</a>
+    <div class="searchRow">
+      <input class="input" placeholder="KËRKO KLIENT TRANSPORTI (EMËR / TEL)">
+      <a class="btn" href="./transporti/">KËRKO</a>
+    </div>
+    
+</div>
+</body></html>
