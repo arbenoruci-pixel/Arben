@@ -1,268 +1,250 @@
 <script>
-/* ==================== PRANIMI: Foto + Totale (Shqip) ==================== */
 (function(){
-  /* --- utilitare të thjeshta --- */
+  /* ==== utilitare ==== */
   function q(s,b){ return (b||document).querySelector(s); }
-  function qq(s,b){ return Array.from((b||document).querySelectorAll(s)); }
+  function qq(s,b){ return Array.prototype.slice.call((b||document).querySelectorAll(s)); }
   function r2(x){ return Math.round((x + Number.EPSILON) * 100)/100; }
   function uid(){ return 'r'+Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
 
-  /* --- ruajtje/lexim foto në localStorage --- */
-  function savePhotoFromFile(key, file){
-    return new Promise((res, rej)=>{
-      const rd = new FileReader();
-      rd.onload = ()=>{ try{ localStorage.setItem(key, rd.result); res(rd.result); }catch(e){ rej(e); } };
-      rd.onerror = rej;
+  /* ==== localStorage foto ==== */
+  function savePhotoFromFile(key, file, cbOk, cbErr){
+    try{
+      var rd = new FileReader();
+      rd.onload = function(){ 
+        try{ localStorage.setItem(key, rd.result); cbOk && cbOk(rd.result); }
+        catch(e){ cbErr && cbErr(e); }
+      };
+      rd.onerror = function(e){ cbErr && cbErr(e); };
       rd.readAsDataURL(file);
-    });
+    }catch(e){ cbErr && cbErr(e); }
   }
   function getPhoto(key){ try{ return localStorage.getItem(key); }catch(e){ return null; } }
 
-  /* --- overlay preview full-screen --- */
+  /* ==== preview overlay ==== */
   function openPreview(dataURL){
-    const ov = document.createElement('div');
-    Object.assign(ov.style,{
-      position:'fixed', inset:'0', background:'rgba(0,0,0,.85)',
-      display:'flex', alignItems:'center', justifyContent:'center', zIndex:99999
-    });
-    const img = document.createElement('img');
-    img.src = dataURL; img.alt = 'Foto';
-    Object.assign(img.style,{maxWidth:'96%', maxHeight:'92%', borderRadius:'10px', boxShadow:'0 10px 40px rgba(0,0,0,.6)'});
+    var ov = document.createElement('div');
+    ov.style.position='fixed'; ov.style.left=0; ov.style.top=0; ov.style.right=0; ov.style.bottom=0;
+    ov.style.background='rgba(0,0,0,.85)'; ov.style.display='flex';
+    ov.style.alignItems='center'; ov.style.justifyContent='center'; ov.style.zIndex=99999;
+    var img = document.createElement('img');
+    img.src = dataURL; img.alt='Foto';
+    img.style.maxWidth='96%'; img.style.maxHeight='92%'; img.style.borderRadius='10px';
+    img.style.boxShadow='0 10px 40px rgba(0,0,0,.6)';
     ov.appendChild(img);
-    ov.addEventListener('click', ()=> ov.remove());
+    ov.addEventListener('click', function(){ ov.parentNode && ov.parentNode.removeChild(ov); });
     document.body.appendChild(ov);
   }
 
-  /* =============== LOGJIKA E RRESHTAVE (TEPIHA / STAZA) =============== */
+  /* ==== rreshtat (tepiha/staza) ==== */
+  function styleCam(el){
+    el.style.display='inline-flex'; el.style.alignItems='center'; el.style.justifyContent='center';
+    el.style.width='44px'; el.style.height='44px';
+    el.style.border='1px solid rgba(124,168,255,.35)'; el.style.borderRadius='10px';
+    el.style.background='linear-gradient(180deg, rgba(24,34,78,.9), rgba(16,26,56,.9))';
+    el.style.cursor='pointer'; el.style.fontSize='18px'; el.style.userSelect='none';
+  }
   function listFor(section){ return q('#list-'+section); }
 
-  // Stil i vogël për butonin 📷 (nëse s’e ke në CSS)
-  function styleCam(el){
-    Object.assign(el.style,{
-      display:'inline-flex', alignItems:'center', justifyContent:'center',
-      width:'44px', height:'44px', border:'1px solid rgba(124,168,255,.35)',
-      borderRadius:'10px',
-      background:'linear-gradient(180deg, rgba(24,34,78,.9), rgba(16,26,56,.9))',
-      cursor:'pointer', fontSize:'18px', userSelect:'none'
-    });
-  }
-
-  // shto rresht
   window.addRow = function(section, value){
-    const list = listFor(section); if(!list) return;
-    const row = document.createElement('div');
-    row.className = 'piece-row';
-    const idCell = document.createElement('div');
-    idCell.className = 'piece-id';
+    var list = listFor(section); if(!list) return;
+    var row = document.createElement('div'); row.className='piece-row';
+
+    var idCell = document.createElement('div'); idCell.className='piece-id';
     idCell.textContent = '#' + String(qq('.piece-row', list).length + 1).padStart(2,'0');
 
-    // *** kolona m²: input + 📷 brenda së njëjtës qelizë ***
-    const mWrap = document.createElement('div');
-    Object.assign(mWrap.style,{display:'flex', gap:'6px', alignItems:'center'});
-    const m2 = document.createElement('input');
-    m2.className = 'input piece-input';
-    m2.placeholder = 'm²'; m2.inputMode = 'decimal'; if(value!=null) m2.value = value;
+    // kolona m²: input + 📷 + thumb
+    var mWrap = document.createElement('div'); mWrap.style.display='flex'; mWrap.style.gap='6px'; mWrap.style.alignItems='center';
+    var m2 = document.createElement('input'); m2.className='input piece-input'; m2.placeholder='m²'; m2.setAttribute('inputmode','decimal');
+    if(value!=null){ m2.value = value; }
 
-    const cam = document.createElement('label');
-    styleCam(cam);
-    cam.textContent = '📷';
-    const file = document.createElement('input');
-    file.type='file'; file.accept='image/*'; file.capture='environment'; file.style.display='none';
+    var cam = document.createElement('label'); styleCam(cam); cam.textContent='📷';
+    var file = document.createElement('input'); file.type='file'; file.accept='image/*'; file.capture='environment'; file.style.display='none';
     cam.appendChild(file);
 
-    // thumbnail i vogël (shfaqet pas ruajtjes)
-    const thumb = document.createElement('img');
-    Object.assign(thumb.style,{width:'44px', height:'44px', borderRadius:'10px', objectFit:'cover', display:'none', border:'1px solid rgba(124,168,255,.35)'});
-    // ID unike për key fotoje (s’prishen kur fshin/shton rreshta)
-    const rid = uid();
-    row.dataset.photoKey = `photo_${section}_${rid}`;
+    var thumb = document.createElement('img');
+    thumb.style.width='44px'; thumb.style.height='44px'; thumb.style.borderRadius='10px';
+    thumb.style.objectFit='cover'; thumb.style.display='none';
+    thumb.style.border='1px solid rgba(124,168,255,.35)';
 
-    mWrap.appendChild(m2);
-    mWrap.appendChild(cam);
-    mWrap.appendChild(thumb);
+    // key unik per rresht
+    var rid = uid();
+    row.setAttribute('data-photo-key', 'photo_'+section+'_'+rid);
 
-    // kolona copë (qty)
-    const qty = document.createElement('input');
-    qty.className = 'input piece-qty'; qty.placeholder='copë'; qty.inputMode='numeric'; qty.value='1';
+    mWrap.appendChild(m2); mWrap.appendChild(cam); mWrap.appendChild(thumb);
 
-    // eventi: ruaj foto → shfaq thumbnail → hap me prekje
-    file.addEventListener('change', async (ev)=>{
-      const f = ev.target.files && ev.target.files[0]; if(!f) return;
-      try{
-        const data = await savePhotoFromFile(row.dataset.photoKey, f);
-        thumb.src = data; thumb.style.display='inline-block';
-        cam.style.display='none'; // fshi ikonën pasi ruhet
-      }catch(e){ alert('S’u ruajt fotoja'); }
+    // kolona qty
+    var qty = document.createElement('input'); qty.className='input piece-qty'; qty.placeholder='copë'; qty.setAttribute('inputmode','numeric'); qty.value='1';
+
+    // event foto
+    file.addEventListener('change', function(ev){
+      var f = ev.target.files && ev.target.files[0]; if(!f) return;
+      savePhotoFromFile(row.getAttribute('data-photo-key'), f, function(data){
+        thumb.src = data; thumb.style.display='inline-block'; cam.style.display='none';
+      }, function(){ alert('S’u ruajt fotoja'); });
     });
-    thumb.addEventListener('click', ()=>{ const d=getPhoto(row.dataset.photoKey); if(d) openPreview(d); });
+    thumb.addEventListener('click', function(){ var d=getPhoto(row.getAttribute('data-photo-key')); if(d) openPreview(d); });
 
-    // wire totali
+    // llogaritje
     m2.addEventListener('input', computeTotals);
     qty.addEventListener('input', computeTotals);
 
-    // montimi
-    row.appendChild(idCell);
-    row.appendChild(mWrap);
-    row.appendChild(qty);
+    row.appendChild(idCell); row.appendChild(mWrap); row.appendChild(qty);
     list.appendChild(row);
     computeTotals();
   };
 
-  // fshi rresht
   window.removeRow = function(section){
-    const list = listFor(section);
-    const rows = qq('.piece-row', list);
-    if(rows.length){ rows[rows.length-1].remove(); }
-    // rinumëro etiketa #01, #02...
-    qq('.piece-row', list).forEach((r,i)=>{ const c=r.querySelector('.piece-id'); if(c) c.textContent = '#'+String(i+1).padStart(2,'0'); });
+    var list = listFor(section);
+    var rows = qq('.piece-row', list);
+    if(rows.length){ rows[rows.length-1].parentNode.removeChild(rows[rows.length-1]); }
+    qq('.piece-row', list).forEach(function(r,i){
+      var c = r.querySelector('.piece-id'); if(c) c.textContent = '#'+String(i+1).padStart(2,'0');
+    });
     computeTotals();
   };
 
-  // totali i një seksioni
   function sectionTotal(section){
-    const list = listFor(section);
-    const rows = qq('.piece-row', list);
-    const total = r2(rows.reduce((s,row)=>{
-      const m2 = parseFloat((row.querySelector('.piece-input')||{}).value||'0')||0;
-      const qv = parseFloat((row.querySelector('.piece-qty')||{}).value||'1')||1;
+    var list = listFor(section);
+    var rows = qq('.piece-row', list);
+    var total = r2(rows.reduce(function(s,row){
+      var m2 = parseFloat(((row.querySelector('.piece-input')||{}).value||'0'))||0;
+      var qv = parseFloat(((row.querySelector('.piece-qty')||{}).value||'1'))||1;
       return s + (m2*qv);
     }, 0));
-    const tgt = q('#tot-'+section); if (tgt) tgt.textContent = total.toFixed(2) + ' m²';
+    var tgt = q('#tot-'+section); if (tgt) tgt.textContent = total.toFixed(2) + ' m²';
     return total;
   }
 
-  /* ==================== LLOGARITJE TOTALE ==================== */
+  /* ==== totali / pagesa ==== */
   function computeStairs(){
-    const qty = parseFloat(q('#stairsQty')?.value||'0')||0;
-    const per = parseFloat(q('#stairsPer')?.value||'0.3')||0;
-    const m2 = r2(qty * per);
-    const out=q('#stairsM2'); if(out) out.textContent = m2.toFixed(2) + ' m²';
+    var qtyEl = q('#stairsQty'), perEl = q('#stairsPer');
+    var qty = parseFloat((qtyEl && qtyEl.value)||'0')||0;
+    var per = parseFloat((perEl && perEl.value)||'0.3')||0;
+    var m2 = r2(qty * per);
+    var out = q('#stairsM2'); if(out) out.textContent = m2.toFixed(2) + ' m²';
     return m2;
   }
 
   window.computeTotals = function(){
-    const tT = sectionTotal('tepiha');
-    const tS = sectionTotal('staza');
-    const tStairs = computeStairs();
-    const totalM2 = r2(tT + tS + tStairs);
-    const m2El=q('#m2Total'); if(m2El) m2El.textContent = totalM2.toFixed(2);
-    const m2F=q('#m2TotalFooter'); if(m2F) m2F.textContent = totalM2.toFixed(2);
+    var tT = sectionTotal('tepiha');
+    var tS = sectionTotal('staza');
+    var tStairs = computeStairs();
+    var totalM2 = r2(tT + tS + tStairs);
+    var m2El = q('#m2Total'); if(m2El) m2El.textContent = totalM2.toFixed(2);
+    var m2F  = q('#m2TotalFooter'); if(m2F) m2F.textContent = totalM2.toFixed(2);
 
-    const rate = parseFloat(q('#rate')?.value||'0')||0;
-    const euro = r2(totalM2 * rate);
-    const eurEl=q('#euroTotal'); if(eurEl) eurEl.textContent = euro.toFixed(2);
+    var rate = parseFloat((q('#rate') && q('#rate').value)||'0')||0;
+    var euro = r2(totalM2 * rate);
+    var eurEl = q('#euroTotal'); if(eurEl) eurEl.textContent = euro.toFixed(2);
 
-    const paidToggle = q('#paidUpfront');
-    const paidOn = !!(paidToggle && paidToggle.checked);
-    const paidIn = q('#clientPaid');
+    var paidToggle = q('#paidUpfront');
+    var paidOn = !!(paidToggle && paidToggle.checked);
+    var paidIn = q('#clientPaid');
     if(paidIn) paidIn.disabled = !paidOn;
     if(!paidOn && paidIn) paidIn.value = '';
 
-    const paidVal = paidOn ? (parseFloat(paidIn?.value||'0')||0) : 0;
-    const debt = Math.max(0, r2(euro - paidVal));
-    const change = Math.max(0, r2(paidVal - euro));
-    const debtEl=q('#debt'); if(debtEl) debtEl.value = debt.toFixed(2);
-    const changeEl=q('#change'); if(changeEl) changeEl.value = change.toFixed(2);
+    var paidVal = paidOn ? (parseFloat((paidIn && paidIn.value)||'0')||0) : 0;
+    var debt = Math.max(0, r2(euro - paidVal));
+    var change = Math.max(0, r2(paidVal - euro));
+    var debtEl = q('#debt');   if(debtEl)   debtEl.value = debt.toFixed(2);
+    var changeEl = q('#change'); if(changeEl) changeEl.value = change.toFixed(2);
   };
 
-  // lidh inputet e fiksuara
-  ['#stairsQty','#stairsPer','#rate','#paidUpfront','#clientPaid'].forEach(sel=>{
-    const el = q(sel); if(!el) return;
+  ['#stairsQty','#stairsPer','#rate','#paidUpfront','#clientPaid'].forEach(function(sel){
+    var el = q(sel); if(!el) return;
     el.addEventListener(sel==='#paidUpfront' ? 'change' : 'input', computeTotals);
   });
 
-  // chips → shto rreshta shpejt
   function wireChips(id, section){
-    qq('#'+id+' .chip').forEach(btn=>{
-      btn.addEventListener('click', ()=>{
-        const txt=(btn.textContent||'').trim();
-        const num=parseFloat(txt.replace(/[^\d\.]/g,'')); 
+    qq('#'+id+' .chip').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var txt = (btn.textContent||'').trim();
+        var num = parseFloat(txt.replace(/[^\d\.]/g,''));
         if(!isNaN(num)) addRow(section, num); else addRow(section, null);
       });
     });
   }
   wireChips('chips-tepiha','tepiha'); wireChips('chips-staza','staza');
 
-  /* ==================== FOTO: KLIENTI & SHKALLORE ==================== */
-  // klienti – ruaj + thumbnail + hapje
+  /* ==== Klienti foto ==== */
   (function(){
-    const inp = q('#clientPhotoInput');
-    const thumb = q('#clientThumb');
-    const saved = getPhoto('photo_client');
+    var inp = q('#clientPhotoInput');
+    var thumb = q('#clientThumb');
+    var saved = getPhoto('photo_client');
     if(saved && thumb){ thumb.src = saved; thumb.style.display='inline-block'; thumb.style.cursor='pointer'; }
-    if(thumb){ thumb.addEventListener('click', ()=>{ const d=getPhoto('photo_client'); if(d) openPreview(d); }); }
+    if(thumb){ thumb.addEventListener('click', function(){ var d=getPhoto('photo_client'); if(d) openPreview(d); }); }
     if(inp){
-      inp.addEventListener('change', async (e)=>{
-        const f = e.target.files && e.target.files[0]; if(!f) return;
-        try{
-          const data = await savePhotoFromFile('photo_client', f);
-          if(thumb){ thumb.src = data; thumb.style.display='inline-block'; thumb.style.cursor='pointer'; }
-        }catch(e){ alert('S’u ruajt fotoja e klientit'); }
+      inp.addEventListener('change', function(e){
+        var f = e.target.files && e.target.files[0]; if(!f) return;
+        savePhotoFromFile('photo_client', f, function(data){
+          if(thumb){ thumb.src=data; thumb.style.display='inline-block'; thumb.style.cursor='pointer'; }
+        });
       });
     }
   })();
 
-  // shkallore – një foto unike
+  /* ==== Shkallore foto ==== */
   (function(){
-    const wrap = q('#stairsCamWrap');
-    const inp = q('#stairsPhotoInput');
+    var wrap = q('#stairsCamWrap');
+    var inp = q('#stairsPhotoInput');
     if(wrap){
       wrap.style.display='flex'; wrap.style.gap='10px';
-      const saved = getPhoto('photo_shkallore');
+      var saved = getPhoto('photo_shkallore');
       if(saved){
-        const t = document.createElement('img');
-        Object.assign(t.style,{width:'44px', height:'44px', borderRadius:'10px', objectFit:'cover', border:'1px solid rgba(124,168,255,.35)'});
-        t.src = saved; t.addEventListener('click', ()=>openPreview(saved));
+        var t = document.createElement('img');
+        t.style.width='44px'; t.style.height='44px'; t.style.borderRadius='10px';
+        t.style.objectFit='cover'; t.style.border='1px solid rgba(124,168,255,.35)';
+        t.src = saved; t.addEventListener('click', function(){ openPreview(saved); });
         wrap.appendChild(t);
       }
     }
     if(inp){
-      inp.addEventListener('change', async ev=>{
-        const f = ev.target.files && ev.target.files[0]; if(!f) return;
-        try{
-          const data = await savePhotoFromFile('photo_shkallore', f);
-          openPreview(data); // hap menjëherë për konfirmim
-        }catch(e){ alert('S’u ruajt fotoja e shkallore'); }
+      inp.addEventListener('change', function(ev){
+        var f = ev.target.files && ev.target.files[0]; if(!f) return;
+        savePhotoFromFile('photo_shkallore', f, function(data){ openPreview(data); });
       });
     }
   })();
 
-  /* ==================== RUAJ DRAFT ==================== */
-  const LIST_KEY='order_list_v1'; const KEY=id=>`order_${id}`;
-  function getId(){ const hid=q('#orderId'); if(hid.value) return hid.value; const id='ord_'+Date.now(); hid.value=id; return id; }
+  /* ==== Ruaj draft ==== */
+  var LIST_KEY='order_list_v1'; function KEY(id){ return 'order_'+id; }
+  function getId(){ var hid=q('#orderId'); if(hid && hid.value) return hid.value; var id='ord_'+Date.now(); if(hid) hid.value=id; return id; }
   function readRows(listId){
-    const list=q('#list-'+listId); if(!list) return [];
-    return qq('.piece-row', list).map((row)=>({
-      m2: parseFloat(row.querySelector('.piece-input')?.value||'0')||0,
-      qty: parseFloat(row.querySelector('.piece-qty')?.value||'1')||1,
-      photoKey: row.dataset.photoKey || null
-    }));
+    var list=q('#list-'+listId); if(!list) return [];
+    return qq('.piece-row', list).map(function(row){
+      return {
+        m2: parseFloat(((row.querySelector('.piece-input')||{}).value||'0'))||0,
+        qty: parseFloat(((row.querySelector('.piece-qty')||{}).value||'1'))||1,
+        photoKey: row.getAttribute('data-photo-key')
+      };
+    });
   }
   function totalsObj(){
-    const m2=parseFloat(q('#m2Total')?.textContent||'0')||0;
-    const rate=parseFloat(q('#rate')?.value||'0')||0;
-    const euro=r2(m2*rate);
-    const paidUp=q('#paidUpfront')?.checked;
-    const paid=paidUp?(parseFloat(q('#clientPaid')?.value||'0')||0):0;
-    const debt=Math.max(0, r2(euro-paid));
-    const change=Math.max(0, r2(paid-euro));
-    return {m2, rate, euro, paidUp, paid, debt, change};
+    var m2=parseFloat((q('#m2Total') && q('#m2Total').textContent)||'0')||0;
+    var rate=parseFloat((q('#rate') && q('#rate').value)||'0')||0;
+    var euro=r2(m2*rate);
+    var paidUp=(q('#paidUpfront') && q('#paidUpfront').checked);
+    var paid=paidUp?(parseFloat((q('#clientPaid') && q('#clientPaid').value)||'0')||0):0;
+    var debt=Math.max(0, r2(euro-paid));
+    var change=Math.max(0, r2(paid-euro));
+    return {m2:m2, rate:rate, euro:euro, paidUp:paidUp, paid:paid, debt:debt, change:change};
   }
-  function saveIndexEntry(id, name, phone){
-    let idx=[]; try{ idx=JSON.parse(localStorage.getItem(LIST_KEY)||'[]'); }catch(e){ idx=[]; }
-    const i=idx.findIndex(x=>x.id===id);
-    const entry={id, name:(q('#name')?.value||'').trim(), phone:(`${q('#phonePrefix')?.value||''}${(q('#phone')?.value||'').trim()}`)};
-    if(i>=0) idx[i]=entry; else idx.unshift(entry);
+  function saveIndexEntry(){
+    var raw = localStorage.getItem(LIST_KEY); var idx = [];
+    try{ idx = raw ? JSON.parse(raw) : []; }catch(e){ idx = []; }
+    var entry = { id:getId(), name:(q('#name')?q('#name').value.trim():''), phone: ((q('#phonePrefix')?q('#phonePrefix').value:'') + (q('#phone')?q('#phone').value.trim():'')) };
+    var pos = -1; for(var i=0;i<idx.length;i++){ if(idx[i].id===entry.id){ pos=i; break; } }
+    if(pos>=0) idx[pos]=entry; else idx.unshift(entry);
     localStorage.setItem(LIST_KEY, JSON.stringify(idx.slice(0,200)));
   }
   function saveDraft(){
-    const id=getId();
-    const data={
-      id, ts:Date.now(),
-      client:{ name: (q('#name')?.value||'').trim(), phone: `${q('#phonePrefix')?.value||''}${(q('#phone')?.value||'').trim()}`, photoKey:'photo_client' },
+    var id=getId();
+    var data={
+      id:id, ts:Date.now(),
+      client:{ name:(q('#name')?q('#name').value.trim():''), phone: ((q('#phonePrefix')?q('#phonePrefix').value:'') + (q('#phone')?q('#phone').value.trim():'')), photoKey:'photo_client' },
       tepiha: readRows('tepiha'),
       staza: readRows('staza'),
-      shkallore:{ qty: parseFloat(q('#stairsQty')?.value||'0')||0, per: parseFloat(q('#stairsPer')?.value||'0.3')||0, photoKey:'photo_shkallore' },
+      shkallore:{ qty: parseFloat((q('#stairsQty')&&q('#stairsQty').value)||'0')||0, per: parseFloat((q('#stairsPer')&&q('#stairsPer').value)||'0.3')||0, photoKey:'photo_shkallore' },
       pay: totalsObj(),
       status:'pranim'
     };
@@ -272,9 +254,9 @@
       return true;
     }catch(e){ alert('S’u ruajt dot drafti (localStorage i plotë?)'); return false; }
   }
-  const btnSave=q('#btnSaveDraft'); if(btnSave){ btnSave.addEventListener('click', (e)=>{ e.preventDefault(); saveDraft(); }); }
+  var btnSave=q('#btnSaveDraft'); if(btnSave){ btnSave.addEventListener('click', function(e){ e.preventDefault(); saveDraft(); }); }
 
-  /* start */
+  /* START */
   computeTotals();
 })();
 </script>
