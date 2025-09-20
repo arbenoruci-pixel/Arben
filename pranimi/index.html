@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>PASTRIMI</title>
   <style>
-    :root{ --bg:#000; --ink:#fff; --panel:#0c0f16; --br:#273143; --btn:#1e60ff; --muted:#b9c4da }
+    :root{ --bg:#000; --ink:#fff; --panel:#0c0f16; --br:#273143; --btn:#1e60ff; --muted:#b9c4da; --danger:#ef4444; --ok:#22c55e }
     *{box-sizing:border-box}
     html,body{margin:0;background:var(--bg);color:var(--ink);font-family:ui-rounded,system-ui,-apple-system,Segoe UI,Roboto,Arial}
     .wrap{max-width:980px;margin:0 auto;padding:16px}
@@ -13,14 +13,17 @@
     .bar{display:flex;gap:8px;flex-wrap:wrap;margin:8px 6px 16px}
     .input{flex:1;min-width:200px;background:#070a12;border:2px solid #2c3954;border-radius:12px;padding:12px 14px;color:#fff;font-weight:900}
     .btn{background:var(--btn);color:#fff;border:0;border-radius:12px;padding:12px 16px;font-weight:1000;cursor:pointer}
+    .btn.ghost{background:#0c1220;border:2px solid var(--br)}
+    .btn.ok{background:var(--ok)}
+    .btn.red{background:var(--danger)}
     .list{display:flex;flex-direction:column;gap:10px}
     .card{background:var(--panel);border:1px solid var(--br);border-radius:14px;padding:14px}
     .top{display:flex;justify-content:space-between;align-items:center;font-weight:1000}
-    .small{opacity:.8;font-size:.95rem}
-    .pill{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--br);border-radius:10px;padding:6px 10px;margin-top:6px}
-    a.btnlink{display:inline-flex;align-items:center;gap:6px;background:#0c1220;border:1px solid var(--br);padding:10px 12px;border-radius:10px;color:#fff;text-decoration:none;font-weight:900}
+    .small{opacity:.85;font-size:.95rem}
     .row{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center}
+    .row2{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
     .status{padding:4px 8px;border-radius:8px;border:1px solid var(--br);font-weight:1000}
+    a.btnlink{display:inline-flex;align-items:center;gap:6px;background:#0c1220;border:1px solid var(--br);padding:10px 12px;border-radius:10px;color:#fff;text-decoration:none;font-weight:900}
   </style>
 </head>
 <body>
@@ -54,13 +57,50 @@
       return (files||[]).filter(f=>f.name.endsWith('.json'));
     }
 
-    async function fetchOrder(publicPath){
-      const { data: pub } = sb.storage.from(CFG.supabase.bucket).getPublicUrl(publicPath);
-      const url = pub?.publicUrl;
+    async function publicUrl(path){
+      const { data } = sb.storage.from(CFG.supabase.bucket).getPublicUrl(path);
+      return data?.publicUrl || null;
+    }
+
+    async function fetchOrderWithPath(name){
+      const path = `orders/${name}`;
+      const url = await publicUrl(path);
       if(!url) return null;
       const res = await fetch(url, { cache:'no-store' });
       if(!res.ok) return null;
-      return res.json();
+      const json = await res.json();
+      // bashkangjit path-in që ta dimë çfarë të upsertojmë kur ndryshojmë statusin
+      json.__path = path;
+      return json;
+    }
+
+    function sanitizeDigits(s){ return (s||'').replace(/[^\d]/g,''); }
+
+    function msgGati(o){
+      const name = o?.client?.name || 'Klient';
+      const code = o?.client?.code || '';
+      const euro = Number(o?.pay?.euro||0).toFixed(2);
+      return `Pershendetje ${name}. Porosia #${code} eshte GATI per marrje. Totali: ${euro} €. Faleminderit!`;
+    }
+
+    function contactLinks(o, text){
+      const phone = sanitizeDigits(o?.client?.phone||'');
+      const enc = encodeURIComponent(text);
+      const viber = `viber://forward?text=${enc}`;
+      const wa = phone ? `https://wa.me/${phone}?text=${enc}` : `https://wa.me/?text=${enc}`;
+      const sms = phone ? `sms:${phone}?body=${enc}` : `sms:?body=${enc}`;
+      return { viber, wa, sms };
+    }
+
+    async function upsertOrder(o){
+      // heqen fushat e brendshme
+      const copy = JSON.parse(JSON.stringify(o));
+      delete copy.__path;
+      const blob = new Blob([JSON.stringify(copy)], { type: 'application/json' });
+      const { error } = await sb.storage
+        .from(CFG.supabase.bucket)
+        .upload(o.__path, blob, { upsert:true, contentType:'application/json' });
+      if(error) throw error;
     }
 
     function render(orders){
@@ -86,27 +126,51 @@
         div.className = 'card';
         const m2 = (o?.pay?.m2 ?? 0);
         const euro = (o?.pay?.euro ?? 0);
+        const st = (o?.status||'pranim').toUpperCase();
+
+        const msg = msgGati(o);
+        const links = contactLinks(o, msg);
+
         div.innerHTML = `
           <div class="row">
             <div class="top">
               <div><b>#${o?.client?.code || '-'}</b> — ${o?.client?.name || 'Pa emër'}</div>
-              <div class="status">${(o?.status||'pranim').toUpperCase()}</div>
+              <div class="status">${st}</div>
             </div>
             <div class="small">M²: ${m2} &nbsp;|&nbsp; €: ${Number(euro).toFixed(2)}</div>
             <div class="small">${o?.client?.phone||''}</div>
           </div>
-          <div class="pill">ID: ${o?.id || '-'}</div>
+          <div class="row2">
+            <button class="btn ok act-gati">BËJE GATI</button>
+            <a class="btn ghost" target="_blank" rel="noopener" href="${links.viber}">DËRGO — Viber</a>
+            <a class="btn ghost" target="_blank" rel="noopener" href="${links.wa}">DËRGO — WhatsApp</a>
+            <a class="btn ghost" target="_blank" rel="noopener" href="${links.sms}">DËRGO — SMS</a>
+            <a class="btn ghost" href="${await publicUrl(o.__path)}" target="_blank" rel="noopener">SHKARKO JSON</a>
+          </div>
         `;
+
+        // Wire "BËJE GATI"
+        div.querySelector('.act-gati').addEventListener('click', async ()=>{
+          try{
+            const old = div.querySelector('.status').textContent;
+            div.querySelector('.status').textContent = 'GATI';
+            o.status = 'gati';
+            await upsertOrder(o);
+          }catch(err){
+            alert('S’u përditësua: ' + (err?.message||err));
+          }
+        });
+
         root.appendChild(div);
       }
     }
 
     async function load(){
       try{
-        const cards = await listFiles();
+        const files = await listFiles();
         const orders = [];
-        for(const f of cards){
-          const o = await fetchOrder(`orders/${f.name}`);
+        for(const f of files){
+          const o = await fetchOrderWithPath(f.name);
           if(o) orders.push(o);
         }
         render(orders);
