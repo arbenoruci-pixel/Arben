@@ -9,34 +9,41 @@
       --bg:#0a0f18; --ink:#ffffff; --muted:#a7b0c9;
       --panel:#0f1626; --br:#2a3550; --ghost:#121a2b;
       --primary:#1e60ff; --ok:#22c55e; --warn:#f59e0b; --danger:#ef4444;
+
+      /* kompaktësi +30% më i vogël */
+      --fs:12.5px;         /* font size bazë (ish 14–16) */
+      --pads:6px;          /* padding i butonave (ish 8–10) */
+      --rad:9px;           /* border radius (ish 10–12) */
+      --gap:6px;           /* hapësira ndër-komponente */
+      --cardpad:8px;       /* padding i kartës (ish 12–14) */
     }
     *{box-sizing:border-box}
-    body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial}
-    h1{font-size:22px;margin:12px 12px 8px;font-weight:1000}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;font-size:var(--fs)}
+    h1{font-size:20px;margin:10px 12px 6px;font-weight:1000}
 
-    .topbar{display:flex;gap:8px;flex-wrap:wrap;margin:0 12px 10px}
-    .btn{background:#1a2235;border:1px solid var(--br);padding:6px 10px;border-radius:8px;
-         color:#fff;font-weight:800;font-size:13px;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+    .topbar{display:flex;gap:var(--gap);flex-wrap:wrap;margin:0 12px 8px;align-items:center}
+    .btn{background:#1a2235;border:1px solid var(--br);padding:var(--pads) calc(var(--pads)+4px);border-radius:var(--rad);
+         color:#fff;font-weight:900;font-size:12px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;line-height:1}
     .btn.primary{background:var(--primary)}
     .btn.ghost{background:var(--ghost)}
     .btn.ok{background:var(--ok);color:#06210e}
     .btn.warn{background:var(--warn);color:#1f1302}
     .btn.danger{background:var(--danger)}
-    .topbar .badge{cursor:pointer}
+    .badge{background:#0d1424;border:1px solid var(--br);padding:var(--pads) 10px;border-radius:999px;font-weight:1000;color:#cfe6ff}
 
-    .orders{margin:0 12px 96px}
-    .empty{color:var(--muted);border:1px dashed var(--br);border-radius:10px;padding:10px;text-align:center;font-weight:900}
+    .orders{margin:0 12px 84px}
+    .empty{color:var(--muted);border:1px dashed var(--br);border-radius:var(--rad);padding:10px;text-align:center;font-weight:1000}
 
-    .order{background:var(--panel);border:1px solid var(--br);border-radius:10px;padding:8px;margin-bottom:8px;font-size:13px}
-    .head{display:flex;justify-content:space-between;gap:8px;margin-bottom:6px}
-    .name{font-weight:1000;font-size:14px}
+    .order{background:var(--panel);border:1px solid var(--br);border-radius:var(--rad);padding:var(--cardpad);margin-bottom:8px}
+    .head{display:flex;justify-content:space-between;gap:8px;margin-bottom:4px}
+    .name{font-weight:1000;font-size:13px}
     .code{color:#a5d8ff;font-weight:1000}
+    .muted{color:var(--muted);font-weight:900}
     .stat{color:#d7e6ff;font-weight:900;display:flex;gap:10px;flex-wrap:wrap}
-    .muted{color:var(--muted);font-weight:800}
     .actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
 
     .footer{position:fixed;left:0;right:0;bottom:0;background:#0b0f18;border-top:1px solid var(--br)}
-    .footwrap{max-width:980px;margin:0 auto;padding:10px;display:flex;gap:8px}
+    .footwrap{max-width:980px;margin:0 auto;padding:8px;display:flex;gap:8px}
     .footwrap .btn{flex:1;justify-content:center}
     .small-note{color:var(--muted);font-size:11px;margin:0 12px 6px}
   </style>
@@ -47,7 +54,8 @@
     <a class="btn" href="../">Këthehu te Home</a>
     <a class="btn" href="../pranimi/">PRANIM</a>
     <a class="btn" href="../pastrimi/">PASTRIM</a>
-    <a class="btn badge" id="debugBtn">Lista e porosive</a>
+    <span class="badge" id="summaryBadge">🧾 0 porosi • 0.00 m²</span>
+    <a class="btn" id="debugBtn">Lista e porosive</a>
     <a class="btn ghost" id="refreshBtn">↻ Rifresko</a>
   </div>
   <div class="small-note" id="dataSourceNote">Burimi: localStorage</div>
@@ -65,16 +73,18 @@
   <script src="https://unpkg.com/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <script>
   (function(){
-    // ===== 1) KONFIG SUPABASE (shkruaj këtu kredencialet e tua) =====
-    const SUPABASE_URL = "https://vnidjrxidvusulinozbn.supabase.co";
+    // ===== 1) SUPABASE (mban këto vlera që më dërgove) =====
+    const SUPABASE_URL  = "https://vnidjrxidvusulinozbn.supabase.co";
     const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZuaWRqcnhpZHZ1c3VsaW5vemJuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc1MTk0NjAsImV4cCI6MjA3MzA5NTQ2MH0.hzGSFKU3sKuUKBUBsTE0rKIerj2uhG9pGS8_K9N7tpA";
-    // ===============================================================
+    // =======================================================
 
     const LIST  = document.getElementById('orders');
     const note  = document.getElementById('dataSourceNote');
+    const badge = document.getElementById('summaryBadge');
 
     const q=(s,b)=> (b||document).querySelector(s);
     const r2=x=>Math.round((x+Number.EPSILON)*100)/100;
+    const normStatus = s => String(s||'').trim().toLowerCase();
 
     function readAllLocal(){
       const out=[];
@@ -89,9 +99,8 @@
     }
 
     async function readAllSupabase(){
-      if(!SUPABASE_URL || !SUPABASE_ANON || !window.supabase) return {rows:[], ok:false, err:'no-config'};
+      if(!SUPABASE_URL || !SUPABASE_ANON || !window.supabase) return {rows:[], ok:false};
       const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
-
       try{
         const { data, error } = await client
           .from('orders')
@@ -99,10 +108,7 @@
           .in('status', ['pranim','pastrim'])
           .order('ts', { ascending: false })
           .limit(200);
-
         if(error) throw error;
-
-        // Mapo në formatin lokal
         const mapped = (data||[]).map(r => ({
           id: r.id,
           ts: r.ts || Date.now(),
@@ -116,7 +122,7 @@
         return {rows:mapped, ok:true};
       }catch(err){
         console.warn('Supabase read failed:', err);
-        return {rows:[], ok:false, err:String(err)};
+        return {rows:[], ok:false};
       }
     }
 
@@ -127,7 +133,7 @@
       return t+s+stairs;
     }
     function m2(o){
-      if(o?.pay?.m2) return Number(o.pay.m2); // nëse vjen gati nga DB
+      if(o?.pay?.m2) return Number(o.pay.m2);
       const t=(o?.tepiha||[]).reduce((s,r)=>s+(Number(r.m2||0)*Number(r.qty||1)),0);
       const s=(o?.staza||[] ).reduce((s,r)=>s+(Number(r.m2||0)*Number(r.qty||1)),0);
       const sh=Number(o?.shkallore?.qty||0)*Number(o?.shkallore?.per||0);
@@ -146,7 +152,6 @@
              `Keni ${pieces(o)} copë = ${m2(o).toFixed(2)} m².\n`+
              `Totali: ${eur(o).toFixed(2)} €.\nFaleminderit!`;
     }
-
     function actionSheetForMessage(o){
       const txt = encodeURIComponent(msgText(o));
       const d   = digits(o);
@@ -180,17 +185,22 @@
 
     function render(list){
       LIST.innerHTML='';
+      // === përditëso badge (numri + m² total) ===
+      const totalM2 = r2(list.reduce((s,o)=>s+m2(o),0));
+      badge.textContent = `🧾 ${list.length} porosi • ${totalM2.toFixed(2)} m²`;
+
       if(!list.length){
         LIST.innerHTML = '<div class="empty">S’ka porosi për t’u shfaqur.</div>';
         return;
       }
       const frag=document.createDocumentFragment();
       list.forEach(o=>{
+        const st = normStatus(o?.status) || 'pranim';
         const card=document.createElement('div'); card.className='order';
         card.innerHTML = `
           <div class="head">
             <div class="name">${o?.client?.name||'—'} <span class="code">${o?.client?.code||''}</span></div>
-            <div class="muted">${(o?.status||'').toUpperCase()}</div>
+            <div class="muted">${st.toUpperCase()}</div>
           </div>
           <div class="stat">
             <span><b>${pieces(o)}</b> copë</span>
@@ -211,28 +221,26 @@
     }
 
     function mergeById(primary, secondary){
-      // primary fiton (p.sh. supabase) – secondary (local) mbush boshllëqet
       const map = new Map();
       primary.forEach(o=>map.set(o.id, o));
-      secondary.forEach(o=>{
-        if(!map.has(o.id)) map.set(o.id, o);
-      });
+      secondary.forEach(o=>{ if(!map.has(o.id)) map.set(o.id, o); });
       return Array.from(map.values()).sort((a,b)=>(b.ts||0)-(a.ts||0));
     }
 
     async function load(){
-      // 1) local
-      const local = readAllLocal().filter(o=>['pranim','pastrim'].includes((o?.status||'').toLowerCase()));
+      const localAll = readAllLocal();
+      const local = localAll.filter(o=>{
+        const s = normStatus(o?.status);
+        return s === '' || s === 'pranim' || s === 'pastrim';
+      });
       let finalList = local;
       note.textContent = 'Burimi: localStorage';
 
-      // 2) supabase (opsional)
       const {rows:remote, ok} = await readAllSupabase();
       if(ok && remote.length){
         finalList = mergeById(remote, local);
         note.textContent = 'Burimi: Supabase + localStorage';
       }
-
       render(finalList);
     }
 
@@ -242,7 +250,6 @@
       const id  = el.getAttribute('data-id');
       const act = el.getAttribute('data-act');
       const raw = localStorage.getItem('order_'+id);
-      // Veprimet poshtë prekin **localStorage** – për Supabase sink do e bëjmë në një hap tjetër.
       if(!raw){ return alert('Porosia nuk u gjet në këtë pajisje (localStorage).'); }
       let o; try{ o=JSON.parse(raw); }catch(_){ return alert('Porosia e korruptuar.'); }
 
@@ -259,7 +266,6 @@
     document.getElementById('refreshBtn').addEventListener('click', load);
     document.addEventListener('click', handleClick);
 
-    // Debug
     document.getElementById('debugBtn').addEventListener('click', ()=>{
       const orders=[];
       for(let i=0;i<localStorage.length;i++){
